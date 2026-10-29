@@ -3,13 +3,14 @@ using FunkoApi.Back.Cache;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Mappers;
+using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Repositories.Proveedor;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 
 namespace FunkoApi.Back.Services.Proveedor;
 
-public class ProveedorService(IProveedorRepository repository, ICacheService cache, IOptions<CacheOptions> options): IProveedorService
+public class ProveedorService(IProveedorRepository repository, ICacheService cache, IOptions<CacheOptions> options, IFunkoRepository funkoRepository): IProveedorService
 {
     private readonly CacheOptions _options = options.Value;
     
@@ -34,6 +35,7 @@ public class ProveedorService(IProveedorRepository repository, ICacheService cac
     /// <inheritdoc/>
     public async Task<Result<bool, DomainError>> SoftDelete(string id)
     {
+        if (await funkoRepository.ExistAnyFunkoProveedor(id)) return ConflictError.Dependency("proveedor", id);
         await cache.RemoveAsync(_cacheKey + id);
         var funko = await repository.GetById(id);
         if (funko == null) return ProveedorError.ProveedoraNotFound(id);
@@ -43,6 +45,7 @@ public class ProveedorService(IProveedorRepository repository, ICacheService cac
     /// <inheritdoc/>
     public async Task<Result<bool, DomainError>> HardDelete(string id)
     {
+        if (await funkoRepository.ExistAnyFunkoProveedor(id)) return ConflictError.Dependency("proveedor", id);
         await cache.RemoveAsync(_cacheKey + id);
         var funko = await repository.GetById(id);
         if (funko == null) return ProveedorError.ProveedoraNotFound(id);

@@ -118,6 +118,15 @@ public sealed record ConflictError(string Message) : DomainError(Message)
     {
         return new ConflictError($"Ya existe un {resourceType} con el valor '{value}'");
     }
+    
+    /// <summary>Crea error para recurso que no se puede borrar por dependencias.</summary>
+    /// <param name="resourceType">Tipo de recurso.</param>
+    /// <param name="value">Id del recurso</param>
+    /// <returns>ConflictError personalizado.</returns>
+    public static ConflictError Dependency(string resourceType, string value)
+    {
+        return new ConflictError($"No se puede borrar {resourceType} con el valor '{value}'");
+    }
 }
 
 /// <summary>
