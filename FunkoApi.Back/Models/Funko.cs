@@ -1,3 +1,5 @@
+using MongoDB.Bson;
+
 namespace FunkoApi.Back.Models;
 
 /// <summary>
@@ -11,7 +13,7 @@ public record Funko(
     int Stock,
     string CategoriaId,
     Categoria? Categoria,
-    long ProveedorId,
+    ObjectId ProveedorId,
     Proveedor? Proveedor,
     bool IsDeleted,
     DateTime CreatedAt,
@@ -23,5 +25,5 @@ public record Funko(
     /// navegaciones <see cref="Categoria" /> y <see cref="Proveedor" />.
     /// El constructor posicional público es el que debe utilizar el código de aplicación.
     /// </summary>
-    private Funko() : this(0, string.Empty, 0m, 0, string.Empty, null, 0, null, false, default, default) { }
+    private Funko() : this(0, string.Empty, 0m, 0, string.Empty, null, ObjectId.Parse(""), null, false, default, default) { }
 }

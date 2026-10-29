@@ -2,6 +2,7 @@ using FluentAssertions;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Categoria;
+using FunkoApi.Back.Services.Categoria;
 using FunkoApi.Back.Services.Get.Categoria;
 using Moq;
 using NUnit.Framework;

@@ -6,8 +6,8 @@ using StackExchange.Redis;
 namespace FunkoApi.Back.Cache;
 
 /// <summary>
-///     Implementación de caché distribuida usando IDistributedCache (Redis).
-///     Ideal para producción y entornos multi-server.
+/// Implementación de caché distribuida usando IDistributedCache (Redis).
+/// Ideal para producción y entornos multi-server.
 /// </summary>
 public class RedisCacheService(
     IDistributedCache cache,
