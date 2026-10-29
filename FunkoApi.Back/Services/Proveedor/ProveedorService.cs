@@ -11,22 +11,22 @@ public class ProveedorService : IProveedorService
         throw new NotImplementedException();
     }
 
-    public Task<Result<ProveedorDto, DomainError>> GetById(long key)
+    public Task<Result<ProveedorDto, DomainError>> GetById(string key)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Result<bool, DomainError>> SoftDelete(long id)
+    public Task<Result<bool, DomainError>> SoftDelete(string id)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Result<bool, DomainError>> HardDelete(long id)
+    public Task<Result<bool, DomainError>> HardDelete(string id)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Result<ProveedorDto, DomainError>> Update(UpdateProveedorDto item, long key)
+    public Task<Result<ProveedorDto, DomainError>> Update(UpdateProveedorDto item, string key)
     {
         throw new NotImplementedException();
     }
@@ -35,9 +35,5 @@ public class ProveedorService : IProveedorService
     {
         throw new NotImplementedException();
     }
-
-    public Task<Result<ProveedorDto, DomainError>> GetByName(string name)
-    {
-        throw new NotImplementedException();
-    }
+    
 }

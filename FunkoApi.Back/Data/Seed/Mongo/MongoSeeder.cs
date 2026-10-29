@@ -1,5 +1,5 @@
 using FunkoApi.Back.Models;
-using FunkoApi.Back.Repositories.Get.Proveedor;
+using FunkoApi.Back.Repositories.Proveedor;
 using MongoDB.Bson;
 
 namespace FunkoApi.Back.Data.Seed.Mongo;

@@ -9,7 +9,7 @@ namespace FunkoApi.Back.Dtos.Proveedor;
 /// </summary>
 public record ProveedorDto(
     [Required(ErrorMessage = "El ID es obligatorio")]
-    long Id,
+    string Id,
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [StringLength(100, ErrorMessage = "El nombre no puede superar los 100 caracteres")]
     string Nombre,

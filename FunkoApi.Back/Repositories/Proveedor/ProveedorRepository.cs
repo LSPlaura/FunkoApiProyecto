@@ -1,4 +1,3 @@
-using FunkoApi.Back.Repositories.Get.Proveedor;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -27,16 +26,10 @@ public class ProveedorMongoRepository : IProveedorRepository
         return item;
     }
 
-    public async Task<Models.Proveedor?> GetById(ObjectId key)
+    public async Task<bool> SoftDelete(string id)
     {
-        return await _collection
-            .Find(c => c.Id == key)
-            .FirstOrDefaultAsync();
-    }
-
-    public async Task<bool> SoftDelete(ObjectId id)
-    {
-        var resultado = await IMongoCollectionExtensions.UpdateOneAsync(_collection, c => c.Id == id,
+        var objectId = ObjectId.Parse(id);
+        var resultado = await _collection.UpdateOneAsync(c => c.Id == objectId,
             Builders<Models.Proveedor>.Update.Set(c => c.IsDeleted, true));
 
         return resultado.ModifiedCount > 0;
@@ -48,19 +41,12 @@ public class ProveedorMongoRepository : IProveedorRepository
         return resultado.DeletedCount > 0;
     }
 
-    public async Task<Models.Proveedor> Update(Models.Proveedor item)
+    public async Task<Models.Proveedor?> Update(Models.Proveedor item)
     {
-        var resultado = await _collection.ReplaceOneAsync(
-            c => c.Id == item.Id,
-            item,
-            new ReplaceOptions { IsUpsert = false });
-
-        if (resultado.MatchedCount == 0)
-        {
-            throw new InvalidOperationException($"No se encontró el Models.Proveedor con Id {item.Id}");
-        }
-
-        return item;
+        var result = await _collection.ReplaceOneAsync(
+            p => p.Id == item.Id && !p.IsDeleted,
+            item);
+        return result.IsAcknowledged ? item : null;
     }
 
     public async Task<IEnumerable<Models.Proveedor>> GetAll()
@@ -70,11 +56,20 @@ public class ProveedorMongoRepository : IProveedorRepository
             .SortBy(c => c.Nombre)
             .ToListAsync();
     }
-
-    public async Task<bool> ExistsById(ObjectId key)
+    
+    public async Task<Models.Proveedor?> GetById(string key)
     {
+        var objectId = ObjectId.Parse(key);
         return await _collection
-            .Find(c => c.Id == key)
+            .Find(c => c.Id == objectId)
+            .FirstOrDefaultAsync();
+    }
+
+    public async Task<bool> ExistsById(string key)
+    {
+        var objectId = ObjectId.Parse(key);
+        return await _collection
+            .Find(c => c.Id == objectId)
             .AnyAsync();
     }
 }
