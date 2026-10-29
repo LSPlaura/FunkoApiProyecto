@@ -1,5 +1,4 @@
 using FunkoApi.Back.Data;
-using FunkoApi.Back.Repositories.Crud.Funko.Common;
 using Microsoft.EntityFrameworkCore;
 
 namespace FunkoApi.Back.Repositories.Funko;
@@ -8,8 +7,7 @@ namespace FunkoApi.Back.Repositories.Funko;
 /// Repositorio de Funkos que implementa las operaciones CRUD
 /// utilizando Entity Framework Core.
 /// </summary>
-public class FunkoRepository(AppDbContext context) : IFunkoRepository
-{
+public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     /// <inheritdoc cref="IFunkoRepository.Create" />
     public async Task<Models.Funko> Create(Models.Funko item)
     {
@@ -80,5 +78,17 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository
             .Include(f => f.Categoria)
             .Include(f => f.Proveedor)
             .AnyAsync(f => f.Nombre == name);
+    }
+
+    /// <inheritdoc cref="IFunkoRepository.ExistAnyFunkoProveedor" />
+    public Task<bool> ExistAnyFunkoProveedor(string key) {
+        if(context.Funkos.Any(f => f.CategoriaId == key)) return Task.FromResult(true);
+        return Task.FromResult(false);
+    }
+
+    /// <inheritdoc cref="IFunkoRepository.ExistAnyFunkoCategory" />
+    public Task<bool> ExistAnyFunkoCategory(string key) {
+        if(context.Funkos.Any(f => f.ProveedorId == key)) return Task.FromResult(true);
+        return Task.FromResult(false);
     }
 }

@@ -28,8 +28,8 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// </summary>
     /// <param name="id">Identificador de la categoría que se desea consultar.</param>
     /// <returns>Respuesta HTTP con la categoría encontrada o el error correspondiente.</returns>
-    [HttpGet("{id:int}")]
-    public async Task<ActionResult<CategoriaDto>> GetById(int id) {
+    [HttpGet("{id}")]
+    public async Task<ActionResult<CategoriaDto>> GetById(string id) {
         return await service.GetById(id).Match(
             response => Ok(response),
             error => error.ToHttpResult<CategoriaDto>()
@@ -55,8 +55,8 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// </summary>
     /// <param name="id">Identificador de la categoria que se desea eliminar.</param>
     /// <returns>Respuesta HTTP con el resultado de la eliminación o el error correspondiente.</returns>
-    [HttpDelete("{id:int}")]
-    public async Task<ActionResult> Delete(int id) {
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(string id) {
         return await service.SoftDelete(id).Match(
             response => Ok(response),
             error => error.ToHttpResult()
@@ -69,8 +69,8 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// <param name="dto">DTO con los nuevos datos de la categoria.</param>
     /// <param name="id">Identificador de la categoria que se desea actualizar.</param>
     /// <returns>Respuesta HTTP con la categoria actualizada o el error correspondiente.</returns>
-    [HttpPut("{id:int}")]
-    public async Task<ActionResult<CategoriaDto>> Update([FromBody] UpdateCategoriaDto dto, int id) {
+    [HttpPut("{id}")]
+    public async Task<ActionResult<CategoriaDto>> Update([FromBody] UpdateCategoriaDto dto, string id) {
         return await service.Update(dto, id).Match(
             response => Ok(response),
             error => error.ToHttpResult<CategoriaDto>()

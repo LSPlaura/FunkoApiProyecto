@@ -9,7 +9,7 @@ namespace FunkoApi.Back.Services.Get.Categoria;
 ///     Interfaz que define las operaciones de consulta del servicio de categorías.
 ///     Hereda las operaciones de IGetService y añade la búsqueda por nombre.
 /// </summary>
-public interface ICategoriaService : ICrudService<CreateCategoriaDto, UpdateCategoriaDto, CategoriaDto, long>
+public interface ICategoriaService : ICrudService<CreateCategoriaDto, UpdateCategoriaDto, CategoriaDto, string>
 {
     /// <summary>
     ///     Obtiene una categoría mediante su nombre.
