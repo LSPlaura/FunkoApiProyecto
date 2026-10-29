@@ -39,7 +39,7 @@ public class CategoriaService(
     /// <inheritdoc cref="ICategoriaService.GetByName" />
     public async Task<Result<CategoriaDto, DomainError>> GetByName(string name) {
         var categoria = await repository.GetByName(name);
-        if (categoria == null) return Result.Failure<CategoriaDto, DomainError>(CategoriaError.CategoriaNotFound(name));
+        if (categoria == null) return Result.Failure<CategoriaDto, DomainError>(CategoriaError.CategoriaNotFoundName(name));
         return Result.Success<CategoriaDto, DomainError>(categoria.ToDto());
     }
     
@@ -55,11 +55,19 @@ public class CategoriaService(
 
     /// <inheritdoc cref="ICategoriaService.SoftDelete" />
     public async Task<Result<bool, DomainError>> SoftDelete(string id) {
-        if(funkoRepository.)
+        if(funkoRepository.ExistAnyFunkoCategory(id).Result) return Result.Failure<bool, DomainError>(CategoriaError.CategoriaCanNotDelete(id));
+        if(!repository.ExistsById(id).Result) return Result.Failure<bool, DomainError>(CategoriaError.CategoriaBadRequest(id));
+        
+        await repository.SoftDelete(id);
+        return Result.Success<bool, DomainError>(true);
     }
 
     /// <inheritdoc cref="ICategoriaService.HardDelete" />
     public async Task<Result<bool, DomainError>> HardDelete(string id) {
-        throw new NotImplementedException();
+        if(funkoRepository.ExistAnyFunkoCategory(id).Result) return Result.Failure<bool, DomainError>(CategoriaError.CategoriaCanNotDelete(id));
+        if(!repository.ExistsById(id).Result) return Result.Failure<bool, DomainError>(CategoriaError.CategoriaBadRequest(id));
+        
+        await repository.HardDelete(repository.GetById(id).Result!);
+        return Result.Success<bool, DomainError>(true);
     }
 }
