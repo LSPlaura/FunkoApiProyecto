@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson;
 
 namespace FunkoApi.Back.Dtos.Proveedor;
 
