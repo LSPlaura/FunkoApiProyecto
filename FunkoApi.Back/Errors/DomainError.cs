@@ -34,6 +34,15 @@ public sealed record NotFoundError(string Message) : DomainError(Message)
     {
         return new NotFoundError($"{resourceType} con nombre {name} no encontrado");
     }
+    
+    /// <summary>Crea error "no encontrado" con formato estándar.</summary>
+    /// <param name="id">Id del recurso con un puto ObjectId</param>
+    /// <param name="resourceType">Tipo de recurso para el mensaje.</param>
+    /// <returns>NotFoundError formateado.</returns>
+    public static NotFoundError FromObjectId(string id, string resourceType = "Unknown")
+    {
+        return new NotFoundError($"{resourceType} con ID {id} no encontrado");
+    }
 }
 
 /// <summary>

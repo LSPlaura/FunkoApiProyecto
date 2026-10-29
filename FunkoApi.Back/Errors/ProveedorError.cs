@@ -2,9 +2,9 @@ namespace FunkoApi.Back.Errors;
 
 public static class ProveedorError
 {
-    public static NotFoundError ProveedoraNotFound(long id)
+    public static NotFoundError ProveedoraNotFound(string id)
     {
-        return NotFoundError.FromId(id, "Proveedor");
+        return NotFoundError.FromObjectId(id, "Proveedor");
     }
 
     public static NotFoundError CategoriaNotFound(string name)

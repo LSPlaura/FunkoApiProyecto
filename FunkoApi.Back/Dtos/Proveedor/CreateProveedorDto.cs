@@ -6,5 +6,5 @@ public record CreateProveedorDto
 {
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [StringLength(100, ErrorMessage = "El nombre no puede superar los 100 caracteres")]
-    private string Nombre { get; init; } = string.Empty;
+    public string Nombre { get; init; } = string.Empty;
 }

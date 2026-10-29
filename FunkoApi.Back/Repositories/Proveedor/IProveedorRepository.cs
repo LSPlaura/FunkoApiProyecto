@@ -8,5 +8,10 @@ namespace FunkoApi.Back.Repositories.Proveedor;
 /// </summary>
 public interface IProveedorRepository : ICrud<Models.Proveedor, string>
 {
-    
+    /// <summary>
+    /// Comprueba si existe una categoría con el Id indicado.
+    /// </summary>
+    /// <param name="key">Id de la categoría que se desea comprobar.</param>
+    /// <returns>True si existe un proveedor con ese id o false en caso contrario.</returns>
+    Task<bool> ExistsById(string key);
 }
