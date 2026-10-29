@@ -27,7 +27,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Folder Include="Data\Seed\Mongo\"/>
         <Folder Include="Repositories\Crud\"/>
     </ItemGroup>
 

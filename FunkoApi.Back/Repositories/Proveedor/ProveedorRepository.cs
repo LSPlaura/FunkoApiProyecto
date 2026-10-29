@@ -1,6 +1,8 @@
+using FunkoApi.Back.Repositories.Get.Proveedor;
+using MongoDB.Bson;
 using MongoDB.Driver;
 
-namespace FunkoApi.Back.Repositories.Get.Proveedor;
+namespace FunkoApi.Back.Repositories.Proveedor;
 
 /// <summary>
 ///     Repositorio de proveedores que implementa las operaciones de acceso a datos
@@ -11,7 +13,7 @@ public class ProveedorMongoRepository : IProveedorRepository
     private readonly IMongoCollection<Models.Proveedor> _collection;
 
     /// <summary>
-    ///     Inicializa una nueva instancia de la clase <see cref="ProveedorMongoRepository" />.
+    ///     Inicializa una nueva instancia de <see cref="ProveedorMongoRepository"/>.
     /// </summary>
     /// <param name="database">Base de datos de MongoDB.</param>
     public ProveedorMongoRepository(IMongoDatabase database)
@@ -19,40 +21,46 @@ public class ProveedorMongoRepository : IProveedorRepository
         _collection = database.GetCollection<Models.Proveedor>("proveedores");
     }
 
-    Task<Models.Categoria?> IProveedorRepository.GetByName(string name)
+    public async Task<Models.Proveedor> Create(Models.Proveedor item)
     {
-        throw new NotImplementedException();
+        await _collection.InsertOneAsync(item);
+        return item;
     }
 
-    public async Task<bool> ExistsByName(string name)
+    public async Task<Models.Proveedor?> GetById(ObjectId key)
     {
-        var count = await _collection.CountDocumentsAsync(c => c.Nombre == name);
-        return count > 0;
+        return await _collection
+            .Find(c => c.Id == key)
+            .FirstOrDefaultAsync();
     }
 
-    public Task<Models.Proveedor> Create(Models.Proveedor item)
+    public async Task<bool> SoftDelete(ObjectId id)
     {
-        throw new NotImplementedException();
+        var resultado = await IMongoCollectionExtensions.UpdateOneAsync(_collection, c => c.Id == id,
+            Builders<Models.Proveedor>.Update.Set(c => c.IsDeleted, true));
+
+        return resultado.ModifiedCount > 0;
     }
 
-    public Task<Models.Proveedor?> GetById(long key)
+    public async Task<bool> HardDelete(Models.Proveedor item)
     {
-        throw new NotImplementedException();
+        var resultado = await _collection.DeleteOneAsync(c => c.Id == item.Id);
+        return resultado.DeletedCount > 0;
     }
 
-    public Task<bool> SoftDelete(long id)
+    public async Task<Models.Proveedor> Update(Models.Proveedor item)
     {
-        throw new NotImplementedException();
-    }
+        var resultado = await _collection.ReplaceOneAsync(
+            c => c.Id == item.Id,
+            item,
+            new ReplaceOptions { IsUpsert = false });
 
-    public Task<bool> HardDelete(Models.Proveedor item)
-    {
-        throw new NotImplementedException();
-    }
+        if (resultado.MatchedCount == 0)
+        {
+            throw new InvalidOperationException($"No se encontró el Models.Proveedor con Id {item.Id}");
+        }
 
-    public Task<Models.Proveedor> Update(Models.Proveedor item)
-    {
-        throw new NotImplementedException();
+        return item;
     }
 
     public async Task<IEnumerable<Models.Proveedor>> GetAll()
@@ -63,23 +71,10 @@ public class ProveedorMongoRepository : IProveedorRepository
             .ToListAsync();
     }
 
-    public async Task<Models.Proveedor?> GetById(int key)
+    public async Task<bool> ExistsById(ObjectId key)
     {
         return await _collection
             .Find(c => c.Id == key)
-            .FirstOrDefaultAsync();
-    }
-
-    public async Task<bool> ExistsById(int key)
-    {
-        var count = await _collection.CountDocumentsAsync(c => c.Id == key);
-        return count > 0;
-    }
-
-    public async Task<Models.Proveedor?> GetByName(string name)
-    {
-        return await _collection
-            .Find(f => f.Nombre == name)
-            .FirstOrDefaultAsync();
+            .AnyAsync();
     }
 }

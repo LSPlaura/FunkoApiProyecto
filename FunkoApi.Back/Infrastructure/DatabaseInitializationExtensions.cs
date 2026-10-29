@@ -1,41 +1,38 @@
+using FunkoApi.Back.Config;
 using FunkoApi.Back.Data;
 using FunkoApi.Back.Data.Seed.Efc;
+using FunkoApi.Back.Data.Seed.Mongo;
+using MongoDB.Driver;
 using Serilog;
 
 namespace FunkoApi.Back.Infrastructure;
 
 public static class DatabaseInitializationExtensions
 {
-    public static async Task InitializeDatabaseAsync(this WebApplication app, IWebHostEnvironment environment)
+    public static async Task InitializeDatabaseAsync(
+        this WebApplication app,
+        IConfiguration configuration)
     {
-        if (!environment.IsDevelopment())
-        {
-            Log.Information("Produccion: inicializacion omitida.");
-            return;
-        }
+        // ---------- MongoDB (driver nativo) ----------
+        Log.Information("Configurando MongoDB con driver nativo...");
 
-        Log.Information("Inicializando base de datos...");
+        var mongoSeeder = app.Services.GetRequiredService<MongoSeeder>();
+        await mongoSeeder.SeedAsync();
 
-        using var scope = app.Services.CreateScope();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+        Log.Information("[MongoDB]Sembrado de datos realizado");
 
-        var dbProvider = configuration["DB_PROVIDER"] ?? "postgres";
+        // ---------- PostgreSQL (EF Core) ----------
+        Log.Information("Configurando PostgreSQL con EF Core...");
 
-        // 1. Inicializacion para PostgreSQL (o EF Core relacional)
-        if (dbProvider.Equals("postgres", StringComparison.OrdinalIgnoreCase))
-        {
-            var context = scope.ServiceProvider.GetService<AppDbContext>();
-            if (context != null)
-            {
-                logger.LogWarning("[DESARROLLO] Eliminando y recreando base de datos PostgreSQL...");
-                await context.Database.EnsureDeletedAsync();
-                await context.Database.EnsureCreatedAsync();
+        var context = app.Services.GetRequiredService<AppDbContext>();
 
-                var sqlSeeder = scope.ServiceProvider.GetService<EfcSeeder>();
-                if (sqlSeeder != null) await sqlSeeder.SeedAsync();
-                logger.LogInformation("Base de datos PostgreSQL recreada con datos semilla.");
-            }
-        }
+        Log.Information("[EF Core] Eliminando y recreando la base de datos...");
+        await context.Database.EnsureDeletedAsync();
+        await context.Database.EnsureCreatedAsync();
+
+        var efSeeder = app.Services.GetRequiredService<EfcSeeder>();
+        await efSeeder.SeedAsync();
+
+        Log.Information("[EF Core] Base de datos recreada con sembrado de datos");
     }
 }
