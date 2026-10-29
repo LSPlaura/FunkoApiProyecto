@@ -1,5 +1,6 @@
 using FunkoApi.Back.Data;
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
 
 namespace FunkoApi.Back.Repositories.Funko;
 
@@ -88,7 +89,7 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
 
     /// <inheritdoc cref="IFunkoRepository.ExistAnyFunkoCategory" />
     public Task<bool> ExistAnyFunkoCategory(string key) {
-        if(context.Funkos.Any(f => f.ProveedorId == key)) return Task.FromResult(true);
+        if(context.Funkos.Any(f => f.ProveedorId == ObjectId.Parse(key))) return Task.FromResult(true);
         return Task.FromResult(false);
     }
 }
