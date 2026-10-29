@@ -4,10 +4,12 @@ using FunkoApi.Back.Dtos.Funko;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Mappers;
 using FunkoApi.Back.Repositories.Categoria;
-using FunkoApi.Back.Repositories.Funko;
-using FunkoApi.Back.Services.Funko;
+using FunkoApi.Back.Repositories.Crud.Funko.Common;
+using FunkoApi.Back.Repositories.Proveedor;
+using FunkoApi.Back.Services.Crud.Funko;
+using Microsoft.Extensions.Options;
 
-namespace FunkoApi.Back.Services.Crud.Funko;
+namespace FunkoApi.Back.Services.Funko;
 
 /// <summary>
 ///     Servicio encargado de gestionar las operaciones CRUD de Funkos.

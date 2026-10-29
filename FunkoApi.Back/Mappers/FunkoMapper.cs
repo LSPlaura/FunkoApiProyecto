@@ -23,7 +23,7 @@ public static class FunkoMapper
             funko.Precio,
             funko.Stock,
             funko.Categoria?.ToDto() ?? new CategoriaDto(string.Empty, "", false, DateTime.UtcNow, DateTime.UtcNow),
-            funko.Proveedor?.ToDto() ?? new ProveedorDto(0, "", false, DateTime.UtcNow, DateTime.UtcNow),
+            funko.Proveedor?.ToDto() ?? new ProveedorDto("", "", false, DateTime.UtcNow, DateTime.UtcNow),
             funko.IsDeleted,
             funko.CreatedAt,
             funko.UpdatedAt

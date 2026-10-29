@@ -1,5 +1,6 @@
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Models;
+using MongoDB.Bson;
 
 namespace FunkoApi.Back.Mappers;
 
@@ -16,7 +17,7 @@ public static class ProveedorMapper
     public static ProveedorDto ToDto(this Proveedor proveedor)
     {
         return new ProveedorDto(
-            proveedor.Id,
+            proveedor.Id.ToString(),
             proveedor.Nombre,
             proveedor.IsDeleted,
             proveedor.CreatedAt,
@@ -32,7 +33,7 @@ public static class ProveedorMapper
     public static Proveedor ToModel(this ProveedorDto dto)
     {
         return new Proveedor(
-            dto.Id,
+            ObjectId.Parse(dto.Id),
             dto.Nombre,
             dto.IsDeleted,
             dto.CreatedAt,

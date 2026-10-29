@@ -1,13 +1,17 @@
 using FunkoApi.Back.Repositories.Crud.Common;
-using MongoDB.Bson;
 
-namespace FunkoApi.Back.Repositories.Get.Proveedor;
+namespace FunkoApi.Back.Repositories.Proveedor;
 
 /// <summary>
 ///     Interfaz que define las operaciones del repositorio de proveedores.
 ///     Hereda las operaciones CRUD base.
 /// </summary>
-public interface IProveedorRepository : ICrud<Models.Proveedor, ObjectId>
+public interface IProveedorRepository : ICrud<Models.Proveedor, string>
 {
-    
+    /// <summary>
+    /// Comprueba si existe una categoría con el Id indicado.
+    /// </summary>
+    /// <param name="key">Id de la categoría que se desea comprobar.</param>
+    /// <returns>True si existe un proveedor con ese id o false en caso contrario.</returns>
+    Task<bool> ExistsById(string key);
 }

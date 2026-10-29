@@ -6,6 +6,7 @@ using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Services.Crud.Funko;
+using FunkoApi.Back.Services.Funko;
 using Moq;
 using NUnit.Framework;
 
