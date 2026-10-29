@@ -1,0 +1,9 @@
+/.idea/
+/FunkoApi.Tests/bin/
+/FunkoApi.Tests/obj/
+
+# OpenCode: configuracion, agentes y archivos locales
+.opencode*
+opencode*
+AGENTS.md
+AGENTS.local.md

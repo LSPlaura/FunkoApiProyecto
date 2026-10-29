@@ -1,0 +1,17 @@
+﻿services:
+  funkoapi:
+    image: funkoapi
+    build:
+      context: .
+      dockerfile: FunkoApi.Back/Dockerfile
+    ports:
+      - "5000:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - Api__Nombre=Funko EF Core API (Docker)
+      - Api__Mensaje=Desplegado en contenedor
+      - DB_PROVIDER=postgres
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
