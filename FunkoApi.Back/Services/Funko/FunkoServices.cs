@@ -3,8 +3,8 @@ using FunkoApi.Back.Cache;
 using FunkoApi.Back.Dtos.Funko;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Mappers;
+using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Crud.Funko.Common;
-using FunkoApi.Back.Repositories.Get.Categoria.Common;
 
 namespace FunkoApi.Back.Services.Crud.Funko;
 

@@ -1,74 +1,76 @@
 using FunkoApi.Back.Data;
-using FunkoApi.Back.Repositories.Get.Categoria.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace FunkoApi.Back.Repositories.Get.Categoria;
+namespace FunkoApi.Back.Repositories.Categoria;
 
 /// <summary>
-///     Repositorio de categorías que implementa las operaciones de consulta
-///     utilizando Entity Framework Core.
+/// Repositorio de categorías que implementa las operaciones de consulta
+/// utilizando Entity Framework Core.
 /// </summary>
-public class CategoriaRepository(AppDbContext context) : ICategoriaRepository
-{
-    public Task<Models.Categoria> Create(Models.Categoria item)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Models.Categoria?> GetById(long key)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> SoftDelete(long id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<bool> HardDelete(Models.Categoria item)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Models.Categoria> Update(Models.Categoria item)
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <inheritdoc cref="ICategoriaRepository.GetByName" />
-    public async Task<Models.Categoria?> GetByName(string name)
-    {
-        return await context.Categorias.AsNoTracking().FirstAsync(f => f.Nombre == name);
-    }
-
-    /// <inheritdoc cref="ICategoriaRepository.ExistsByName" />
-    public async Task<bool> ExistsByName(string name)
-    {
-        return await context.Categorias.AsNoTracking().AnyAsync(c => c.Nombre == name);
-    }
-
+public class CategoriaRepository(AppDbContext context) : ICategoriaRepository {
+    
     /// <inheritdoc cref="ICategoriaRepository.GetAll" />
-    public async Task<IEnumerable<Models.Categoria>> GetAll()
-    {
+    public async Task<IEnumerable<Models.Categoria>> GetAll() {
         return await context.Categorias.OrderBy(c => c.Nombre)
             .AsNoTracking()
             .ToListAsync();
     }
 
     /// <inheritdoc cref="ICategoriaRepository.GetById" />
-    public async Task<Models.Categoria?> GetById(int key)
-    {
-        return await context.Categorias.AsNoTracking().FirstAsync(c => c.Id == key);
+    public async Task<Models.Categoria?> GetById(string key) {
+        return await context.Categorias.AsNoTracking().FirstOrDefaultAsync(c => c.Id == key);
+    }
+    
+    /// <inheritdoc cref="ICategoriaRepository.GetByName" />
+    public async Task<Models.Categoria?> GetByName(string name) {
+        return await context.Categorias.AsNoTracking().FirstOrDefaultAsync(f => f.Nombre == name);
+    }
+    
+    /// <inheritdoc cref="ICategoriaRepository.Create" />
+    public async Task<Models.Categoria> Create(Models.Categoria item) {
+        item = item with{CreatedAt = DateTime.UtcNow};
+        
+        await context.Categorias.AddAsync(item);
+        await context.SaveChangesAsync();
+        return item;
+    }
+    
+    /// <inheritdoc cref="ICategoriaRepository.Update" />
+    public async Task<Models.Categoria?> Update(Models.Categoria item) {
+        var existente = await context.Categorias.FindAsync(item.Id);
+        if (existente == null) return null;
+        
+        context.Categorias.Update(item);
+        await context.SaveChangesAsync();
+        
+        return item;
     }
 
-    public Task<bool> SoftDelete(int id)
-    {
-        throw new NotImplementedException();
+    /// <inheritdoc cref="ICategoriaRepository.SoftDelete" />
+    public async Task<bool> SoftDelete(string id) {
+        return await context.Categorias
+            .Where(c => c.Id == id)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(c => c.IsDeleted, true)
+                .SetProperty(c => c.UpdatedAt, DateTime.UtcNow)) > 0;
     }
 
+    /// <inheritdoc cref="ICategoriaRepository.HardDelete" />
+    public async Task<bool> HardDelete(Models.Categoria item) {
+        if(await context.Categorias.FindAsync(item.Id) == null) return false;
+        
+        context.Categorias.Remove(item);
+        await context.SaveChangesAsync();
+        return true;
+    }
+
+    /// <inheritdoc cref="ICategoriaRepository.ExistsByName" />
+    public async Task<bool> ExistsByName(string name) {
+        return await context.Categorias.AsNoTracking().AnyAsync(c => c.Nombre == name);
+    }
+    
     /// <inheritdoc cref="ICategoriaRepository.ExistsById" />
-    public async Task<bool> ExistsById(int key)
-    {
+    public async Task<bool> ExistsById(string key) {
         return await context.Categorias.AsNoTracking().AnyAsync(c => c.Id == key);
     }
 }

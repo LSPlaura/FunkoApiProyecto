@@ -1,3 +1,4 @@
+using FunkoApi.Back.Generators;
 using FunkoApi.Back.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,8 +8,7 @@ namespace FunkoApi.Back.Data;
 ///     Contexto de base de datos de Entity Framework Core.
 ///     Gestiona las entidades de Funkos, categorías y proveedores.
 /// </summary>
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
-{
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options) {
     public DbSet<Funko> Funkos => Set<Funko>();
     public DbSet<Categoria> Categorias => Set<Categoria>();
     public DbSet<Proveedor> Proveedor => Set<Proveedor>();
@@ -19,10 +19,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
     ///     a cadenas JSON para compatibilidad con SQLite.
     /// </summary>
     /// <param name="modelBuilder">El constructor de modelos utilizado para configurar las entidades de la base de datos.</param>
-    protected override void OnModelCreating(ModelBuilder modelBuilder)
-    {
-        modelBuilder.Entity<Funko>(entity =>
-        {
+    protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        modelBuilder.Entity<Funko>(entity => {
             entity.HasKey(p => p.Id);
             entity.Property(p => p.Nombre).HasMaxLength(100).IsRequired();
             entity.HasIndex(p => p.Nombre).IsUnique();
@@ -42,9 +40,10 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(e => e.IsDeleted);
         });
 
-        modelBuilder.Entity<Categoria>(entity =>
-        {
-            entity.HasKey(p => p.Id);
+        modelBuilder.Entity<Categoria>(entity => {
+            entity.Property(p => p.Id)
+                .HasValueGenerator<YouTubeIdValueGenerator>()
+                .ValueGeneratedOnAdd();
             entity.HasIndex(p => p.Nombre).IsUnique();
             entity.Property(p => p.Nombre).HasMaxLength(100).IsRequired();
             entity.Property(e => e.CreatedAt);
@@ -52,8 +51,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(e => e.IsDeleted);
         });
 
-        modelBuilder.Entity<Proveedor>(entity =>
-        {
+        modelBuilder.Entity<Proveedor>(entity => {
             entity.HasKey(p => p.Id);
             entity.HasIndex(p => p.Nombre).IsUnique();
             entity.Property(p => p.Nombre).HasMaxLength(100).IsRequired();

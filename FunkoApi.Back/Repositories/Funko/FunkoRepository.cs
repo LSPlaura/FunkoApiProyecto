@@ -2,11 +2,11 @@ using FunkoApi.Back.Data;
 using FunkoApi.Back.Repositories.Crud.Funko.Common;
 using Microsoft.EntityFrameworkCore;
 
-namespace FunkoApi.Back.Repositories.Crud.Funko;
+namespace FunkoApi.Back.Repositories.Funko;
 
 /// <summary>
-///     Repositorio de Funkos que implementa las operaciones CRUD
-///     utilizando Entity Framework Core.
+/// Repositorio de Funkos que implementa las operaciones CRUD
+/// utilizando Entity Framework Core.
 /// </summary>
 public class FunkoRepository(AppDbContext context) : IFunkoRepository
 {

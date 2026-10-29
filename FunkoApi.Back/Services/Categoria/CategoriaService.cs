@@ -2,7 +2,7 @@ using CSharpFunctionalExtensions;
 using FunkoApi.Back.Dtos.Categoria;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Mappers;
-using FunkoApi.Back.Repositories.Get.Categoria.Common;
+using FunkoApi.Back.Repositories.Categoria;
 
 namespace FunkoApi.Back.Services.Get.Categoria;
 

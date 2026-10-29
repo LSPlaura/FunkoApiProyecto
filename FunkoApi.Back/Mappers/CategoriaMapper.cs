@@ -32,11 +32,11 @@ public static class CategoriaMapper
     public static Categoria ToModel(this CategoriaDto dto)
     {
         return new Categoria(
-            dto.Id,
             dto.Nombre,
             dto.IsDeleted,
             dto.CreatedAt,
-            dto.UpdatedAt
+            dto.UpdatedAt,
+            dto.Id
         );
     }
 }

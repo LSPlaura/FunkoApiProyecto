@@ -1,7 +1,7 @@
+using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Crud.Funko;
 using FunkoApi.Back.Repositories.Crud.Funko.Common;
-using FunkoApi.Back.Repositories.Get.Categoria;
-using FunkoApi.Back.Repositories.Get.Categoria.Common;
+using FunkoApi.Back.Repositories.Funko;
 
 namespace FunkoApi.Back.Infrastructure;
 
