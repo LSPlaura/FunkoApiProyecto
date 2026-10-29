@@ -1,6 +1,7 @@
 using FluentAssertions;
 using FunkoApi.Back.Data;
 using FunkoApi.Back.Repositories.Crud.Funko;
+using FunkoApi.Back.Repositories.Funko;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Testcontainers.PostgreSql;

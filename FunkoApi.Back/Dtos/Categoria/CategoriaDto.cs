@@ -4,7 +4,7 @@ namespace FunkoApi.Back.Dtos.Categoria;
 ///     DTO que representa los datos de una categoría.
 /// </summary>
 public record CategoriaDto(
-    long Id,
+    string Id,
     string Nombre,
     bool IsDeleted,
     DateTime CreatedAt,

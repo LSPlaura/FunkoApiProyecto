@@ -1,6 +1,6 @@
 using FluentAssertions;
 using FunkoApi.Back.Data;
-using FunkoApi.Back.Repositories.Get.Categoria;
+using FunkoApi.Back.Repositories.Categoria;
 using Microsoft.EntityFrameworkCore;
 using NUnit.Framework;
 using Testcontainers.PostgreSql;

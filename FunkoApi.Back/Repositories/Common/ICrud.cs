@@ -40,7 +40,7 @@ public interface ICrud<TValue, TKey>
     /// </summary>
     /// <param name="item">Entidad con los datos que se desean actualizar.</param>
     /// <returns>Entidad actualizada.</returns>
-    Task<TValue> Update(TValue item);
+    Task<TValue?> Update(TValue item);
 
     /// <summary>
     ///     Obtiene todas las entidades del repositorio.
