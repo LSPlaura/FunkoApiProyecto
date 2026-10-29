@@ -18,8 +18,7 @@ public class EfcSeeder(AppDbContext context, ILogger<EfcSeeder> logger)
         try
         {
             logger.LogInformation("Sembrando datos iniciales en PostgreSQL...");
-
-            await SeedProveedoresAsync();
+            
             await SeedCategoriasAsync();
             await SeedFunkosAsync();
 
@@ -33,25 +32,6 @@ public class EfcSeeder(AppDbContext context, ILogger<EfcSeeder> logger)
         {
             logger.LogWarning(ex, "Error al sembrar datos en PostgreSQL");
         }
-    }
-
-    /// <summary>
-    ///     Inserta los proveedores iniciales si la base de datos
-    ///     todavía no contiene ningún proveedor.
-    /// </summary>
-    private async Task SeedProveedoresAsync()
-    {
-        if (await context.Proveedor.AnyAsync()) return;
-
-        var proveedores = new List<Proveedor>
-        {
-            new(1, "Funko Corp", false, DateTime.UtcNow, DateTime.UtcNow),
-            new(2, "Toy Master", false, DateTime.UtcNow, DateTime.UtcNow)
-        };
-
-        await context.Proveedor.AddRangeAsync(proveedores);
-        await context.SaveChangesAsync();
-        logger.LogInformation("Insertados {Count} proveedores de ejemplo.", proveedores.Count);
     }
 
     /// <summary>
