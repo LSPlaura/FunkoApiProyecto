@@ -37,7 +37,7 @@ public class CategoriaRepository(AppDbContext context) : ICategoriaRepository {
     
     /// <inheritdoc cref="ICategoriaRepository.Update" />
     public async Task<Models.Categoria?> Update(Models.Categoria item) {
-        var existente = await context.Categorias.FindAsync(item.Id);
+        var existente = await GetById(item.Id);
         if (existente == null) return null;
         
         context.Categorias.Update(item);
