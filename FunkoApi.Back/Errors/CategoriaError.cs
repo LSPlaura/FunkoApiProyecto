@@ -4,6 +4,13 @@ namespace FunkoApi.Back.Errors;
 /// Clase que proporciona los errores relacionados con las operaciones de categorías.
 /// </summary>
 public static class CategoriaError {
+    /// <summary>Crea un error cuando otra categoría ya tiene ese nombre.</summary>
+    /// <param name="nombre">Nombre duplicado.</param>
+    /// <returns>Error de conflicto.</returns>
+    public static ConflictError NombreDuplicado(string nombre) {
+        return new ConflictError($"Ya existe una categoría con el nombre {nombre}");
+    }
+
     /// <summary>
     /// Genera un error cuando no se encuentra una categoría por su identificador.
     /// </summary>
