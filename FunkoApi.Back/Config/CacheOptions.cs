@@ -1,14 +1,15 @@
-namespace FunkoApi.Back.Cache;
+namespace FunkoApi.Back.Config;
 
 /// <summary>
 ///     Opciones de configuración de caché.
 /// </summary>
 public class CacheOptions
 {
+    public string ConnectionString { get; set; } = string.Empty;
     /// <summary>
     ///     Sección de configuración.
     /// </summary>
-    public const string SectionName = "Cache";
+    public const string SectionName = "FunkoApi";
 
     /// <summary>
     ///     Tiempo de vida por defecto de las entradas en caché (en minutos), se borra aunque se consulte.

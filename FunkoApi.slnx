@@ -1,8 +1,8 @@
 <Solution>
     <Folder Name="/Solution Items/">
-        <File Path="compose.yaml"/>
-        <File Path="docker-compose-postgres.yml"/>
+        <File Path=".env" />
+        <File Path="compose.yaml" />
     </Folder>
-    <Project Path="FunkoApi.Back/FunkoApi.Back.csproj"/>
-    <Project Path="FunkoApi.Tests/FunkoApi.Tests.csproj"/>
+    <Project Path="FunkoApi.Back/FunkoApi.Back.csproj" />
+    <Project Path="FunkoApi.Tests/FunkoApi.Tests.csproj" />
 </Solution>

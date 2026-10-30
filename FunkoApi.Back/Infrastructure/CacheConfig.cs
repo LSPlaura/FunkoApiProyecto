@@ -1,4 +1,5 @@
 using FunkoApi.Back.Cache;
+using FunkoApi.Back.Config;
 using Serilog;
 
 namespace FunkoApi.Back.Infrastructure;

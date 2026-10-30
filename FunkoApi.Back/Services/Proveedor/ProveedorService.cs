@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Cache;
+using FunkoApi.Back.Config;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Mappers;
