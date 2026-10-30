@@ -2,7 +2,6 @@ using System.Text;
 using FunkoApi.Back.Config;
 using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Middleware;
-using FunkoApi.Infrastructure;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
@@ -67,7 +66,7 @@ try
 
     app.MapControllers();
 
-   await app.InitializeDatabaseAsync(builder.Configuration);
+   await app.InitializeDatabaseAsync();
 
     // ── CONFIGURACIÓN TIPADA: se lee y se muestra al arrancar ────────────────
     var apiConfig = app.Services.GetRequiredService<IOptions<ApiConfig>>().Value;

@@ -1,4 +1,5 @@
 using FunkoApi.Back.Data.Seed.Efc;
+using FunkoApi.Back.Data.Seed.Mongo;
 using Serilog;
 
 namespace FunkoApi.Back.Infrastructure;
@@ -17,9 +18,9 @@ public static class SeederConfig
     public static IServiceCollection AddSeeders(this IServiceCollection services, IConfiguration configuration)
     {
         Log.Information("Registrando seeders...");
-        var dbProvider = configuration["DB_PROVIDER"] ?? "postgres";
-
-        if (dbProvider.Equals("postgres", StringComparison.OrdinalIgnoreCase)) services.AddScoped<EfcSeeder>();
+        
+        services.AddScoped<EfcSeeder>();
+        services.AddScoped<MongoSeeder>();
 
         Log.Information("Seeders registrados correctamente.");
         return services;
