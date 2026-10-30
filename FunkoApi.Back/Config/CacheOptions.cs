@@ -6,10 +6,11 @@ namespace FunkoApi.Back.Config;
 public class CacheOptions
 {
     public string ConnectionString { get; set; } = string.Empty;
+    public string RedisInstanceName { get; set; } = string.Empty;
     /// <summary>
     ///     Sección de configuración.
     /// </summary>
-    public const string SectionName = "FunkoApi";
+    public const string SectionName = "Redis";
 
     /// <summary>
     ///     Tiempo de vida por defecto de las entradas en caché (en minutos), se borra aunque se consulte.

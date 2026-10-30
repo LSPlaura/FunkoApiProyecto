@@ -1,7 +1,7 @@
 ﻿services:
   postgres:
     image: postgres:17-alpine
-    container_name: tienda-postgres
+    container_name: funkoapi-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-admin}
       POSTGRES_DB: ${POSTGRES_DB:-funkoapi}
@@ -18,11 +18,11 @@
       start_period: 30s
     restart: unless-stopped
     networks:
-      - tienda-network
+      - funkoapi-network
 
   mongodb:
     image: mongo:7.0
-    container_name: tienda-mongodb
+    container_name: funkoapi-mongodb
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-123!}
@@ -39,11 +39,11 @@
       start_period: 30s
     restart: unless-stopped
     networks:
-      - tienda-network
+      - funkoapi-network
 
   redis:
     image: redis:7-alpine
-    container_name: tienda-redis
+    container_name: funkoapi-redis
     command: redis-server --appendonly yes
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
@@ -59,14 +59,14 @@
       start_period: 30s
     restart: unless-stopped
     networks:
-      - tienda-network
+      - funkoapi-network
 
   api:
     image: funkoapi
     build:
       context: .
       dockerfile: FunkoApi.Back/Dockerfile
-    container_name: tienda-api
+    container_name: funkoapi-api
     ports:
       - "5000:8080"
     env_file:
@@ -85,10 +85,10 @@
         condition: service_healthy
     restart: unless-stopped
     networks:
-      - tienda-network
+      - funkoapi-network
 
 networks:
-  tienda-network:
+  funkoapi-network:
     driver: bridge
 
 volumes:
