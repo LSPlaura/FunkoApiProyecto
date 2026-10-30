@@ -32,24 +32,14 @@ public static class CacheConfig
             .GetSection(CacheOptions.SectionName)
             .Get<CacheOptions>() ?? new CacheOptions();
 
-        if (environment.IsDevelopment())
+        services.AddStackExchangeRedisCache(options =>
         {
-            services.AddMemoryCache();
-            services.AddSingleton<ICacheService, MemoryCacheService>();
-            Log.Information("Caché: MemoryCache (Desarrollo) — TTL: {Minutes} min",
-                cacheOptions.DefaultExpirationMinutes);
-        }
-        else
-        {
-            services.AddStackExchangeRedisCache(options =>
-            {
-                options.Configuration = configuration["Redis:ConnectionString"]
-                                        ?? "localhost:6379";
-            });
-            services.AddSingleton<ICacheService, RedisCacheService>();
-            Log.Information("Caché: Redis (Producción) — TTL: {Minutes} min",
-                cacheOptions.DefaultExpirationMinutes);
-        }
+            options.Configuration = configuration["Redis:ConnectionString"]
+                                    ?? "localhost:6379";
+        });
+        services.AddSingleton<ICacheService, RedisCacheService>();
+        Log.Information("Caché: Redis (Producción) — TTL: {Minutes} min",
+            cacheOptions.DefaultExpirationMinutes);
 
         return services;
     }
