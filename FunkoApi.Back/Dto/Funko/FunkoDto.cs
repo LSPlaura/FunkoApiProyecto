@@ -12,6 +12,7 @@ public record FunkoDto(
     string Nombre,
     decimal Precio,
     int Stock,
+    string Imagen,
     CategoriaDto Categoria,
     ProveedorDto Proveedor,
     bool IsDeleted,

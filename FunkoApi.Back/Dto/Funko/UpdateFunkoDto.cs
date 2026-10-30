@@ -3,11 +3,10 @@ using System.ComponentModel.DataAnnotations;
 namespace FunkoApi.Back.Dtos.Funko;
 
 /// <summary>
-///     DTO que contiene los datos necesarios para actualizar un Funko.
-///     Incluye las validaciones de los campos mediante Data Annotations.
+/// DTO que contiene los datos necesarios para actualizar un Funko.
+/// Incluye las validaciones de los campos mediante Data Annotations.
 /// </summary>
-public record UpdateFunkoDto
-{
+public record UpdateFunkoDto {
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [MaxLength(100, ErrorMessage = "El nombre no puede tener más de 100 caracteres")]
     public string Nombre { get; init; } = string.Empty;
@@ -18,6 +17,9 @@ public record UpdateFunkoDto
 
     [Range(1, int.MaxValue, ErrorMessage = "El stock debe ser mayor a 0")]
     public int Stock { get; init; }
+    
+    [StringLength(1000)]
+    public string? Imagen { get; init; } = string.Empty;
 
     [Required(ErrorMessage = "La categoría es obligatoria")]
     public long Categoria { get; init; }
