@@ -1,5 +1,4 @@
 using FunkoApi.Back.Services.Categoria;
-using FunkoApi.Back.Services.Crud.Funko;
 using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Services.Get.Categoria;
 using Serilog;

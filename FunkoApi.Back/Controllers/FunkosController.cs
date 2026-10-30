@@ -1,7 +1,6 @@
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Dtos.Funko;
 using FunkoApi.Back.Extensions;
-using FunkoApi.Back.Services.Crud.Funko;
 using FunkoApi.Back.Services.Funko;
 using Microsoft.AspNetCore.Mvc;
 
