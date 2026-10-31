@@ -1,17 +1,100 @@
 ﻿services:
-  funkoapi:
+  postgres:
+    image: postgres:17-alpine
+    container_name: funkoapi-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_DB: ${POSTGRES_DB:-funkoapi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-123!}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-funkoapi}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - funkoapi-network
+
+  mongodb:
+    image: mongo:7.0
+    container_name: funkoapi-mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-admin}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PASSWORD:-123!}
+      MONGO_INITDB_DATABASE: ${MONGO_DB:-funkoapi}
+    ports:
+      - "${MONGO_PORT:-27017}:27017"
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/${MONGO_DB:-funkoapi} --quiet
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - funkoapi-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: funkoapi-redis
+    command: redis-server --appendonly yes
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "-p", "6379", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+    networks:
+      - funkoapi-network
+
+  api:
     image: funkoapi
     build:
       context: .
       dockerfile: FunkoApi.Back/Dockerfile
+    container_name: funkoapi-api
     ports:
       - "5000:8080"
+    env_file:
+      - .env
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - DB_PROVIDER=postgres
       - Api__Nombre=Funko EF Core API (Docker)
       - Api__Mensaje=Desplegado en contenedor
-      - DB_PROVIDER=postgres
-    restart: unless-stopped
     depends_on:
-      db:
+      postgres:
         condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - funkoapi-network
+
+networks:
+  funkoapi-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  mongodb-data:
+    driver: local
+  redis-data:
+    driver: local

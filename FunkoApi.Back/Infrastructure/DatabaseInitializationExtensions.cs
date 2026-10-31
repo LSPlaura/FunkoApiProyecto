@@ -10,8 +10,7 @@ namespace FunkoApi.Back.Infrastructure;
 public static class DatabaseInitializationExtensions
 {
     public static async Task InitializeDatabaseAsync(
-        this WebApplication app,
-        IConfiguration configuration)
+        this WebApplication app)
     {
         // ---------- MongoDB (driver nativo) ----------
         Log.Information("Configurando MongoDB con driver nativo...");

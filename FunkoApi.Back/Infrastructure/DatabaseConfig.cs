@@ -1,5 +1,6 @@
 using FunkoApi.Back.Config;
 using FunkoApi.Back.Data;
+using FunkoApi.Back.Factory;
 using FunkoApi.Back.Models;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Driver;
@@ -17,27 +18,78 @@ public static class DatabaseConfig
     /// </summary>
     public static IServiceCollection AddDatabases(this IServiceCollection services, IConfiguration configuration)
     {
-        // ---------- MongoDB (driver nativo) ----------
-        var mongoSettings = configuration.GetSection("MongoDbSettings").Get<MongoConfig>();
+        // ==========================================
+        // ---------- MongoDB (driver nativo) -------
+        // ==========================================
+        Log.Information("Iniciando configuración de MongoDB...");
 
-        Log.Information("Configurando MongoDB con driver nativo...");
+        var mongoHost = configuration["MongoDb:Host"] ?? "";
+        var mongoUser = configuration["MongoDb:User"] ?? "";
+        var mongoPassword = configuration["MongoDb:Password"] ?? "";
+        var mongoDatabaseName = configuration["MongoDb:Database"] ?? "";
 
-        var mongoClient = new MongoClient(mongoSettings?.ConnectionString ?? "");
-        var mongoDatabase = mongoClient.GetDatabase(mongoSettings?.DatabaseName ?? "");
+        var mongoPortStr = configuration["MongoDb:Port"];
+        int mongoPort = int.TryParse(mongoPortStr, out var parsedPort) ? parsedPort : 27017;
 
-        services.AddSingleton<IMongoClient>(mongoClient);
-        services.AddSingleton<IMongoDatabase>(mongoDatabase);
+        if (string.IsNullOrEmpty(mongoPortStr))
+        {
+            Log.Warning("No se encontró 'MongoDb:Port' en la configuración. Se utilizará el puerto por defecto: {DefaultPort}", 27017);
+        }
+
+        var connectionString = ConnectionStringGenerator.BuildMongoDb(
+            mongoHost, mongoPort, mongoDatabaseName, mongoUser, mongoPassword
+        );
+
+        services.AddSingleton<IMongoClient>(_ =>
+        {
+            Log.Information("Instanciando MongoClient para el host: {Host}:{Port}", mongoHost, mongoPort);
+            return new MongoClient(connectionString);
+        });
+
+        services.AddSingleton<IMongoDatabase>(sp =>
+        {
+            Log.Information("Obteniendo la base de datos de MongoDB: {DatabaseName}", mongoDatabaseName);
+            var client = sp.GetRequiredService<IMongoClient>();
+            return client.GetDatabase(mongoDatabaseName);
+        });
+
         services.AddSingleton<DbContextMongo>(sp => 
-            new DbContextMongo(sp.GetRequiredService<IMongoDatabase>()));
-        
+        {
+            Log.Information("Registrando DbContextMongo en el contenedor DI...");
+            return new DbContextMongo(sp.GetRequiredService<IMongoDatabase>());
+        });
+
+        Log.Information("MongoDB configurado correctamente.");
+
+        // ==========================================
         // ---------- PostgreSQL (EF Core) ----------
-        var postgresSettings = configuration.GetSection("PostgresDbSettings").Get<PostgresConfig>();
+        // ==========================================
+        Log.Information("Iniciando configuración de PostgreSQL...");
 
-        Log.Information("Configurando PostgreSQL...");
+        var pgHost = configuration["PostgresDb:Host"] ?? "";
+        var pgPortStr = configuration["PostgresDb:Port"];
+        int pgPort = int.TryParse(pgPortStr, out var parsedPgPort) ? parsedPgPort : 5432;
+        var pgDatabase = configuration["PostgresDb:Database"] ?? "";
+        var pgUser = configuration["PostgresDb:User"] ?? "";
+        var pgPassword = configuration["PostgresDb:Password"] ?? "";
+
+        if (string.IsNullOrEmpty(pgPortStr))
+        {
+            Log.Warning("No se encontró 'PostgresDb:Port' en la configuración. Se utilizará el puerto por defecto: {DefaultPort}", 5432);
+        }
+
+        // Construir la cadena de conexión directamente (o usar un generador si lo tienes disponible)
+        var pgConnectionString = $"Host={pgHost};Port={pgPort};Database={pgDatabase};Username={pgUser};Password={pgPassword}";
+
         services.AddDbContext<AppDbContext>(options =>
-            options.UseNpgsql(postgresSettings?.ConnectionString ?? ""));
+        {
+            Log.Information("Configurando el DbContext de PostgreSQL para el host: {Host}:{Port}", pgHost, pgPort);
+            options.UseNpgsql(pgConnectionString);
+        });
 
-        Log.Information("Bases de datos configuradas correctamente.");
+        Log.Information("PostgreSQL configurado correctamente.");
+
+        Log.Information("Todas las bases de datos se han configurado con éxito.");
         return services;
     }
 }

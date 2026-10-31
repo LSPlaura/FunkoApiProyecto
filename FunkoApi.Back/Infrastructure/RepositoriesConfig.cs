@@ -1,5 +1,6 @@
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
+using FunkoApi.Back.Repositories.Proveedor;
 
 namespace FunkoApi.Back.Infrastructure;
 
@@ -7,13 +8,9 @@ public static class RepositoriesConfig
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services, IConfiguration configuration)
     {
-        var dbProvider = configuration["DB_PROVIDER"] ?? "postgres";
-
-        if (dbProvider.Equals("postgres", StringComparison.OrdinalIgnoreCase))
-        {
-            services.AddScoped<IFunkoRepository, FunkoRepository>();
-            services.AddScoped<ICategoriaRepository, CategoriaRepository>();
-        }
+        services.AddScoped<IFunkoRepository, FunkoRepository>();
+        services.AddScoped<ICategoriaRepository, CategoriaRepository>();
+        services.AddScoped<IProveedorRepository, IProveedorRepository>();
 
         return services;
     }

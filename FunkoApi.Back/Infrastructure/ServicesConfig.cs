@@ -3,7 +3,7 @@ using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Services.Get.Categoria;
 using Serilog;
 
-namespace FunkoApi.Infrastructure;
+namespace FunkoApi.Back.Infrastructure;
 
 /// <summary>
 ///     Configuración de servicios de negocio.
