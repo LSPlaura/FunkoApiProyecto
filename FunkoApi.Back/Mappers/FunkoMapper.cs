@@ -1,5 +1,5 @@
+using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Dtos.Categoria;
-using FunkoApi.Back.Dtos.Funko;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Models;
 
@@ -8,20 +8,19 @@ namespace FunkoApi.Back.Mappers;
 /// <summary>
 ///     Métodos de extensión para mapear entre el <see cref="Funko" /> y el DTO <see cref="FunkoDto" />.
 /// </summary>
-public static class FunkoMapper
-{
+public static class FunkoMapper {
     /// <summary>
-    ///     Convierte <see cref="Funko" /> a su respectivo <see cref="FunkoDto" />
+    /// Convierte <see cref="Funko" /> a su respectivo <see cref="FunkoDto" />
     /// </summary>
     /// <param name="funko">Entidad Funko a mapear.</param>
     /// <returns>FunkoDto resultante.</returns>
-    public static FunkoDto ToDto(this Funko funko)
-    {
+    public static FunkoDto ToDto(this Funko funko) {
         return new FunkoDto(
             funko.Id,
             funko.Nombre,
             funko.Precio,
             funko.Stock,
+            funko.Imagen,
             funko.Categoria?.ToDto() ?? new CategoriaDto(string.Empty, "", false, DateTime.UtcNow, DateTime.UtcNow),
             funko.Proveedor?.ToDto() ?? new ProveedorDto("", "", false, DateTime.UtcNow, DateTime.UtcNow),
             funko.IsDeleted,

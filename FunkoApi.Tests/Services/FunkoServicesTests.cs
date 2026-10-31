@@ -1,5 +1,5 @@
 using FluentAssertions;
-using FunkoApi.Back.Dtos.Funko;
+using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Models;

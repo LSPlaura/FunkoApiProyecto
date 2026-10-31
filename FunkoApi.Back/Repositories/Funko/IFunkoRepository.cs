@@ -6,7 +6,7 @@ namespace FunkoApi.Back.Repositories.Funko;
 ///     Interfaz que define las operaciones del repositorio de Funkos.
 ///     Hereda las operaciones CRUD y añade consultas por nombre.
 /// </summary>
-public interface IFunkoRepository : ICrud<Models.Funko, int> {
+public interface IFunkoRepository : ICrud<Models.Funko, long> {
     /// <summary>
     /// Obtiene un Funko por su nombre.
     /// </summary>
