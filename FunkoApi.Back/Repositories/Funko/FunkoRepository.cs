@@ -10,8 +10,7 @@ namespace FunkoApi.Back.Repositories.Funko;
 /// </summary>
 public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     /// <inheritdoc cref="IFunkoRepository.Create" />
-    public async Task<Models.Funko> Create(Models.Funko item)
-    {
+    public async Task<Models.Funko> Create(Models.Funko item) {
         context.Entry(item.Categoria).State = EntityState.Unchanged;
         await context.Funkos.AddAsync(item);
         await context.SaveChangesAsync();
@@ -19,8 +18,7 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     }
 
     /// <inheritdoc cref="IFunkoRepository.GetById" />
-    public async Task<Models.Funko?> GetById(int key)
-    {
+    public async Task<Models.Funko?> GetById(long key) {
         return await context.Funkos.AsNoTracking()
             .Include(f => f.Categoria)
             .Include(f => f.Proveedor)
@@ -28,8 +26,7 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     }
 
     /// <inheritdoc cref="IFunkoRepository.SoftDelete" />
-    public async Task<bool> SoftDelete(int id)
-    {
+    public async Task<bool> SoftDelete(long id) {
         return await context.Funkos
             .Where(f => f.Id == id)
             .ExecuteUpdateAsync(setters => setters
@@ -38,24 +35,21 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     }
 
     /// <inheritdoc cref="IFunkoRepository.HardDelete" />
-    public async Task<bool> HardDelete(Models.Funko item)
-    {
+    public async Task<bool> HardDelete(Models.Funko item) {
         context.Remove(item);
         await context.SaveChangesAsync();
         return true;
     }
 
     /// <inheritdoc cref="IFunkoRepository.Update" />
-    public async Task<Models.Funko> Update(Models.Funko item)
-    {
+    public async Task<Models.Funko?> Update(Models.Funko item) {
         context.Funkos.Update(item);
         await context.SaveChangesAsync();
         return item;
     }
 
     /// <inheritdoc cref="IFunkoRepository.GetAll" />
-    public async Task<IEnumerable<Models.Funko>> GetAll()
-    {
+    public async Task<IEnumerable<Models.Funko>> GetAll() {
         return await context.Funkos.OrderBy(f => f.Nombre)
             .AsNoTracking()
             .Include(f => f.Categoria)
@@ -64,8 +58,7 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     }
 
     /// <inheritdoc cref="IFunkoRepository.GetByName" />
-    public async Task<Models.Funko?> GetByName(string name)
-    {
+    public async Task<Models.Funko?> GetByName(string name) {
         return await context.Funkos.AsNoTracking()
             .Include(f => f.Categoria)
             .Include(f => f.Proveedor)
@@ -73,8 +66,7 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     }
 
     /// <inheritdoc cref="IFunkoRepository.ExitsName" />
-    public async Task<bool> ExitsName(string name)
-    {
+    public async Task<bool> ExitsName(string name) {
         return await context.Funkos.AsNoTracking()
             .Include(f => f.Categoria)
             .Include(f => f.Proveedor)

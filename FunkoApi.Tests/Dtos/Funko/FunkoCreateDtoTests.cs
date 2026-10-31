@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
-using FunkoApi.Back.Dtos.Funko;
+using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Dtos.Proveedor;
 using NUnit.Framework;
 using RangeAttribute = System.ComponentModel.DataAnnotations.RangeAttribute;
