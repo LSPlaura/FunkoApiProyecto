@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using MongoDB.Bson;
 
-namespace FunkoApi.Back.Dtos.Funko;
+namespace FunkoApi.Back.Dto.Funko;
 
 /// <summary>
 /// DTO que contiene los datos necesarios para actualizar un Funko.
@@ -22,8 +23,8 @@ public record UpdateFunkoDto {
     public string? Imagen { get; init; } = string.Empty;
 
     [Required(ErrorMessage = "La categoría es obligatoria")]
-    public long Categoria { get; init; }
+    public string Categoria { get; init; } = string.Empty;
 
     [Required(ErrorMessage = "El proveedor es obligatorio")]
-    public long Proveedor { get; init; }
+    public ObjectId Proveedor { get; init; }
 }

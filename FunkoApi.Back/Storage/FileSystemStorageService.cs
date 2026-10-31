@@ -139,7 +139,7 @@ public class FileSystemStorageService : IStorageService {
         if (!_allowedExtensions.Contains(extension)) return UnitResult.Failure<DomainError>(StorageError.ExtensionNoPermitida());
 
         var contentType = file.ContentType?.ToLowerInvariant();
-        if (contentType is null || !_allowedContentTypes.Any(ct => contentType.Contains(ct.Split('/')[1]))) return UnitResult.Failure<DomainError>(StorageError.TipoContenidoNoPermitido());
+        if (contentType is null || !_allowedContentTypes.Contains(contentType, StringComparer.OrdinalIgnoreCase)) return UnitResult.Failure<DomainError>(StorageError.TipoContenidoNoPermitido());
 
         var filename = Path.GetFileName(file.FileName);
         if (filename.Contains("..") || filename.Contains('/') || filename.Contains('\\')) return UnitResult.Failure<DomainError>(StorageError.NombreArchivoInvalido());

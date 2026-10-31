@@ -1,11 +1,11 @@
 services:
   db:
     image: postgres:17-alpine
-    container_name: productos_efcore_db_api
+    container_name: funkos_efcore_db_api
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_DB: productos
+      POSTGRES_DB: funkos
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin123
     volumes:
@@ -18,7 +18,7 @@ services:
 
   funkoapi:
     environment:
-      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=productos;Username=admin;Password=admin123
+      ConnectionStrings__DefaultConnection: Host=db;Port=5432;Database=funkos;Username=admin;Password=admin123
     depends_on:
       db:
         condition: service_healthy
