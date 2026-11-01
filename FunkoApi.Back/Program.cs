@@ -33,7 +33,20 @@ try
     // ── CONFIGURACIÓN TIPADA ─────────────────────────────────────────────────
     builder.Services.Configure<ApiConfig>(
         builder.Configuration.GetSection("Api"));
+    
+    // ── IDENTITY + JWT ─────────────────────────────────────────────────────
+    builder.Services.AddIdentityConfiguration(builder.Configuration, builder.Environment);
 
+    // ── SERVICIOS ─────────────────────────────────────────────────────────────
+    builder.Services.AddControllers(options =>
+        {
+            options.RespectBrowserAcceptHeader = true;
+            options.ReturnHttpNotAcceptable = true;
+        })
+        .AddXmlDataContractSerializerFormatters();
+
+    builder.Services.AddEndpointsApiExplorer();
+    
     // ── SERVICIOS ─────────────────────────────────────────────────────────────
     builder.Services.AddControllers(options =>
         {
@@ -46,6 +59,7 @@ try
     builder.Services.AddSwaggerGen();
 
     builder.Services
+        .AddCache(builder.Configuration)
         .AddDatabases(builder.Configuration)
         .AddSeeders(builder.Configuration)
         .AddRepositories(builder.Configuration)
@@ -57,6 +71,9 @@ try
     app.UseSerilogRequestLogging();
 
     app.UseGlobalExceptionHandler();
+    
+    app.UseAuthentication();
+    app.UseAuthorization();
 
     if (app.Environment.IsDevelopment())
     {

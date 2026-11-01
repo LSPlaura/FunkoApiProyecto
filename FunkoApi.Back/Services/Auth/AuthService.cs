@@ -7,6 +7,7 @@ using FunkoApi.Back.Data;
 using FunkoApi.Back.Dtos.Auth;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Models;
+using FunkoApi.Back.Services.Auth.Common;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

@@ -1,5 +1,7 @@
 using System.Security.Claims;
 using FunkoApi.Back.Dtos.Auth;
+using FunkoApi.Back.Extensions;
+using FunkoApi.Back.Services.Auth.Common;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

@@ -1,6 +1,9 @@
+using FunkoApi.Back.Services.Auth;
+using FunkoApi.Back.Services.Auth.Common;
 using FunkoApi.Back.Services.Categoria;
 using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Services.Get.Categoria;
+using FunkoApi.Back.Services.Proveedor;
 using Serilog;
 
 namespace FunkoApi.Back.Infrastructure;
@@ -19,8 +22,10 @@ public static class ServicesConfig
     {
         Log.Information("Registrando servicios...");
 
+        services.AddScoped<IAuthService, AuthService>();
         services.AddScoped<IFunkoService, FunkoServices>();
         services.AddScoped<ICategoriaService, CategoriaService>();
+        services.AddScoped<IProveedorService, ProveedorService>();
 
         Log.Information("Servicios registrados correctamente.");
         return services;
