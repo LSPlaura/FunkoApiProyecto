@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Extensions;
 using FunkoApi.Back.Services.Proveedor;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FunkoApi.Back.Controllers;
@@ -20,6 +21,7 @@ public class ProveedoresController(IProveedorService service) : ControllerBase
     /// </summary>
     /// <param name="dto">DTO con los datos necesarios para crear el Proveedor.</param>
     /// <returns>Respuesta HTTP con el Proveedor creado o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpPost]
     public async Task<ActionResult<ProveedorDto>> Create([FromBody] CreateProveedorDto dto)
     {
@@ -36,6 +38,7 @@ public class ProveedoresController(IProveedorService service) : ControllerBase
     /// </summary>
     /// <param name="id">Identificador del Proveedor que se desea eliminar.</param>
     /// <returns>Respuesta HTTP con el resultado de la eliminación o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(string id)
     {
@@ -51,6 +54,7 @@ public class ProveedoresController(IProveedorService service) : ControllerBase
     /// <param name="dto">DTO con los nuevos datos del Proveedor.</param>
     /// <param name="id">Identificador del Proveedor que se desea actualizar.</param>
     /// <returns>Respuesta HTTP con el Proveedor actualizado o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpPut("{id}")]
     public async Task<ActionResult<ProveedorDto>> Update([FromBody] UpdateProveedorDto dto, string id)
     {
@@ -64,6 +68,7 @@ public class ProveedoresController(IProveedorService service) : ControllerBase
     ///     Obtiene todos los Proveedores disponibles.
     /// </summary>
     /// <returns>Respuesta HTTP con la colección de Proveedores.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProveedorDto>>> GetAll()
     {
@@ -75,6 +80,7 @@ public class ProveedoresController(IProveedorService service) : ControllerBase
     /// </summary>
     /// <param name="id">Identificador del Proveedor que se desea consultar.</param>
     /// <returns>Respuesta HTTP con el Proveedor encontrado o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpGet("{id}")]
     public async Task<ActionResult<ProveedorDto>> GetById(string id)
     {

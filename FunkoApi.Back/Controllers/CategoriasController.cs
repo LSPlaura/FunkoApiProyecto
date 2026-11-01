@@ -2,6 +2,7 @@ using CSharpFunctionalExtensions;
 using FunkoApi.Back.Dtos.Categoria;
 using FunkoApi.Back.Extensions;
 using FunkoApi.Back.Services.Get.Categoria;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FunkoApi.Back.Controllers;
@@ -18,6 +19,7 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// Obtiene todas las categorías disponibles.
     /// </summary>
     /// <returns>Respuesta HTTP con la colección de categorías.</returns>
+    [Authorize(Roles = "ADMIN,USER")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetAll() {
         return Ok(await service.GetAll());
@@ -28,6 +30,7 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// </summary>
     /// <param name="id">Identificador de la categoría que se desea consultar.</param>
     /// <returns>Respuesta HTTP con la categoría encontrada o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN,USER")]
     [HttpGet("{id}")]
     public async Task<ActionResult<CategoriaDto>> GetById(string id) {
         return await service.GetById(id).Match(
@@ -41,6 +44,7 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// </summary>
     /// <param name="categoriaDto">DTO con los datos necesarios para crear la categoria.</param>
     /// <returns>Respuesta HTTP con la categoria creado o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpPost]
     public async Task<ActionResult<CategoriaDto>> Post(CreateCategoriaDto categoriaDto) {
         var res = await service.Create(categoriaDto);
@@ -55,6 +59,7 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// </summary>
     /// <param name="id">Identificador de la categoria que se desea eliminar.</param>
     /// <returns>Respuesta HTTP con el resultado de la eliminación o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(string id) {
         return await service.SoftDelete(id).Match(
@@ -69,6 +74,7 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// <param name="dto">DTO con los nuevos datos de la categoria.</param>
     /// <param name="id">Identificador de la categoria que se desea actualizar.</param>
     /// <returns>Respuesta HTTP con la categoria actualizada o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpPut("{id}")]
     public async Task<ActionResult<CategoriaDto>> Update([FromBody] UpdateCategoriaDto dto, string id) {
         return await service.Update(dto, id).Match(
@@ -82,6 +88,7 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// </summary>
     /// <param name="name">Nombre de la categoría que se desea consultar.</param>
     /// <returns>Respuesta HTTP con la categoría encontrada o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN,USER")]
     [HttpGet("{name}")]
     public async Task<ActionResult<CategoriaDto>> GetByName(string name) {
         return await service.GetByName(name).Match(

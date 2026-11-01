@@ -3,6 +3,7 @@ using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Extensions;
 using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Storage;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 
@@ -21,6 +22,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// </summary>
     /// <param name="dto">DTO con los datos necesarios para crear el Funko.</param>
     /// <returns>Respuesta HTTP con el Funko creado o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpPost]
     public async Task<ActionResult<FunkoDto>> Create([FromBody] CreateFunkoDto dto) {
         var result = await service.Create(dto);
@@ -36,6 +38,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// </summary>
     /// <param name="id">Identificador del Funko que se desea eliminar.</param>
     /// <returns>Respuesta HTTP con el resultado de la eliminación o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpDelete("{id:int}")]
     public async Task<ActionResult> Delete(int id) {
         return await service.SoftDelete(id).Match(
@@ -50,6 +53,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// <param name="dto">DTO con los nuevos datos del Funko.</param>
     /// <param name="id">Identificador del Funko que se desea actualizar.</param>
     /// <returns>Respuesta HTTP con el Funko actualizado o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<FunkoDto>> Update([FromBody] UpdateFunkoDto dto, int id) {
         return await service.Update(dto, id).Match(
@@ -62,6 +66,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// Obtiene todos los Funkos disponibles.
     /// </summary>
     /// <returns>Respuesta HTTP con la colección de Funkos.</returns>
+    [Authorize(Roles = "ADMIN,USER")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<FunkoDto>>> GetAll() {
         return Ok(await service.GetAll());
@@ -72,6 +77,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// </summary>
     /// <param name="id">Identificador del Funko que se desea consultar.</param>
     /// <returns>Respuesta HTTP con el Funko encontrado o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpGet("{id:int}")]
     public async Task<ActionResult<FunkoDto>> GetById(int id) {
         return await service.GetById(id).Match(
@@ -85,6 +91,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// </summary>
     /// <param name="name">Nombre del Funko que se desea consultar.</param>
     /// <returns>Respuesta HTTP con el Funko encontrado o el error correspondiente.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpGet("{nombre}")]
     public async Task<ActionResult<FunkoDto>> GetByNombre(string name) {
         return await service.GetByName(name).Match(
@@ -104,6 +111,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// <param name="proveedorId">Identificador del proveedor asociado.</param>
     /// <param name="archivo">Imagen que se guarda en la carpeta de Funkos.</param>
     /// <returns>Respuesta 201 con el Funko creado y su ubicación, o el error de almacenamiento o creación.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpPost("imagen")]
     public async Task<ActionResult<FunkoDto>> CreateConImagen(
         [FromForm] string nombre, 
@@ -129,6 +137,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// <param name="id">Identificador del Funko cuya imagen se desea actualizar.</param>
     /// <param name="archivo">Nueva imagen recibida mediante un formulario multipart/form-data.</param>
     /// <returns>Respuesta 200 con el Funko actualizado, o el error de consulta, guardado o actualización.</returns>
+    [Authorize(Roles = "ADMIN")]
     [HttpPatch("{id:long}/imagen")]
     public async Task<ActionResult<FunkoDto>> UpdateImagen(long id, IFormFile archivo) {
         var existente = await service.GetById(id);
