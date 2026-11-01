@@ -1,5 +1,6 @@
 using FluentAssertions;
 using FunkoApi.Back.Mappers;
+using FunkoApi.Back.Dtos.Categoria;
 using FunkoApi.Back.Models;
 using NUnit.Framework;
 
@@ -15,7 +16,8 @@ public class CategoriaMapperTests
         public void ToDto_EntidadValida_MapeaPropiedades()
         {
             // Arrange
-            var model = TestData.Categoria();
+            var fecha = DateTime.UtcNow;
+            var model = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
 
             // Act
             var result = model.ToDto();
@@ -28,13 +30,15 @@ public class CategoriaMapperTests
         public void ToModel_DtoValido_MapeaPropiedades()
         {
             // Arrange
-            var dto = TestData.Categoria().ToDto();
+            var fecha = DateTime.UtcNow;
+            var dto = new CategoriaDto("cat00000001", "Marvel", false, fecha, fecha);
+            var esperado = new Categoria("Marvel", false, fecha, fecha, dto.Id);
 
             // Act
             var result = dto.ToModel();
 
             // Assert
-            result.Should().Be(TestData.Categoria());
+            result.Should().Be(esperado);
         }
     }
 
