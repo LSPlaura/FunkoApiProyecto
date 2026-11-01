@@ -1,5 +1,4 @@
 using System.ComponentModel.DataAnnotations;
-using MongoDB.Bson;
 
 namespace FunkoApi.Back.Dto.Funko;
 
@@ -26,5 +25,5 @@ public record UpdateFunkoDto {
     public string Categoria { get; init; } = string.Empty;
 
     [Required(ErrorMessage = "El proveedor es obligatorio")]
-    public ObjectId Proveedor { get; init; }
+    public string Proveedor { get; init; } = string.Empty;
 }

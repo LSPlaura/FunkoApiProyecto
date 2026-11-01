@@ -116,7 +116,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         var saveResult = await storage.SaveFileAsync(archivo, "funkos");
         if (saveResult.IsFailure) return saveResult.Error.ToHttpResult<FunkoDto>();
 
-        var dto = new CreateFunkoDto { Nombre = nombre, Precio = precio, Stock =  stock, Categoria = categoriaId, Proveedor = proveedorId, Imagen = saveResult.Value };
+        var dto = new CreateFunkoDto { Nombre = nombre, Precio = precio, Stock =  stock, Categoria = categoriaId, Proveedor = proveedorId.ToString(), Imagen = saveResult.Value };
         var result = await service.Create(dto);
         return result.IsSuccess ? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value) : result.Error.ToHttpResult<FunkoDto>();
     }
@@ -140,7 +140,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         if (saveResult.IsFailure) return saveResult.Error.ToHttpResult<FunkoDto>();
 
         // Actualizar solo la imagen
-        var dto = new UpdateFunkoDto { Nombre = existente.Value.Nombre, Precio = existente.Value.Precio, Stock = existente.Value.Stock, Categoria = existente.Value.Categoria.Id, Proveedor = ObjectId.Parse(existente.Value.Proveedor.Id), Imagen = saveResult.Value };
+        var dto = new UpdateFunkoDto { Nombre = existente.Value.Nombre, Precio = existente.Value.Precio, Stock = existente.Value.Stock, Categoria = existente.Value.Categoria.Id, Proveedor = existente.Value.Proveedor.Id, Imagen = saveResult.Value };
         var updateResult = await service.Update(dto, id);
         return updateResult.IsSuccess ? Ok(updateResult.Value) : updateResult.Error.ToHttpResult<FunkoDto>();
     }
