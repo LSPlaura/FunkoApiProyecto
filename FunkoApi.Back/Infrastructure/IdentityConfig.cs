@@ -1,6 +1,7 @@
 using System.Text;
 using FunkoApi.Back.Config;
 using FunkoApi.Back.Data;
+using FunkoApi.Back.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
