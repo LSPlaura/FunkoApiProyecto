@@ -12,7 +12,7 @@ public static class ProveedorError
         return NotFoundError.FromName(name, "Proveedor");
     }
 
-    public static BadRequestError ProveedorBadRequest(int id)
+    public static BadRequestError ProveedorBadRequest(string id)
     {
         return new BadRequestError($"Proveedor con el ID {id} no encontrada");
     }

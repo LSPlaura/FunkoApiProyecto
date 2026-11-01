@@ -6,8 +6,7 @@ namespace FunkoApi.Back.Dto.Funko;
 /// DTO que contiene los datos necesarios para crear un nuevo Funko.
 /// Incluye las validaciones de los campos mediante Data Annotations.
 /// </summary>
-public record CreateFunkoDto
-{
+public record CreateFunkoDto {
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [MaxLength(100, ErrorMessage = "El nombre no puede tener más de 100 caracteres")]
     public string Nombre { get; init; } = string.Empty;
@@ -25,5 +24,5 @@ public record CreateFunkoDto
     public string Categoria { get; init; } = string.Empty;
 
     [Required(ErrorMessage = "El proveedor es obligatorio")]
-    public Object Proveedor { get; init; } = string.Empty;
+    public string Proveedor { get; init; } = string.Empty;
 }

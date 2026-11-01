@@ -21,8 +21,7 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     public async Task<Models.Funko?> GetById(long key) {
         return await context.Funkos.AsNoTracking()
             .Include(f => f.Categoria)
-            .Include(f => f.Proveedor)
-            .FirstAsync(f => f.Id == key);
+            .FirstAsync(f => f.Id == key && !f.IsDeleted);
     }
 
     /// <inheritdoc cref="IFunkoRepository.SoftDelete" />
@@ -53,7 +52,6 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
         return await context.Funkos.OrderBy(f => f.Nombre)
             .AsNoTracking()
             .Include(f => f.Categoria)
-            .Include(f => f.Proveedor)
             .ToListAsync();
     }
 
@@ -61,26 +59,23 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     public async Task<Models.Funko?> GetByName(string name) {
         return await context.Funkos.AsNoTracking()
             .Include(f => f.Categoria)
-            .Include(f => f.Proveedor)
-            .FirstAsync(f => f.Nombre == name);
+            .FirstAsync(f => f.Nombre == name && !f.IsDeleted);
     }
 
     /// <inheritdoc cref="IFunkoRepository.ExitsName" />
     public async Task<bool> ExitsName(string name) {
         return await context.Funkos.AsNoTracking()
-            .Include(f => f.Categoria)
-            .Include(f => f.Proveedor)
             .AnyAsync(f => f.Nombre == name);
-    }
-
-    /// <inheritdoc cref="IFunkoRepository.ExistAnyFunkoProveedor" />
-    public Task<bool> ExistAnyFunkoProveedor(string key) {
-        if(context.Funkos.Any(f => f.CategoriaId == key)) return Task.FromResult(true);
-        return Task.FromResult(false);
     }
 
     /// <inheritdoc cref="IFunkoRepository.ExistAnyFunkoCategory" />
     public Task<bool> ExistAnyFunkoCategory(string key) {
+        if(context.Funkos.Any(f => f.CategoriaId == key)) return Task.FromResult(true);
+        return Task.FromResult(false);
+    }
+
+    /// <inheritdoc cref="IFunkoRepository.ExistAnyFunkoProveedor" />
+    public Task<bool> ExistAnyFunkoProveedor(string key) {
         if(context.Funkos.Any(f => f.ProveedorId == ObjectId.Parse(key))) return Task.FromResult(true);
         return Task.FromResult(false);
     }
