@@ -50,12 +50,12 @@ public class FileSystemStorageService : IStorageService {
         if (validation.IsFailure) return Task.FromResult(Result.Failure<string, DomainError>(validation.Error));
 
         try {
-            var filename = GenerateUniqueFilename(file.FileName);
-            var folderPath = Path.Combine(_rootPath, folder);
-            Directory.CreateDirectory(folderPath);
+            var fileName = GenerateUniqueFilename(file.FileName);
+            var mainFolderPath = Path.Combine(_rootPath, folder);
+            if(!Directory.Exists(mainFolderPath)) Directory.CreateDirectory(mainFolderPath);
             
-            var filePath = Path.Combine(folderPath, filename);
-            var relativePath = GetRelativePath(filename, folder);
+            var filePath = Path.Combine(mainFolderPath, fileName);
+            var relativePath = GetRelativePath(fileName, folder);
             
             using var stream = new FileStream(filePath, FileMode.Create);
             file.CopyTo(stream);

@@ -18,7 +18,6 @@ public record UpdateFunkoDto {
     [Range(1, int.MaxValue, ErrorMessage = "El stock debe ser mayor a 0")]
     public int Stock { get; init; }
     
-    [StringLength(1000)]
     public string? Imagen { get; init; } = string.Empty;
 
     [Required(ErrorMessage = "La categoría es obligatoria")]
