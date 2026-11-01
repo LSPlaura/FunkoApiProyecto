@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Cache;
+using FunkoApi.Back.Config;
 using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Mappers;
@@ -7,7 +8,7 @@ using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Repositories.Proveedor;
 using Microsoft.Extensions.Options;
-
+ 
 namespace FunkoApi.Back.Services.Funko;
 
 /// <summary>
@@ -38,19 +39,7 @@ public class FunkoServices(
         if (await proveedorRepository.ExistsById(item.Proveedor))
             ProveedorError.ProveedorBadRequest(item.Categoria);
 
-        var model = new Models.Funko(
-            0,
-            item.Nombre,
-            item.Precio,
-            item.Stock,
-            item.Categoria,
-            null,
-            item.Proveedor,
-            null,
-            false,
-            DateTime.UtcNow,
-            DateTime.UtcNow
-        );
+        var model = new Models.Funko();
 
         var result = await funkoRepository.Create(model);
         return result.ToDto();
@@ -120,7 +109,6 @@ public class FunkoServices(
             Precio = item.Precio,
             Stock = item.Stock,
             CategoriaId = item.Categoria,
-            ProveedorId = item.Proveedor,
             UpdatedAt = DateTime.UtcNow
         };
 

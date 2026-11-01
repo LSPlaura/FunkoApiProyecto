@@ -1,4 +1,6 @@
 using Microsoft.EntityFrameworkCore;
+using FunkoApi.Back.Models;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using NUnit.Framework;
 using Testcontainers.MongoDb;
@@ -53,10 +55,13 @@ public class FunkoMongoEfcRepositoryTests
     public async Task Create_FunkoValido_SeGuardaEnMongo()
     {
         // Arrange
-        var categoria = TestData.Categoria();
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
-        var funko = TestData.Funko(categoria: categoria);
+        var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+            proveedor.Id, proveedor, false, fecha, fecha);
 
         var created = await _repository.Create(funko);
 
@@ -69,11 +74,17 @@ public class FunkoMongoEfcRepositoryTests
     public async Task GetAll_ConDatos_RetornaFunkosOrdenadosPorNombre()
     {
         // Arrange
-        var categoria = TestData.Categoria();
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+        var funkoZeta = new Funko(1, "Zeta", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+            proveedor.Id, proveedor, false, fecha, fecha);
+        var funkoAlpha = new Funko(2, "Alpha", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+            proveedor.Id, proveedor, false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
-        await _repository.Create(TestData.Funko(1, "Zeta", categoria));
-        await _repository.Create(TestData.Funko(2, "Alpha", categoria));
+        await _repository.Create(funkoZeta);
+        await _repository.Create(funkoAlpha);
 
         // Act
         var result = (await _repository.GetAll()).ToList();
@@ -86,10 +97,14 @@ public class FunkoMongoEfcRepositoryTests
     public async Task GetById_Existente_RetornaFunko()
     {
         // Arrange
-        var categoria = TestData.Categoria();
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+            proveedor.Id, proveedor, false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
-        await _repository.Create(TestData.Funko(1, "Iron Man", categoria));
+        await _repository.Create(funko);
 
         // Act
         var result = await _repository.GetById(1);
@@ -113,10 +128,14 @@ public class FunkoMongoEfcRepositoryTests
     public async Task GetByName_Existente_RetornaFunko()
     {
         // Arrange
-        var categoria = TestData.Categoria();
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+            proveedor.Id, proveedor, false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
-        await _repository.Create(TestData.Funko(1, "Iron Man", categoria));
+        await _repository.Create(funko);
 
         // Act
         var result = await _repository.GetByName("Iron Man");
@@ -140,10 +159,14 @@ public class FunkoMongoEfcRepositoryTests
     public async Task Update_Existente_RetornaFunkoActualizado()
     {
         // Arrange
-        var categoria = TestData.Categoria();
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+            proveedor.Id, proveedor, false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
-        var funko = await _repository.Create(TestData.Funko(1, "Iron Man", categoria));
+        await _repository.Create(funko);
         _context.ChangeTracker.Clear();
 
         // Act
@@ -158,10 +181,14 @@ public class FunkoMongoEfcRepositoryTests
     public async Task SoftDelete_Existente_RetornaTrueYMarcaElFunko()
     {
         // Arrange
-        var categoria = TestData.Categoria();
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+            proveedor.Id, proveedor, false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
-        await _repository.Create(TestData.Funko(categoria: categoria));
+        await _repository.Create(funko);
 
         // Act
         var result = await _repository.SoftDelete(1);
@@ -185,11 +212,15 @@ public class FunkoMongoEfcRepositoryTests
     public async Task HardDelete_Existente_RetornaTrueYEliminaElFunko()
     {
         // Arrange
-        var categoria = TestData.Categoria();
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+            proveedor.Id, proveedor, false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
 
-        var funko = await _repository.Create(TestData.Funko(categoria: categoria));
+        await _repository.Create(funko);
 
         // Act
         var result = await _repository.HardDelete(funko);
@@ -203,11 +234,15 @@ public class FunkoMongoEfcRepositoryTests
     public async Task ExitsName_Existente_RetornaTrue()
     {
         // Arrange
-        var categoria = TestData.Categoria();
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+            proveedor.Id, proveedor, false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
 
-        await _repository.Create(TestData.Funko(categoria: categoria));
+        await _repository.Create(funko);
 
         // Act
         var result = await _repository.ExitsName("Iron Man");

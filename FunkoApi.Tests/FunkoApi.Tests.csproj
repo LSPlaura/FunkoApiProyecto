@@ -5,22 +5,41 @@
         <IsTestProject>true</IsTestProject>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <RunSettingsFilePath>$(MSBuildProjectDirectory)\coverage.runsettings</RunSettingsFilePath>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="6.0.4"/>
-        <PackageReference Include="FluentAssertions" Version="8.8.0"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.12"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1"/>
-        <PackageReference Include="Moq" Version="4.20.72"/>
-        <PackageReference Include="NUnit" Version="4.4.0"/>
-        <PackageReference Include="NUnit.Analyzers" Version="4.6.0"/>
-        <PackageReference Include="NUnit3TestAdapter" Version="5.2.0"/>
-        <PackageReference Include="Testcontainers.MongoDb" Version="4.8.1"/>
-        <PackageReference Include="Testcontainers.PostgreSql" Version="4.8.1"/>
+        <PackageReference Include="coverlet.collector" Version="10.1.0">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="coverlet.msbuild" Version="10.1.0">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+        <PackageReference Include="FluentAssertions" Version="8.8.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="10.0.12" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+        <PackageReference Include="Moq" Version="4.20.72" />
+        <PackageReference Include="NUnit" Version="4.4.0" />
+        <PackageReference Include="NUnit.Analyzers" Version="4.6.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
+        <PackageReference Include="Testcontainers.MongoDb" Version="4.8.1" />
+        <PackageReference Include="Testcontainers.PostgreSql" Version="4.8.1" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\FunkoApi.Back\FunkoApi.Back.csproj"/>
+        <ProjectReference Include="..\FunkoApi.Back\FunkoApi.Back.csproj" />
+    </ItemGroup>
+
+    <!-- Se conservan los archivos antiguos, pero sus clases de producción ya no existen.
+         No se excluyen clases adicionales del Back de la medición de cobertura. -->
+    <ItemGroup>
+        <Compile Remove="Repositories\CategoriaMongoRepositoryTests.cs" />
+        <Compile Remove="Repositories\CategoriaMongoEfcRepositoryTests.cs" />
+        <Compile Remove="Repositories\FunkoMongoRepositoryTests.cs" />
+        <Compile Remove="Repositories\FunkoMongoEfcRepositoryTests.cs" />
+        <!-- FunkoServices queda pendiente por petición expresa. -->
+        <Compile Remove="Services\FunkoServicesTests.cs" />
     </ItemGroup>
 </Project>

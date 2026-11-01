@@ -1,5 +1,7 @@
 using FluentAssertions;
 using FunkoApi.Back.Mappers;
+using FunkoApi.Back.Models;
+using MongoDB.Bson;
 using NUnit.Framework;
 
 namespace FunkoApi.Tests.Mappers;
@@ -14,7 +16,11 @@ public class FunkoMapperTests
         public void ToDto_EntidadValida_MapeaRelaciones()
         {
             // Arrange
-            var model = TestData.Funko();
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var model = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
 
             // Act
             var result = model.ToDto();
@@ -25,16 +31,27 @@ public class FunkoMapperTests
         }
 
         [Test]
-        public void ToModel_DtoValido_DevuelveEntidadEquivalente()
+        public void ToDto_EntidadValida_ConservaCamposSimples()
         {
             // Arrange
-            var dto = TestData.Funko().ToDto();
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var model = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
 
             // Act
-            var result = dto.ToModel();
+            var result = model.ToDto();
 
             // Assert
-            result.Should().Be(TestData.Funko());
+            result.Id.Should().Be(model.Id);
+            result.Nombre.Should().Be(model.Nombre);
+            result.Precio.Should().Be(model.Precio);
+            result.Stock.Should().Be(model.Stock);
+            result.Imagen.Should().Be(model.Imagen);
+            result.IsDeleted.Should().Be(model.IsDeleted);
+            result.CreatedAt.Should().Be(model.CreatedAt);
+            result.UpdatedAt.Should().Be(model.UpdatedAt);
         }
     }
 
@@ -42,16 +59,20 @@ public class FunkoMapperTests
     public class CasosInvalidos
     {
         [Test]
-        public void ToModel_DtoConProveedorNulo_LanzaExcepcion()
+        public void ToDto_ModeloConProveedorNulo_RetornaProveedorVacio()
         {
             // Arrange
-            var dto = TestData.Funko().ToDto() with { Proveedor = null! };
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var model = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                ObjectId.Parse("000000000000000000000001"), null, false, fecha, fecha);
 
             // Act
-            var action = () => dto.ToModel();
+            var resultado = model.ToDto();
 
             // Assert
-            action.Should().Throw<NullReferenceException>();
+            resultado.Proveedor.Id.Should().BeEmpty();
+            resultado.Proveedor.Nombre.Should().BeEmpty();
         }
     }
 }

@@ -48,7 +48,10 @@ public class CategoriaMongoRepositoryTests
     {
         // Arrange
         var collection = _database.GetCollection<Categoria>("categorias");
-        await collection.InsertManyAsync(new[] { TestData.Categoria(1, "Zeta"), TestData.Categoria(2, "Alpha") });
+        var fecha = DateTime.UtcNow;
+        var categoriaZeta = new Categoria("Zeta", false, fecha, fecha, "cat00000001");
+        var categoriaAlpha = new Categoria("Alpha", false, fecha, fecha, "cat00000002");
+        await collection.InsertManyAsync(new[] { categoriaZeta, categoriaAlpha });
         var all = (await _repository.GetAll()).ToList();
 
         // Assert
@@ -60,7 +63,8 @@ public class CategoriaMongoRepositoryTests
     {
         // Arrange
         var collection = _database.GetCollection<Categoria>("categorias");
-        var categoria = TestData.Categoria();
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
         await collection.InsertOneAsync(categoria);
 
         // Act
@@ -85,7 +89,8 @@ public class CategoriaMongoRepositoryTests
     {
         // Arrange
         var collection = _database.GetCollection<Categoria>("categorias");
-        var categoria = TestData.Categoria();
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
         await collection.InsertOneAsync(categoria);
 
         // Act

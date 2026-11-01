@@ -8,7 +8,6 @@ namespace FunkoApi.Back.Models;
 /// </summary>
 public record Proveedor(
     [property: BsonId]
-    [property: BsonRepresentation(BsonType.Int64)]
     ObjectId Id,
 
     [property: BsonElement("nombre")]
