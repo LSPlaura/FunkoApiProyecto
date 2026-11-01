@@ -16,7 +16,7 @@ public class ProveedorDtoTests
         {
             // Arrange
             var dto = new ProveedorDto(
-                1,
+                "000000000000000000000001",
                 "Funko Corp",
                 false,
                 DateTime.UtcNow,

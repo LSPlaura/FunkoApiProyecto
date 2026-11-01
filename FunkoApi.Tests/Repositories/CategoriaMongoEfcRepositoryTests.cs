@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using FunkoApi.Back.Models;
 using MongoDB.Driver;
 using NUnit.Framework;
 using Testcontainers.MongoDb;
@@ -53,7 +54,10 @@ public class CategoriaMongoEfcRepositoryTests
     public async Task GetAll_ConDatos_RetornaCategoriasOrdenadasPorNombre()
     {
         // Arrange
-        await _context.Categorias.AddRangeAsync(TestData.Categoria(1, "Zeta"), TestData.Categoria(2, "Alpha"));
+        var fecha = DateTime.UtcNow;
+        var categoriaZeta = new Categoria("Zeta", false, fecha, fecha, "cat00000001");
+        var categoriaAlpha = new Categoria("Alpha", false, fecha, fecha, "cat00000002");
+        await _context.Categorias.AddRangeAsync(categoriaZeta, categoriaAlpha);
         await _context.SaveChangesAsync();
         var all = (await _repository.GetAll()).ToList();
 
@@ -65,7 +69,9 @@ public class CategoriaMongoEfcRepositoryTests
     public async Task GetById_Existente_RetornaCategoria()
     {
         // Arrange
-        await _context.Categorias.AddAsync(TestData.Categoria());
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
 
         // Act
@@ -90,7 +96,9 @@ public class CategoriaMongoEfcRepositoryTests
     public async Task GetByName_Existente_RetornaCategoria()
     {
         // Arrange
-        await _context.Categorias.AddAsync(TestData.Categoria());
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
 
         // Act

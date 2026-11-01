@@ -1,6 +1,9 @@
 /.idea/
 /FunkoApi.Tests/bin/
 /FunkoApi.Tests/obj/
+/FunkoApi.Tests/TestResults/
+/FunkoApi.Tests/coverage.runsettings
+/FunkoApi.Tests/coveragereport/
 
 # OpenCode: configuracion, agentes y archivos locales
 .opencode*

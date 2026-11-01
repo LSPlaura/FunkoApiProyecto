@@ -1,5 +1,5 @@
 using FluentAssertions;
-using FunkoApi.Back.Dtos.Funko;
+using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Models;
@@ -8,6 +8,7 @@ using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Services.Crud.Funko;
 using FunkoApi.Back.Services.Funko;
 using Moq;
+using MongoDB.Bson;
 using NUnit.Framework;
 
 namespace FunkoApi.Tests.Services;
@@ -82,8 +83,11 @@ public class FunkoServicesTests
         public async Task Create_DatosValidos_CreaYDevuelveDto()
         {
             // Arrange
-            var categoria = TestData.Categoria();
-            var funko = TestData.Funko(categoria: categoria);
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
             _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(categoria);
             _mockFunkoRepository.Setup(x => x.ExitsName("Iron Man")).ReturnsAsync(false);
             _mockFunkoRepository.Setup(x => x.Create(It.IsAny<Funko>()))
@@ -103,7 +107,12 @@ public class FunkoServicesTests
         public async Task GetById_Existente_DevuelveDto()
         {
             // Arrange
-            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Funko());
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
+            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(funko);
 
             // Act
             var resultado = await _service.GetById(1);
@@ -117,7 +126,12 @@ public class FunkoServicesTests
         public async Task GetByName_Existente_DevuelveDto()
         {
             // Arrange
-            _mockFunkoRepository.Setup(x => x.GetByName("Iron Man")).ReturnsAsync(TestData.Funko());
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
+            _mockFunkoRepository.Setup(x => x.GetByName("Iron Man")).ReturnsAsync(funko);
 
             // Act
             var resultado = await _service.GetByName("Iron Man");
@@ -131,7 +145,12 @@ public class FunkoServicesTests
         public async Task SoftDelete_Existente_DevuelveResultadoDelRepositorio()
         {
             // Arrange
-            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Funko());
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
+            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(funko);
             _mockFunkoRepository.Setup(x => x.SoftDelete(1)).ReturnsAsync(true);
 
             // Act
@@ -147,7 +166,12 @@ public class FunkoServicesTests
         public async Task SoftDelete_ExistentePeroNoModificado_DevuelveFalse()
         {
             // Arrange
-            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Funko());
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
+            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(funko);
             _mockFunkoRepository.Setup(x => x.SoftDelete(1)).ReturnsAsync(false);
 
             // Act
@@ -162,7 +186,12 @@ public class FunkoServicesTests
         public async Task HardDelete_Existente_DevuelveResultadoDelRepositorio()
         {
             // Arrange
-            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Funko());
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
+            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(funko);
             _mockFunkoRepository.Setup(x => x.HardDelete(It.IsAny<Funko>()))
                 .ReturnsAsync(true);
 
@@ -179,10 +208,14 @@ public class FunkoServicesTests
         public async Task Update_MismoNombre_NoCompruebaConflictoYActualiza()
         {
             // Arrange
-            var oldFunko = TestData.Funko();
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var oldFunko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
             _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(oldFunko);
 
-            _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Categoria());
+            _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(categoria);
 
             _mockFunkoRepository.Setup(x => x.ExitsName("Iron Man")).ReturnsAsync(true);
             _mockFunkoRepository.Setup(x => x.Update(It.IsAny<Funko>()))
@@ -202,9 +235,14 @@ public class FunkoServicesTests
         public async Task Update_NombreNuevoNoDuplicado_Actualiza()
         {
             // Arrange
-            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Funko());
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
+            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(funko);
 
-            _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Categoria());
+            _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(categoria);
 
             _mockFunkoRepository.Setup(x => x.ExitsName("Updated")).ReturnsAsync(false);
             _mockFunkoRepository.Setup(x => x.Update(It.IsAny<Funko>()))
@@ -222,8 +260,15 @@ public class FunkoServicesTests
         public async Task GetAll_ConDatos_DevuelveDtos()
         {
             // Arrange
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var funkoAlpha = new Funko(1, "Alpha", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
+            var funkoBeta = new Funko(2, "Beta", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
             _mockFunkoRepository.Setup(x => x.GetAll())
-                .ReturnsAsync(new[] { TestData.Funko(1, "Alpha"), TestData.Funko(2, "Beta") });
+                .ReturnsAsync(new[] { funkoAlpha, funkoBeta });
 
             // Act
             var resultado = await _service.GetAll();
@@ -271,7 +316,9 @@ public class FunkoServicesTests
         public async Task Create_NombreDuplicado_DevuelveConflict()
         {
             // Arrange
-            _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Categoria());
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(categoria);
             _mockFunkoRepository.Setup(x => x.ExitsName("Iron Man")).ReturnsAsync(true);
 
             // Act
@@ -348,9 +395,12 @@ public class FunkoServicesTests
         [Test]
         public async Task Update_Inexistente_DevuelveNotFound()
         {
+            // Arrange
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
             _mockFunkoRepository.Setup(x => x.GetById(99))
                 .ReturnsAsync((Funko?)null);
-            _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Categoria());
+            _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(categoria);
 
             // Act
             var resultado = await _service.Update(UpdateRequest("Updated"), 99);
@@ -364,9 +414,15 @@ public class FunkoServicesTests
         [Test]
         public async Task Update_NombreNuevoDuplicado_DevuelveConflict()
         {
-            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Funko());
+            // Arrange
+            var fecha = DateTime.UtcNow;
+            var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+            var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
+            var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+                proveedor.Id, proveedor, false, fecha, fecha);
+            _mockFunkoRepository.Setup(x => x.GetById(1)).ReturnsAsync(funko);
             _mockFunkoRepository.Setup(x => x.ExitsName("Existing")).ReturnsAsync(true);
-            _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(TestData.Categoria());
+            _mockCategoriaRepository.Setup(x => x.GetById(1)).ReturnsAsync(categoria);
 
             // Act
             var resultado = await _service.Update(UpdateRequest("Existing"), 1);

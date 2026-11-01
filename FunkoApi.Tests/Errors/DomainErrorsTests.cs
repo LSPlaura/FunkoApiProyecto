@@ -47,7 +47,7 @@ public class DomainErrorsTests
         {
             // Act
             var funko = FunkoError.FunkoAlreadyExists("Iron Man");
-            var categoria = CategoriaError.CategoriaNotFound(1);
+            var categoria = CategoriaError.CategoriaNotFound("cat00000001");
 
             // Assert
             funko.Should().BeOfType<ConflictError>();

@@ -26,7 +26,7 @@ public class ProveedorService(
     {
         logger.LogInformation("Creando proveedor con nombre {Nombre}...", item.Nombre);
 
-        var model = new Models.Proveedor(new ObjectId(""), item.Nombre, false, DateTime.UtcNow, DateTime.UtcNow);
+        var model = new Models.Proveedor(ObjectId.GenerateNewId(), item.Nombre, false, DateTime.UtcNow, DateTime.UtcNow);
         var result = await repository.Create(model);
         logger.LogInformation("Proveedor creado con Id {Id}.", result.Id);
 

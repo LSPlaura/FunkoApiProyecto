@@ -15,7 +15,7 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Console(
         outputTemplate: "[{Timestamp:HH:mm:ss} {Level:u3}] {Message:lj}{NewLine}{Exception}")
     .WriteTo.File(
-        "logs/productos-.log",
+        "logs/funkos-.log",
         rollingInterval: RollingInterval.Day,
         retainedFileCountLimit: 7,
         outputTemplate: "{Timestamp:yyyy-MM-dd HH:mm:ss.fff} [{Level:u3}] {Message:lj}{NewLine}{Exception}")

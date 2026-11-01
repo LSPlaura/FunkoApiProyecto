@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FunkoApi.Back.Config;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;

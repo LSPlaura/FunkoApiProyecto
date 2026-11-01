@@ -1,6 +1,8 @@
 using FluentAssertions;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Mappers;
+using FunkoApi.Back.Models;
+using MongoDB.Bson;
 using NUnit.Framework;
 
 namespace FunkoApi.Tests.Mappers;
@@ -15,7 +17,8 @@ public class ProveedorMapperTests
         public void ToDtoYToModel_ProveedorValido_ConservanDatos()
         {
             // Arrange
-            var model = TestData.Proveedor();
+            var fecha = DateTime.UtcNow;
+            var model = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
 
             // Act
             var result = model.ToDto().ToModel();

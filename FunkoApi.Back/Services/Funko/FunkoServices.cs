@@ -1,13 +1,14 @@
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Cache;
-using FunkoApi.Back.Dtos.Funko;
+using FunkoApi.Back.Config;
+using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Mappers;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Repositories.Proveedor;
 using Microsoft.Extensions.Options;
-
+ 
 namespace FunkoApi.Back.Services.Funko;
 
 /// <summary>
@@ -38,26 +39,14 @@ public class FunkoServices(
         if (await proveedorRepository.ExistsById(item.Proveedor))
             ProveedorError.ProveedorBadRequest(item.Categoria);
 
-        var model = new Models.Funko(
-            0,
-            item.Nombre,
-            item.Precio,
-            item.Stock,
-            item.Categoria,
-            null,
-            item.Proveedor,
-            null,
-            false,
-            DateTime.UtcNow,
-            DateTime.UtcNow
-        );
+        var model = new Models.Funko();
 
         var result = await funkoRepository.Create(model);
         return result.ToDto();
     }
 
     /// <inheritdoc cref="IFunkoService.GetById" />
-    public async Task<Result<FunkoDto, DomainError>> GetById(int key)
+    public async Task<Result<FunkoDto, DomainError>> GetById(long key)
     {
         var funko = await cache.GetOrSetAsync<Models.Funko>(_funkoKey + key,
             async () => await funkoRepository.GetById(key),
@@ -77,7 +66,7 @@ public class FunkoServices(
     }
 
     /// <inheritdoc cref="IFunkoService.SoftDelete" />
-    public async Task<Result<bool, DomainError>> SoftDelete(int id)
+    public async Task<Result<bool, DomainError>> SoftDelete(long id)
     {
         await cache.RemoveAsync(_funkoKey + id);
         var funko = await funkoRepository.GetById(id);
@@ -86,7 +75,7 @@ public class FunkoServices(
     }
 
     /// <inheritdoc cref="IFunkoService.HardDelete" />
-    public async Task<Result<bool, DomainError>> HardDelete(int id)
+    public async Task<Result<bool, DomainError>> HardDelete(long id)
     {
         await cache.RemoveAsync(_funkoKey + id);
         var funko = await funkoRepository.GetById(id);
@@ -95,7 +84,7 @@ public class FunkoServices(
     }
 
     /// <inheritdoc cref="IFunkoService.Update" />
-    public async Task<Result<FunkoDto, DomainError>> Update(UpdateFunkoDto item, int key)
+    public async Task<Result<FunkoDto, DomainError>> Update(UpdateFunkoDto item, long key)
     {
         var oldFunkoCached = await cache.GetAsync<Models.Funko>(_funkoKey + key);
         if (oldFunkoCached == null)
@@ -120,7 +109,6 @@ public class FunkoServices(
             Precio = item.Precio,
             Stock = item.Stock,
             CategoriaId = item.Categoria,
-            ProveedorId = item.Proveedor,
             UpdatedAt = DateTime.UtcNow
         };
 

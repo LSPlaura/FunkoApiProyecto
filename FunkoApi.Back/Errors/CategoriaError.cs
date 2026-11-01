@@ -52,7 +52,7 @@ public static class CategoriaError {
     /// </summary>
     /// <param name="id">Identificador de la categoría con la que se ha producido el conflicto.</param>
     /// <returns>Error de tipo ConflictError.</returns>
-    public static ConflictError CategoriaConflictError(int id) {
+    public static ConflictError CategoriaConflictError(string id) {
         return new ConflictError($"Se han tenido problemas a la hora de operar con la Categoria con el ID {id}");
     }
 }

@@ -10,8 +10,7 @@ public static class RepositoriesConfig
     {
         services.AddScoped<IFunkoRepository, FunkoRepository>();
         services.AddScoped<ICategoriaRepository, CategoriaRepository>();
-        services.AddScoped<IProveedorRepository, IProveedorRepository>();
-
+        services.AddScoped<IProveedorRepository, ProveedorMongoRepository>();
         return services;
     }
 }
