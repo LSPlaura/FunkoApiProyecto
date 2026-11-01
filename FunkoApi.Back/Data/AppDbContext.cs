@@ -1,5 +1,7 @@
 using FunkoApi.Back.Generators;
 using FunkoApi.Back.Models;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using MongoDB.Bson;
 
@@ -9,7 +11,7 @@ namespace FunkoApi.Back.Data;
 /// Contexto de base de datos de Entity Framework Core.
 /// Gestiona las entidades de Funkos, categorías y proveedores.
 /// </summary>
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options) {
+public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<AppUser, IdentityRole<long>, long>(options) {
     public DbSet<Funko> Funkos => Set<Funko>();
     public DbSet<Categoria> Categorias => Set<Categoria>();
 
