@@ -11,7 +11,6 @@ namespace FunkoApi.Back.Repositories.Funko;
 public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     /// <inheritdoc cref="IFunkoRepository.Create" />
     public async Task<Models.Funko> Create(Models.Funko item) {
-        context.Entry(item.Categoria).State = EntityState.Unchanged;
         await context.Funkos.AddAsync(item);
         await context.SaveChangesAsync();
         return item;
@@ -21,13 +20,13 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     public async Task<Models.Funko?> GetById(long key) {
         return await context.Funkos.AsNoTracking()
             .Include(f => f.Categoria)
-            .FirstAsync(f => f.Id == key && !f.IsDeleted);
+            .FirstOrDefaultAsync(f => f.Id == key && !f.IsDeleted);
     }
 
     /// <inheritdoc cref="IFunkoRepository.SoftDelete" />
     public async Task<bool> SoftDelete(long id) {
         return await context.Funkos
-            .Where(f => f.Id == id)
+            .Where(f => f.Id == id && !f.IsDeleted)
             .ExecuteUpdateAsync(setters => setters
                 .SetProperty(f => f.IsDeleted, true)
                 .SetProperty(f => f.UpdatedAt, DateTime.UtcNow)) > 0;
@@ -35,16 +34,33 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
 
     /// <inheritdoc cref="IFunkoRepository.HardDelete" />
     public async Task<bool> HardDelete(Models.Funko item) {
-        context.Remove(item);
+        var existente = await context.Funkos.FindAsync(item.Id);
+        if (existente == null) return false;
+
+        context.Funkos.Remove(existente);
         await context.SaveChangesAsync();
         return true;
     }
 
     /// <inheritdoc cref="IFunkoRepository.Update" />
     public async Task<Models.Funko?> Update(Models.Funko item) {
-        context.Funkos.Update(item);
+        var existente = await context.Funkos.FindAsync(item.Id);
+        if (existente == null || existente.IsDeleted) return null;
+
+        var actualizado = existente with {
+            Nombre = item.Nombre,
+            Precio = item.Precio,
+            Stock = item.Stock,
+            Imagen = item.Imagen,
+            CategoriaId = item.CategoriaId,
+            ProveedorId = item.ProveedorId,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        context.Entry(existente).CurrentValues.SetValues(actualizado);
         await context.SaveChangesAsync();
-        return item;
+        await context.Entry(existente).Reference(f => f.Categoria).LoadAsync();
+        return existente;
     }
 
     /// <inheritdoc cref="IFunkoRepository.GetAll" />
@@ -59,7 +75,7 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     public async Task<Models.Funko?> GetByName(string name) {
         return await context.Funkos.AsNoTracking()
             .Include(f => f.Categoria)
-            .FirstAsync(f => f.Nombre == name && !f.IsDeleted);
+            .FirstOrDefaultAsync(f => f.Nombre == name && !f.IsDeleted);
     }
 
     /// <inheritdoc cref="IFunkoRepository.ExitsName" />
@@ -69,14 +85,14 @@ public class FunkoRepository(AppDbContext context) : IFunkoRepository {
     }
 
     /// <inheritdoc cref="IFunkoRepository.ExistAnyFunkoCategory" />
-    public Task<bool> ExistAnyFunkoCategory(string key) {
-        if(context.Funkos.Any(f => f.CategoriaId == key)) return Task.FromResult(true);
-        return Task.FromResult(false);
+    public async Task<bool> ExistAnyFunkoCategory(string key) {
+        if(await context.Funkos.AnyAsync(f => f.CategoriaId == key)) return true;
+        return false;
     }
 
     /// <inheritdoc cref="IFunkoRepository.ExistAnyFunkoProveedor" />
-    public Task<bool> ExistAnyFunkoProveedor(string key) {
-        if(context.Funkos.Any(f => f.ProveedorId == ObjectId.Parse(key))) return Task.FromResult(true);
-        return Task.FromResult(false);
+    public async Task<bool> ExistAnyFunkoProveedor(string key) {
+        if(await context.Funkos.AnyAsync(f => f.ProveedorId == ObjectId.Parse(key))) return true;
+        return false;
     }
 }
