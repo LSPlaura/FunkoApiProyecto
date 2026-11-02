@@ -3,6 +3,9 @@ using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Services.Categoria;
 using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Services.Get.Categoria;
+using FunkoApi.Back.Services.Auth;
+using FunkoApi.Back.Services.Auth.Common;
+using FunkoApi.Back.Services.Proveedor;
 using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 
@@ -24,7 +27,11 @@ public class ServicesConfigTests
         resultado.Should().BeSameAs(servicios);
         servicios.Should().Contain(d => d.ServiceType == typeof(ICategoriaService)
             && d.ImplementationType == typeof(CategoriaService) && d.Lifetime == ServiceLifetime.Scoped);
-        // Solo se comprueba su registro, no se instancia ni se prueba FunkoServices.
-        servicios.Should().Contain(d => d.ServiceType == typeof(IFunkoService) && d.Lifetime == ServiceLifetime.Scoped);
+        servicios.Should().Contain(d => d.ServiceType == typeof(IFunkoService)
+            && d.ImplementationType == typeof(FunkoServices) && d.Lifetime == ServiceLifetime.Scoped);
+        servicios.Should().Contain(d => d.ServiceType == typeof(IAuthService)
+            && d.ImplementationType == typeof(AuthService) && d.Lifetime == ServiceLifetime.Scoped);
+        servicios.Should().Contain(d => d.ServiceType == typeof(IProveedorService)
+            && d.ImplementationType == typeof(ProveedorService) && d.Lifetime == ServiceLifetime.Scoped);
     }
 }

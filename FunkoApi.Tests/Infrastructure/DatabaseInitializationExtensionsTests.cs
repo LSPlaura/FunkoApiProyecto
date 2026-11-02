@@ -1,5 +1,6 @@
 using FluentAssertions;
 using FunkoApi.Back.Data;
+using FunkoApi.Back.Config;
 using FunkoApi.Back.Data.Seed.Efc;
 using FunkoApi.Back.Data.Seed.Mongo;
 using FunkoApi.Back.Infrastructure;
@@ -7,8 +8,11 @@ using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Proveedor;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using Microsoft.Extensions.DependencyInjection;
 using MongoDB.Bson;
+using MongoDB.Driver;
 using Moq;
 using NUnit.Framework;
 using Testcontainers.PostgreSql;
@@ -53,7 +57,18 @@ public class DatabaseInitializationExtensionsTests
         await contexto.SaveChangesAsync();
         contexto.ChangeTracker.Clear();
         var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Production" });
+        var mongoClientMock = new Mock<IMongoClient>();
+        var mongoDatabaseMock = new Mock<IMongoDatabase>();
+        mongoDatabaseMock.Setup(d => d.Client).Returns(mongoClientMock.Object);
+        mongoDatabaseMock.Setup(d => d.DatabaseNamespace).Returns(new DatabaseNamespace("initialization_test"));
+        builder.Services.AddSingleton(mongoDatabaseMock.Object);
         builder.Services.AddSingleton(contexto);
+        builder.Services.AddIdentity<AppUser, IdentityRole<long>>().AddEntityFrameworkStores<AppDbContext>();
+        builder.Services.AddSingleton<IOptions<StorageSettings>>(Options.Create(new StorageSettings
+        {
+            UploadPath = "uploads", DefaultImage = "default.png",
+            Folders = new Dictionary<string, string> { ["Funkos"] = "funkos" }
+        }));
         builder.Services.AddSingleton(repositorioMock.Object);
         builder.Services.AddSingleton<MongoSeeder>();
         builder.Services.AddSingleton<EfcSeeder>();
@@ -68,5 +83,7 @@ public class DatabaseInitializationExtensionsTests
         (await contexto.Funkos.CountAsync()).Should().Be(3);
         repositorioMock.Verify(r => r.GetAll(), Times.Exactly(2));
         repositorioMock.Verify(r => r.Create(It.IsAny<Proveedor>()), Times.Never);
+        mongoClientMock.Verify(c => c.DropDatabaseAsync("initialization_test", default), Times.Once);
+        (await contexto.Users.CountAsync()).Should().Be(2);
     }
 }

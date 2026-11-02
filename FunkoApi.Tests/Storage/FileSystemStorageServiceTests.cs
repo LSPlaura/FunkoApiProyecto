@@ -55,7 +55,6 @@ public class FileSystemStorageServiceTests
         Path.GetFileName(resultado.Value).Should().NotContain(" ").And.NotContain("-");
     }
 
-    [TestCase(0, "imagen.jpg", "image/jpeg", "vacio")]
     [TestCase(5242881, "imagen.jpg", "image/jpeg", "grande")]
     [TestCase(1, "imagen.pdf", "image/jpeg", "extension")]
     [TestCase(1, "imagen.jpg", "application/pdf", "tipo")]
@@ -87,18 +86,21 @@ public class FileSystemStorageServiceTests
         Directory.GetFiles(_directorio, "*", SearchOption.AllDirectories).Should().BeEmpty();
     }
 
-    [Test]
-    public async Task SaveFileAsync_ArchivoNulo_RetornaError()
+    [TestCase(-1, true)]
+    [TestCase(0, true)]
+    [TestCase(1, false)]
+    public void IsEmpty_ArchivoNuloVacioOConContenido_RetornaBooleano(int longitud, bool esperado)
     {
         // Arrange
-        IFormFile archivo = null!;
+        var archivoMock = new Mock<IFormFile>();
+        archivoMock.Setup(f => f.Length).Returns(Math.Max(longitud, 0));
+        IFormFile? archivo = longitud < 0 ? null : archivoMock.Object;
 
         // Act
-        var resultado = await _service.SaveFileAsync(archivo, "funkos");
+        var resultado = _service.IsEmpty(archivo);
 
         // Assert
-        resultado.IsFailure.Should().BeTrue();
-        resultado.Error.Should().Be(StorageError.ArchivoVacio());
+        resultado.Should().Be(esperado);
     }
 
     [Test]
@@ -178,6 +180,44 @@ public class FileSystemStorageServiceTests
 
         // Assert
         resultado.Should().BeTrue();
+    }
+
+    [Test]
+    public void GetFullPath_RutaConBarraInicial_SeConsideraEnraizadaYNoSeModifica()
+    {
+        // En Windows, Path.IsPathRooted reconoce "/uploads/..." como ruta enraizada
+        // (cuelga de la unidad actual), por lo que se devuelve sin cambios.
+        const string entrada = "/uploads/funkos/imagen.png";
+
+        // Act
+        var resultado = _service.GetFullPath(entrada);
+
+        // Assert
+        resultado.Should().Be(entrada);
+    }
+
+    [Test]
+    public async Task DeleteFileAsync_ArchivoNoSePuedeBorrar_RetornaErrorEliminando()
+    {
+        // Arrange
+        var ruta = Path.Combine(_directorio, "uploads", "imagen.png");
+        await File.WriteAllBytesAsync(ruta, new byte[] { 1 });
+        File.SetAttributes(ruta, FileAttributes.ReadOnly);
+
+        try
+        {
+            // Act
+            var resultado = await _service.DeleteFileAsync("imagen.png");
+
+            // Assert
+            resultado.IsFailure.Should().BeTrue();
+            resultado.Error.Should().Be(StorageError.ErrorEliminando());
+            File.Exists(ruta).Should().BeTrue();
+        }
+        finally
+        {
+            File.SetAttributes(ruta, FileAttributes.Normal);
+        }
     }
 
     [TestCase(false)]

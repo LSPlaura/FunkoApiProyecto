@@ -54,7 +54,7 @@ public class EntityMappersTests
             var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
             var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
             var model = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
-                proveedor.Id, proveedor, false, fecha, fecha);
+                proveedor.Id, false, fecha, fecha);
 
             // Act
             var dto = model.ToDto();
@@ -62,7 +62,6 @@ public class EntityMappersTests
             // Assert
             dto.Id.Should().Be(model.Id);
             dto.Categoria.Should().Be(model.Categoria!.ToDto());
-            dto.Proveedor.Should().Be(model.Proveedor!.ToDto());
         }
     }
 
@@ -76,7 +75,7 @@ public class EntityMappersTests
             var fecha = DateTime.UtcNow;
             var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
             var model = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", "cat00000001", null,
-                proveedor.Id, proveedor, false, fecha, fecha);
+                proveedor.Id, false, fecha, fecha);
 
             // Act
             var resultado = model.ToDto();

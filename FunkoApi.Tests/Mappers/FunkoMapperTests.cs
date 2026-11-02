@@ -20,14 +20,14 @@ public class FunkoMapperTests
             var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
             var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
             var model = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
-                proveedor.Id, proveedor, false, fecha, fecha);
+                proveedor.Id, false, fecha, fecha);
 
             // Act
             var result = model.ToDto();
 
             // Assert
             result.Categoria.Nombre.Should().Be("Marvel");
-            result.Proveedor.Nombre.Should().Be("Funko Corp");
+            result.Categoria.Id.Should().Be(categoria.Id);
         }
 
         [Test]
@@ -38,7 +38,7 @@ public class FunkoMapperTests
             var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
             var proveedor = new Proveedor(ObjectId.Parse("000000000000000000000001"), "Funko Corp", false, fecha, fecha);
             var model = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
-                proveedor.Id, proveedor, false, fecha, fecha);
+                proveedor.Id, false, fecha, fecha);
 
             // Act
             var result = model.ToDto();
@@ -59,20 +59,20 @@ public class FunkoMapperTests
     public class CasosInvalidos
     {
         [Test]
-        public void ToDto_ModeloConProveedorNulo_RetornaProveedorVacio()
+        public void ToDto_ModeloConCategoriaNula_RetornaCategoriaVacia()
         {
             // Arrange
             var fecha = DateTime.UtcNow;
             var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-            var model = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
-                ObjectId.Parse("000000000000000000000001"), null, false, fecha, fecha);
+            var model = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, null,
+                ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
 
             // Act
             var resultado = model.ToDto();
 
             // Assert
-            resultado.Proveedor.Id.Should().BeEmpty();
-            resultado.Proveedor.Nombre.Should().BeEmpty();
+            resultado.Categoria.Id.Should().BeEmpty();
+            resultado.Categoria.Nombre.Should().BeEmpty();
         }
     }
 }

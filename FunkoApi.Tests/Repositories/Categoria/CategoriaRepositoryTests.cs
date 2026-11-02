@@ -1,8 +1,11 @@
 using FluentAssertions;
 using FunkoApi.Back.Data;
+using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Categoria;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using NUnit.Framework;
 using Testcontainers.PostgreSql;
 
@@ -15,7 +18,9 @@ public class CategoriaRepositoryTests
 {
     private PostgreSqlContainer _container = null!;
     private AppDbContext _context = null!;
-    private CategoriaRepository _repository = null!;
+    private ICategoriaRepository _repository = null!;
+    private ServiceProvider? _provider;
+    private bool _databaseCreated;
     private const string Id = "cat00000001";
 
     [OneTimeSetUp]
@@ -29,21 +34,40 @@ public class CategoriaRepositoryTests
     [SetUp]
     public async Task SetUp()
     {
+        _databaseCreated = false;
+        _context = null!;
+        _provider = null;
         _context = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>()
             .UseNpgsql(_container.GetConnectionString()).Options);
         await _context.Database.EnsureCreatedAsync();
-        _repository = new CategoriaRepository(_context);
+        _databaseCreated = true;
+        var servicios = new ServiceCollection();
+        servicios.AddSingleton(_context);
+        servicios.AddRepositories(new ConfigurationBuilder().Build());
+        _provider = servicios.BuildServiceProvider();
+        _repository = _provider.GetRequiredService<ICategoriaRepository>();
     }
 
     [TearDown]
     public async Task TearDown()
     {
-        await _context.Database.EnsureDeletedAsync();
-        await _context.DisposeAsync();
+        if (_context is null) return;
+        try
+        {
+            if (_databaseCreated) await _context.Database.EnsureDeletedAsync();
+        }
+        finally
+        {
+            _provider?.Dispose();
+            await _context.DisposeAsync();
+        }
     }
 
     [OneTimeTearDown]
-    public async Task OneTimeTearDown() => await _container.DisposeAsync();
+    public async Task OneTimeTearDown()
+    {
+        if (_container is not null) await _container.DisposeAsync();
+    }
 
     [Test]
     public async Task Create_CategoriaValida_PersisteYActualizaFechaCreacion()

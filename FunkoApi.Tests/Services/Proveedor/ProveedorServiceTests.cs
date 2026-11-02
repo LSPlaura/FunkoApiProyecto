@@ -59,7 +59,6 @@ public class ProveedorServiceTests
     public async Task Create_DtoValido_DeberiaCrearProveedor()
     {
         // Arrange
-        // Esta prueba detecta el ObjectId vacío construido actualmente por el Back.
         var dto = new CreateProveedorDto { Nombre = "Funko Corp" };
         var fecha = DateTime.UtcNow;
         var proveedor = new Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);

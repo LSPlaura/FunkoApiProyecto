@@ -5,7 +5,6 @@ using CSharpFunctionalExtensions;
 using FunkoApi.Back.Config;
 using FunkoApi.Back.Data;
 using FunkoApi.Back.Dto.Auth;
-using FunkoApi.Back.Dtos.Auth;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Models;
 using FunkoApi.Back.Services.Auth.Common;
@@ -16,7 +15,7 @@ using Serilog;
 
 namespace FunkoApi.Back.Services.Auth;
 
-/// <summary>
+    /// <summary>
     /// Implementación del servicio de autenticación con JWT.
     /// </summary>
     public class AuthService(
