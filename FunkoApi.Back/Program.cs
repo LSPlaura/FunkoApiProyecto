@@ -63,6 +63,7 @@ try
         .AddDatabases(builder.Configuration)
         .AddSeeders(builder.Configuration)
         .AddRepositories(builder.Configuration)
+        .AddStorage(builder.Configuration)
         .AddServices();
 
     // ── PIPELINE DE MIDDLEWARES ───────────────────────────────────────────────
