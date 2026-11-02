@@ -11,23 +11,24 @@ namespace FunkoApi.Back.Controllers;
 
 /// <summary>
 /// Controlador REST encargado de gestionar las peticiones HTTP
-/// relacionadas con las operaciones CRUD de los Funkos.
+/// relacionadas con el CRUD completo y la gestión multimedia de los Funkos.
 /// </summary>
-/// <param name="service">Servicio encargado de gestionar las operaciones de los Funkos.</param>
+/// <param name="service">Servicio de lógica de negocio para los Funkos.</param>
+/// <param name="storage">Servicio de gestión de almacenamiento físico de archivos.</param>
 [ApiController]
 [Route("api/[controller]")]
 public class FunkosController(IFunkoService service, IStorageService storage) : ControllerBase {
     
     /// <summary>
-    /// Crea un funko con o sin imagen
+    /// Crea un nuevo Funko en el sistema, permitiendo adjuntar una imagen opcionalmente.
     /// </summary>
-    /// <param name="nombre">Nombre del Funko.</param>
-    /// <param name="precio">Precio del Funko.</param>
-    /// <param name="stock">Unidades disponibles.</param>
+    /// <param name="nombre">Nombre único del Funko.</param>
+    /// <param name="precio">Precio de venta del artículo.</param>
+    /// <param name="stock">Cantidad disponible en inventario.</param>
     /// <param name="categoriaId">Identificador de la categoría asociada.</param>
     /// <param name="proveedorId">Identificador del proveedor asociado.</param>
-    /// <param name="archivo">Imagen que se guarda en la carpeta de Funkos.</param>
-    /// <returns>Respuesta HTTP con el Funko creado o el error correspondiente.</returns>
+    /// <param name="archivo">Archivo de imagen opcional para el Funko.</param>
+    /// <returns>Respuesta HTTP 201 (Created) con el DTO del Funko recién creado, o un error detallado si falla.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpPost]
     public async Task<ActionResult<FunkoDto>> Create(
@@ -47,12 +48,12 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     }
 
     /// <summary>
-    /// Elimina lógicamente un Funko mediante su identificador.
+    /// Realiza un borrado lógico de un Funko específico mediante su identificador.
     /// </summary>
-    /// <param name="id">Identificador del Funko que se desea eliminar.</param>
-    /// <returns>Respuesta HTTP con el resultado de la eliminación o el error correspondiente.</returns>
+    /// <param name="id">Identificador numérico del Funko a eliminar.</param>
+    /// <returns>Respuesta HTTP 200 (OK) con el resultado booleano de la operación, o un error si no se encuentra.</returns>
     [Authorize(Roles = "ADMIN")]
-    [HttpDelete("{id:int}")]
+    [HttpDelete("{id:long}")]
     public async Task<ActionResult> Delete(int id) {
         return await service.SoftDelete(id).Match(
             response => Ok(response),
@@ -61,13 +62,18 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     }
 
     /// <summary>
-    /// Actualiza los datos de un Funko existente.
+    /// Actualiza por completo la información de un Funko existente (PUT).
     /// </summary>
-    /// <param name="dto">DTO con los nuevos datos del Funko.</param>
+    /// <param name="nombre">Nombre actualizado del Funko.</param>
+    /// <param name="precio">Precio actualizado del Funko.</param>
+    /// <param name="stock">Stock actualizado.</param>
+    /// <param name="categoriaId">Identificador de la nueva categoría.</param>
+    /// <param name="proveedorId">Identificador del nuevo proveedor.</param>
+    /// <param name="archivo">Nueva imagen opcional para reemplazar la actual.</param>
     /// <param name="id">Identificador del Funko que se desea actualizar.</param>
-    /// <returns>Respuesta HTTP con el Funko actualizado o el error correspondiente.</returns>
+    /// <returns>Respuesta HTTP 200 (OK) con el Funko actualizado, o un error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
-    [HttpPut("{id:int}")]
+    [HttpPut("{id:long}")]
     public async Task<ActionResult<FunkoDto>> Update(
         [FromForm] string nombre, 
         [FromForm] decimal precio, 
@@ -85,9 +91,9 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     }
 
     /// <summary>
-    /// Obtiene todos los Funkos disponibles.
+    /// Obtiene el listado completo de todos los Funkos disponibles en el sistema.
     /// </summary>
-    /// <returns>Respuesta HTTP con la colección de Funkos.</returns>
+    /// <returns>Respuesta HTTP 200 (OK) con la colección de Funkos.</returns>
     [Authorize(Roles = "ADMIN,USER")]
     [HttpGet]
     public async Task<ActionResult<IEnumerable<FunkoDto>>> GetAll() {
@@ -95,12 +101,12 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     }
 
     /// <summary>
-    /// Obtiene un Funko mediante su identificador.
+    /// Recupera los detalles de un Funko específico mediante su identificador único.
     /// </summary>
-    /// <param name="id">Identificador del Funko que se desea consultar.</param>
-    /// <returns>Respuesta HTTP con el Funko encontrado o el error correspondiente.</returns>
+    /// <param name="id">Identificador numérico del Funko.</param>
+    /// <returns>Respuesta HTTP 200 (OK) con el Funko encontrado, o un error 404 si no existe.</returns>
     [Authorize(Roles = "ADMIN")]
-    [HttpGet("{id:int}")]
+    [HttpGet("{id:long}")]
     public async Task<ActionResult<FunkoDto>> GetById(int id) {
         return await service.GetById(id).Match(
             response => Ok(response),
@@ -109,10 +115,10 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     }
 
     /// <summary>
-    /// Obtiene un Funko a partir de su nombre.
+    /// Busca y recupera un Funko a partir de su nombre exacto.
     /// </summary>
     /// <param name="name">Nombre del Funko que se desea consultar.</param>
-    /// <returns>Respuesta HTTP con el Funko encontrado o el error correspondiente.</returns>
+    /// <returns>Respuesta HTTP 200 (OK) con el Funko encontrado, o un error si no existe.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpGet("{nombre}")]
     public async Task<ActionResult<FunkoDto>> GetByNombre(string name) {
@@ -123,12 +129,11 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     }
     
     /// <summary>
-    /// Solicita la actualización de la imagen de un Funko, conservando sus demás datos.
-    /// Elimina la imagen anterior, si tiene una referencia, antes de guardar la nueva.
+    /// Actualiza únicamente la imagen asociada a un Funko, eliminando la anterior del almacenamiento de forma segura.
     /// </summary>
-    /// <param name="id">Identificador del Funko cuya imagen se desea actualizar.</param>
-    /// <param name="archivo">Nueva imagen recibida mediante un formulario multipart/form-data.</param>
-    /// <returns>Respuesta 200 con el Funko actualizado, o el error de consulta, guardado o actualización.</returns>
+    /// <param name="id">Identificador único del Funko cuya imagen se va a modificar.</param>
+    /// <param name="archivo">Nuevo archivo de imagen recibido mediante el formulario.</param>
+    /// <returns>Respuesta HTTP 200 (OK) con el Funko actualizado, o un error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpPatch("{id:long}/imagen")]
     public async Task<ActionResult<FunkoDto>> UpdateImagen(long id, IFormFile archivo) {
@@ -141,7 +146,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         if (saveResult.IsFailure) return saveResult.Error.ToHttpResult<FunkoDto>();
 
         // Actualizar solo la imagen
-        var dto = new UpdateFunkoDto { Nombre = existente.Value.Nombre, Precio = existente.Value.Precio, Stock = existente.Value.Stock, Categoria = existente.Value.Categoria.Id, Proveedor = existente.Value.Proveedor.Id, Imagen = saveResult.Value };
+        var dto = new UpdateFunkoDto { Nombre = existente.Value.Nombre, Precio = existente.Value.Precio, Stock = existente.Value.Stock, Categoria = existente.Value.Categoria.Id, Proveedor = existente.Value.Proveedor.Id, Imagen = archivo };
         var updateResult = await service.Update(dto, id);
         return updateResult.IsSuccess ? Ok(updateResult.Value) : updateResult.Error.ToHttpResult<FunkoDto>();
     }
