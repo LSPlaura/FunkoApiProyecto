@@ -6,7 +6,7 @@ using FunkoApi.Back.Models;
 namespace FunkoApi.Back.Mappers;
 
 /// <summary>
-///     Métodos de extensión para mapear entre el <see cref="Funko" /> y el DTO <see cref="FunkoDto" />.
+/// Métodos de extensión para mapear entre el <see cref="Funko" /> y el DTO <see cref="FunkoDto" />.
 /// </summary>
 public static class FunkoMapper {
     /// <summary>
@@ -22,7 +22,6 @@ public static class FunkoMapper {
             funko.Stock,
             funko.Imagen,
             funko.Categoria?.ToDto() ?? new CategoriaDto(string.Empty, "", false, DateTime.UtcNow, DateTime.UtcNow),
-            funko.Proveedor?.ToDto() ?? new ProveedorDto("", "", false, DateTime.UtcNow, DateTime.UtcNow),
             funko.IsDeleted,
             funko.CreatedAt,
             funko.UpdatedAt

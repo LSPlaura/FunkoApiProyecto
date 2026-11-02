@@ -41,4 +41,23 @@ public class CacheConfigTests
         servicios.Should().Contain(d => d.ServiceType == typeof(ICacheService) && d.ImplementationType == typeof(RedisCacheService));
         servicios.Should().Contain(d => d.ServiceType == typeof(IConnectionMultiplexer) && d.Lifetime == ServiceLifetime.Singleton);
     }
+
+    [Test]
+    public void AddCache_SinRedisDisponible_LaFabricaDelMultiplexerFallaAlConectar()
+    {
+        // Arrange
+        var configuracion = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Redis:Host"] = "127.0.0.1", ["Redis:Port"] = "1"
+        }).Build();
+        var servicios = new ServiceCollection();
+        servicios.AddCache(configuracion);
+        using var provider = servicios.BuildServiceProvider();
+
+        // Act
+        var crearMultiplexer = () => provider.GetRequiredService<IConnectionMultiplexer>();
+
+        // Assert
+        crearMultiplexer.Should().Throw<RedisConnectionException>();
+    }
 }

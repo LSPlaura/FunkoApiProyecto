@@ -13,7 +13,6 @@ public class UpdateFunkoDtoTests
     [TestCase("Stock")]
     [TestCase("Categoria")]
     [TestCase("Proveedor")]
-    [TestCase("Imagen")]
     public void Validar_CampoInvalido_IdentificaPropiedad(string campo)
     {
         // Arrange
@@ -28,8 +27,7 @@ public class UpdateFunkoDtoTests
             "Precio" => dto with { Precio = 0 },
             "Stock" => dto with { Stock = 0 },
             "Categoria" => dto with { Categoria = "" },
-            "Proveedor" => dto with { Proveedor = "" },
-            _ => dto with { Imagen = new string('A', 1001) }
+            _ => dto with { Proveedor = "" }
         };
         var errores = new List<ValidationResult>();
 
@@ -41,12 +39,12 @@ public class UpdateFunkoDtoTests
         errores.Should().ContainSingle().Which.MemberNames.Should().Contain(campo);
     }
 
-    [TestCase(null)]
-    [TestCase("")]
-    [TestCase("imagen.png")]
-    public void Validar_DatosValidosConImagenOpcional_PasaValidacion(string? imagen)
+    [TestCase(false)]
+    [TestCase(true)]
+    public void Validar_DatosValidosConImagenOpcional_PasaValidacion(bool conImagen)
     {
         // Arrange
+        Microsoft.AspNetCore.Http.IFormFile? imagen = conImagen ? new Moq.Mock<Microsoft.AspNetCore.Http.IFormFile>().Object : null;
         var dto = new UpdateFunkoDto
         {
             Nombre = "Iron Man", Precio = 15m, Stock = 1, Imagen = imagen,

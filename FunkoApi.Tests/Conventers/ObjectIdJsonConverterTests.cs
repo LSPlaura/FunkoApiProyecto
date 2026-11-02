@@ -9,34 +9,50 @@ namespace FunkoApi.Tests.Conventers;
 [TestFixture]
 public class ObjectIdJsonConverterTests
 {
-    [TestCase("\"000000000000000000000001\"", "000000000000000000000001")]
-    [TestCase("\"\"", "000000000000000000000000")]
-    [TestCase("null", "000000000000000000000000")]
-    public void Read_JsonValido_RetornaObjectId(string json, string esperado)
+    private JsonSerializerOptions _options = null!;
+
+    [SetUp]
+    public void SetUp()
+    {
+        _options = new JsonSerializerOptions();
+        _options.Converters.Add(new ObjectIdJsonConverter());
+    }
+
+    [TestCase("507f1f77bcf86cd799439011")]
+    [TestCase("000000000000000000000001")]
+    public void Read_ObjectIdValido_DevuelveIdentificador(string valor)
     {
         // Arrange
-        var opciones = new JsonSerializerOptions();
-        opciones.Converters.Add(new ObjectIdJsonConverter());
+        var json = $"\"{valor}\"";
 
         // Act
-        var resultado = JsonSerializer.Deserialize<ObjectId>(json, opciones);
+        var resultado = JsonSerializer.Deserialize<ObjectId>(json, _options);
 
         // Assert
-        resultado.Should().Be(ObjectId.Parse(esperado));
+        resultado.Should().Be(ObjectId.Parse(valor));
+    }
+
+    [TestCase("\"\"")]
+    [TestCase("null")]
+    public void Read_SinValor_DevuelveObjectIdVacio(string json)
+    {
+        // Act
+        var resultado = JsonSerializer.Deserialize<ObjectId>(json, _options);
+
+        // Assert
+        resultado.Should().Be(ObjectId.Empty);
     }
 
     [Test]
-    public void Write_ObjectId_SerializaComoCadena()
+    public void Write_ObjectId_EscribeCadenaHexadecimal()
     {
         // Arrange
-        var id = ObjectId.Parse("000000000000000000000001");
-        var opciones = new JsonSerializerOptions();
-        opciones.Converters.Add(new ObjectIdJsonConverter());
+        var id = ObjectId.Parse("507f1f77bcf86cd799439011");
 
         // Act
-        var resultado = JsonSerializer.Serialize(id, opciones);
+        var resultado = JsonSerializer.Serialize(id, _options);
 
         // Assert
-        resultado.Should().Be("\"000000000000000000000001\"");
+        resultado.Should().Be("\"507f1f77bcf86cd799439011\"");
     }
 }

@@ -24,6 +24,33 @@ public class DomainErrorsTests
         }
 
         [Test]
+        public void NotFoundError_FromObjectId_ConstruyeMensajeEstandar()
+        {
+            // Arrange
+            const string id = "507f1f77bcf86cd799439011";
+
+            // Act
+            var error = NotFoundError.FromObjectId(id, "Proveedor");
+
+            // Assert
+            error.Message.Should().Be($"Proveedor con ID {id} no encontrado");
+            error.Should().BeOfType<NotFoundError>();
+        }
+
+        [Test]
+        public void ConflictError_Dependency_ConstruyeMensajeDeBorrado()
+        {
+            // Arrange
+            const string id = "cat00000001";
+
+            // Act
+            var error = ConflictError.Dependency("Categoria", id);
+
+            // Assert
+            error.Message.Should().Be($"No se puede borrar Categoria con el valor '{id}'");
+        }
+
+        [Test]
         public void ErroresEspecializados_Factories_ConstruyenMensajes()
         {
             // Act
@@ -60,17 +87,26 @@ public class DomainErrorsTests
     [TestFixture]
     public class CasosInvalidos
     {
+        // Los records derivados generan su propio ToString (con formato
+        // "Tipo { Message = ... }"), que oculta el declarado en DomainError.
+        // Llamando a base.ToString() desde un record de prueba se ejecuta
+        // la implementación de la clase base.
+        private sealed record ErrorDePrueba(string Message) : DomainError(Message)
+        {
+            public string ToStringDeLaBase() => base.ToString();
+        }
+
         [Test]
-        public void DomainError_ToString_UsaElTipoConcreto()
+        public void DomainError_ToString_UsaElTipoConcretoYElMensaje()
         {
             // Arrange
-            DomainError error = new InternalError("fallo");
+            var error = new ErrorDePrueba("fallo");
 
             // Act
-            var result = error.ToString();
+            var result = error.ToStringDeLaBase();
 
             // Assert
-            result.Should().Contain("InternalError").And.Contain("fallo");
+            result.Should().Be("ErrorDePrueba: fallo");
         }
     }
 }

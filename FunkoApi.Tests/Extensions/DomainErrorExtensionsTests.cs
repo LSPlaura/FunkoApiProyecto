@@ -92,6 +92,40 @@ public class DomainErrorExtensionsTests
     }
 
     [TestFixture]
+    public class ErroresDeAutenticacion
+    {
+        [Test]
+        public void ToHttpResult_Generico_Unauthorized_Devuelve401()
+        {
+            // Arrange
+            DomainError error = UnauthorizedError.InvalidCredentials();
+
+            // Act
+            var resultado = error.ToHttpResult<string>();
+
+            // Assert
+            var respuesta = resultado.Result.Should().BeOfType<UnauthorizedObjectResult>().Subject;
+            respuesta.StatusCode.Should().Be(401);
+            respuesta.Value.Should().BeEquivalentTo(new { message = "Credenciales inválidas" });
+        }
+
+        [Test]
+        public void ToHttpResult_NoGenerico_Unauthorized_Devuelve401()
+        {
+            // Arrange
+            DomainError error = UnauthorizedError.TokenExpired();
+
+            // Act
+            var resultado = error.ToHttpResult();
+
+            // Assert
+            var respuesta = resultado.Should().BeOfType<UnauthorizedObjectResult>().Subject;
+            respuesta.StatusCode.Should().Be(401);
+            respuesta.Value.Should().BeEquivalentTo(new { message = "Token expirado o inválido" });
+        }
+    }
+
+    [TestFixture]
     public class CasosInvalidos
     {
         [Test]

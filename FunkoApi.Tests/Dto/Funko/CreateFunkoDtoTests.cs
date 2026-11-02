@@ -18,7 +18,7 @@ public class CreateFunkoDtoTests
         var dto = new CreateFunkoDto
         {
             Nombre = new string('A', longitud), Precio = 15m, Stock = 1,
-            Categoria = "categoria01", Proveedor = "000000000000000000000001", Imagen = "imagen.png"
+            Categoria = "categoria01", Proveedor = "000000000000000000000001", Imagen = null
         };
         var errores = new List<ValidationResult>();
 

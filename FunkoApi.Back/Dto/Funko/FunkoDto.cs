@@ -14,7 +14,6 @@ public record FunkoDto(
     int Stock,
     string Imagen,
     CategoriaDto Categoria,
-    ProveedorDto Proveedor,
     bool IsDeleted,
     DateTime CreatedAt,
     DateTime UpdatedAt

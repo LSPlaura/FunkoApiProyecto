@@ -1,6 +1,5 @@
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Dto.Auth;
-using FunkoApi.Back.Dtos.Auth;
 using FunkoApi.Back.Errors;
 
 namespace FunkoApi.Back.Services.Auth.Common;

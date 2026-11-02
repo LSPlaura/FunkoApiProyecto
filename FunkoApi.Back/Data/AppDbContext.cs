@@ -22,6 +22,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
     /// </summary>
     /// <param name="modelBuilder">El constructor de modelos utilizado para configurar las entidades de la base de datos.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        base.OnModelCreating(modelBuilder);
+
         modelBuilder.Entity<Funko>(entity => {
             entity.HasKey(p => p.Id);
             entity.Property(p => p.Nombre).HasMaxLength(100).IsRequired();

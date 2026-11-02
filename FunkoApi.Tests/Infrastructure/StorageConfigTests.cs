@@ -2,6 +2,7 @@ using FluentAssertions;
 using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Storage;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using NUnit.Framework;
 
 namespace FunkoApi.Tests.Infrastructure;
@@ -16,7 +17,7 @@ public class StorageConfigTests
         var servicios = new ServiceCollection();
 
         // Act
-        var resultado = servicios.AddStorage();
+        var resultado = servicios.AddStorage(new ConfigurationBuilder().Build());
 
         // Assert
         resultado.Should().BeSameAs(servicios);

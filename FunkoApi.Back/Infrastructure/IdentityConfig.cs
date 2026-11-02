@@ -94,13 +94,9 @@ public static class IdentityConfig
         // ── Authorization Policies ───────────────────────────────────────────
         services.AddAuthorizationBuilder()
             .AddPolicy("RequireAdmin", policy =>
-                new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireRole("ADMIN")
-                    .Build())
+                policy.RequireRole("ADMIN"))
             .AddPolicy("RequireUser", policy =>
-                new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
-                    .RequireRole("USER", "ADMIN")
-                    .Build());
+                policy.RequireRole("USER", "ADMIN"));
 
         Log.Information("Identity y JWT configurados correctamente.");
         return services;

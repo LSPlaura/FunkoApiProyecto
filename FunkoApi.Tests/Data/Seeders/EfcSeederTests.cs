@@ -1,10 +1,12 @@
 using FluentAssertions;
 using FunkoApi.Back.Data;
+using FunkoApi.Back.Config;
 using FunkoApi.Back.Data.Seed.Efc;
 using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Proveedor;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using Moq;
 using NUnit.Framework;
@@ -21,6 +23,7 @@ public class EfcSeederTests
     private AppDbContext _context = null!;
     private Mock<IProveedorRepository> _proveedorRepositoryMock = null!;
     private EfcSeeder _seeder = null!;
+    private bool _databaseCreated;
 
     [OneTimeSetUp]
     public async Task OneTimeSetUp()
@@ -33,22 +36,40 @@ public class EfcSeederTests
     [SetUp]
     public async Task SetUp()
     {
+        _databaseCreated = false;
+        _context = null!;
         _context = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>()
             .UseNpgsql(_container.GetConnectionString()).Options);
         await _context.Database.EnsureCreatedAsync();
+        _databaseCreated = true;
         _proveedorRepositoryMock = new Mock<IProveedorRepository>();
-        _seeder = new EfcSeeder(_context, new Mock<ILogger<EfcSeeder>>().Object, _proveedorRepositoryMock.Object);
+        var storageOptions = Options.Create(new StorageSettings
+        {
+            UploadPath = "uploads", DefaultImage = "default.png",
+            Folders = new Dictionary<string, string> { ["Funkos"] = "funkos" }
+        });
+        _seeder = new EfcSeeder(_context, new Mock<ILogger<EfcSeeder>>().Object, _proveedorRepositoryMock.Object, storageOptions);
     }
 
     [TearDown]
     public async Task TearDown()
     {
-        await _context.Database.EnsureDeletedAsync();
-        await _context.DisposeAsync();
+        if (_context is null) return;
+        try
+        {
+            if (_databaseCreated) await _context.Database.EnsureDeletedAsync();
+        }
+        finally
+        {
+            await _context.DisposeAsync();
+        }
     }
 
     [OneTimeTearDown]
-    public async Task OneTimeTearDown() => await _container.DisposeAsync();
+    public async Task OneTimeTearDown()
+    {
+        if (_container is not null) await _container.DisposeAsync();
+    }
 
     [Test]
     public async Task SeedAsync_BaseVacia_InsertaCategoriasYFunkosConSusRelaciones()

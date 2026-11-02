@@ -24,8 +24,11 @@ public class RepositoriesConfigTests
 
         // Assert
         resultado.Should().BeSameAs(servicios);
-        servicios.Should().Contain(d => d.ServiceType == typeof(ICategoriaRepository)
-            && d.ImplementationType == typeof(CategoriaRepository) && d.Lifetime == ServiceLifetime.Scoped);
+        var categoria = servicios.Single(d => d.ServiceType == typeof(ICategoriaRepository));
+        categoria.Lifetime.Should().Be(ServiceLifetime.Scoped);
+        categoria.ImplementationType.Should().NotBeNull();
+        categoria.ImplementationType!.Name.Should().Be("CategoriaRepository");
+        typeof(ICategoriaRepository).IsAssignableFrom(categoria.ImplementationType).Should().BeTrue();
         servicios.Should().Contain(d => d.ServiceType == typeof(IFunkoRepository)
             && d.ImplementationType == typeof(FunkoRepository) && d.Lifetime == ServiceLifetime.Scoped);
         servicios.Should().Contain(d => d.ServiceType == typeof(IProveedorRepository) && d.Lifetime == ServiceLifetime.Scoped);
@@ -42,7 +45,6 @@ public class RepositoriesConfigTests
         servicios.AddRepositories(configuracion);
 
         // Assert
-        // Detecta el registro actual de IProveedorRepository como su propia implementación.
         servicios.Single(d => d.ServiceType == typeof(IProveedorRepository)).ImplementationType
             .Should().Be(typeof(ProveedorMongoRepository));
     }

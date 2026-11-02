@@ -148,7 +148,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         if (saveResult.IsFailure) return saveResult.Error.ToHttpResult<FunkoDto>();
 
         // Actualizar solo la imagen
-        var dto = new UpdateFunkoDto { Nombre = existente.Value.Nombre, Precio = existente.Value.Precio, Stock = existente.Value.Stock, Categoria = existente.Value.Categoria.Id, Proveedor = existente.Value.Proveedor.Id, Imagen = archivo };
+        var dto = new UpdateFunkoDto { Nombre = existente.Value.Nombre, Precio = existente.Value.Precio, Stock = existente.Value.Stock, Categoria = existente.Value.Categoria.Id, Imagen = archivo };
         var updateResult = await service.Update(dto, id);
         return updateResult.IsSuccess ? Ok(updateResult.Value) : updateResult.Error.ToHttpResult<FunkoDto>();
     }
