@@ -153,6 +153,16 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         return updateResult.IsSuccess ? Ok(updateResult.Value) : updateResult.Error.ToHttpResult<FunkoDto>();
     }
     
+    /// <summary>
+    /// Obtiene una lista paginada de objetos <see cref="FunkoDto"/> y configura automáticamente 
+    /// las cabeceras HTTP de navegación estándar (RFC 5988 Link headers) para facilitar la paginación en el cliente.
+    /// </summary>
+    /// <param name="page">Número de la página actual que se desea consultar (por defecto: 1).</param>
+    /// <param name="pageSize">Cantidad máxima de elementos por página solicitados (por defecto: 10, limitado de forma segura entre 1 y 100).</param>
+    /// <returns>
+    /// Una tarea que representa la operación asíncrona, devolviendo un <see cref="ActionResult{T}"/> 
+    /// que contiene la respuesta estructurada <see cref="PagedResponse{FunkoDto}"/> con los elementos y metadatos.
+    /// </returns>
     [HttpGet("paged")]
     public async Task<ActionResult<PagedResponse<FunkoDto>>> GetPaged(
         [FromQuery] int page = 1, 
