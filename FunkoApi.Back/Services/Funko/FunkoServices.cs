@@ -23,10 +23,13 @@ public class FunkoServices(
     ICategoriaRepository categoriaRepository,
     IProveedorRepository proveedorRepository,
     ICacheService cache,
-    IOptions<CacheOptions> options,
-    IStorageService storage) : IFunkoService
+    IOptions<CacheOptions> cacheOptions,
+    IStorageService storage,
+    IOptions<StorageSettings> storageOptions
+    ) : IFunkoService
 {
-    private readonly CacheOptions _options = options.Value;
+    private readonly CacheOptions _cacheOptions = cacheOptions.Value;
+    private readonly StorageSettings _storageOptions = storageOptions.Value;
     
     private string _funkoKey => "funko:";
     private string _funkoFolder => "funkos";
@@ -61,7 +64,7 @@ public class FunkoServices(
             item.Nombre,
             item.Precio,
             item.Stock,
-            Path.Combine(path1, _funkoFolder, fileName),
+            Path.Combine(_funkoFolder, _storageOptions.DefaultImage),
             item.Categoria,
             categoria,
             ObjectId.Parse(item.Proveedor),
@@ -101,7 +104,7 @@ public class FunkoServices(
     {
         var funko = await cache.GetOrSetAsync<Models.Funko>(_funkoKey + key,
             async () => await funkoRepository.GetById(key),
-            _options.DefaultExpiration);
+            _cacheOptions.DefaultExpiration);
         if (funko == null) return FunkoError.FunkoNotFound(key);
         return funko.ToDto();
     }
@@ -111,7 +114,7 @@ public class FunkoServices(
     {
         var funko = await cache.GetOrSetAsync<Models.Funko>(_funkoKey + name,
             async () => await funkoRepository.GetByName(name),
-            _options.DefaultExpiration);
+            _cacheOptions.DefaultExpiration);
         if (funko == null) return FunkoError.FunkoNotFoundByName(name);
         return funko.ToDto();
     }

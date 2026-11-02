@@ -1,4 +1,5 @@
-﻿using FunkoApi.Back.Storage;
+﻿using FunkoApi.Back.Config;
+using FunkoApi.Back.Storage;
 using Serilog;
 
 namespace FunkoApi.Back.Infrastructure;
@@ -11,9 +12,14 @@ public static class StorageConfig {
     /// Registra FileSystemStorageService como implementación de IStorageService con duración Scoped.
     /// </summary>
     /// <param name="services">Colección de servicios del contenedor de dependencias.</param>
+    /// <param name="configuration">Configuración de la app.</param>
     /// <returns>La colección de servicios para permitir encadenar otros registros.</returns>
-    public static IServiceCollection AddStorage(this IServiceCollection services) {
+    public static IServiceCollection AddStorage(this IServiceCollection services, IConfiguration configuration) {
         Log.Information("Configurando servicio de almacenamiento de imagenes..");
+        
+        services.Configure<CacheOptions>(
+            configuration.GetSection(StorageSettings.SectionName));
+        
         return services.AddScoped<IStorageService, FileSystemStorageService>();
     }
 }
