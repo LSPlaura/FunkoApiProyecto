@@ -186,35 +186,46 @@ public class FunkoServices(
     /// <inheritdoc cref="IFunkoService.Update" />
     public async Task<Result<FunkoDto, DomainError>> Update(UpdateFunkoDto item, long key)
     {
-        var oldFunkoCached = await cache.GetAsync<Models.Funko>(_funkoKey + key);
-        if (oldFunkoCached == null)
-            return FunkoError.FunkoNotFound(key);
-
-        var oldFunko = await funkoRepository.GetById(key);
-        if (oldFunko == null)
-            return FunkoError.FunkoNotFound(key);
-
+       
+        var oldFunko = await cache.GetAsync<Models.Funko>( _funkoKey + key);
+        if (oldFunko is null)
+        {
+            oldFunko = await funkoRepository.GetById(key);
+            if (oldFunko is null)
+            {
+                Log.Warning("Funko con ID {Id} no encontrado ni en caché ni en base de datos", key);
+                return FunkoError.FunkoNotFound(key);
+            }
+        }
+        
         if (!await proveedorRepository.ExistsById(item.Proveedor))
             return ProveedorError.ProveedorBadRequest(item.Proveedor);
 
         if (!await categoriaRepository.ExistsById(item.Categoria))
             return CategoriaError.CategoriaBadRequest(item.Categoria);
-
-        if (await funkoRepository.ExitsName(item.Nombre) && item.Nombre != oldFunko.Nombre)
+        
+        if (item.Nombre != oldFunko.Nombre && await funkoRepository.ExitsName(item.Nombre))
             return FunkoError.FunkoAlreadyExists(item.Nombre);
 
+        if (storage.IsEmpty(item.Imagen)) return new BadRequestError("No se ha mandado la imagen");
+        var file = await storage.SaveFileAsync(item.Imagen!, _funkoFolder);
+        if (file.IsFailure) return file.Error;
+        
         var updating = oldFunko with
         {
             Nombre = item.Nombre,
             Precio = item.Precio,
             Stock = item.Stock,
+            Imagen = file.Value,
             CategoriaId = item.Categoria,
+            ProveedorId = ObjectId.Parse(item.Proveedor),
             UpdatedAt = DateTime.UtcNow
         };
 
-        var updated = await funkoRepository.Update(updating);
-        await cache.RemoveAsync(_funkoKey + key);
-        return updated.ToDto();
+       var result = await transactionsService.Update(updating, file.Value, oldFunko.Imagen);
+       if (result.IsFailure) return result.Error;
+       await cache.RemoveAsync(_funkoKey + key);
+       return result.Value.ToDto();
     }
 
     /// <inheritdoc cref="IFunkoService.GetAll" />

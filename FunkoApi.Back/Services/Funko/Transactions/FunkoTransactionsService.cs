@@ -60,4 +60,34 @@ public class FunkoTransactionsService(
                 new BusinessRuleError($"Error en el proceso de eliminación: {ex.Message}"));
         }
     }
+    
+    public async Task<Result<Models.Funko, DomainError>> Update(
+        Models.Funko funkoToUpdate, 
+        string newImage, 
+        string oldImage)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        try
+        {
+            context.Funkos.Update(funkoToUpdate);
+            await context.SaveChangesAsync();
+
+            await transaction.CommitAsync();
+            
+            await storage.DeleteFileAsync(oldImage);
+
+            Log.Information("Funko {Id} actualizado correctamente en base de datos y almacenamiento", funkoToUpdate.Id);
+            return funkoToUpdate;
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+
+            await storage.DeleteFileAsync(newImage);
+
+            Log.Error(ex, "Error crítico al intentar actualizar el Funko {Id}", funkoToUpdate.Id);
+            return Result.Failure<Models.Funko, DomainError>(
+                new BusinessRuleError($"Error en el proceso de actualización: {ex.Message}"));
+        }
+    }
 }

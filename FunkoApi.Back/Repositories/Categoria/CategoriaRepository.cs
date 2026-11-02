@@ -7,7 +7,7 @@ namespace FunkoApi.Back.Repositories.Categoria;
 /// Repositorio de categorías que implementa las operaciones de consulta
 /// utilizando Entity Framework Core.
 /// </summary>
-public class CategoriaRepository(AppDbContext context) : ICategoriaRepository {
+internal class CategoriaRepository(AppDbContext context) : ICategoriaRepository {
     
     /// <inheritdoc cref="ICategoriaRepository.GetAll" />
     public async Task<IEnumerable<Models.Categoria>> GetAll() {

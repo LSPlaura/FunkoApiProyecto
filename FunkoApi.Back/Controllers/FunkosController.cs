@@ -68,7 +68,16 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// <returns>Respuesta HTTP con el Funko actualizado o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<FunkoDto>> Update([FromBody] UpdateFunkoDto dto, int id) {
+    public async Task<ActionResult<FunkoDto>> Update(
+        [FromForm] string nombre, 
+        [FromForm] decimal precio, 
+        [FromForm] int stock, 
+        [FromForm] string categoriaId, 
+        [FromForm] string proveedorId, 
+        [FromForm] IFormFile? archivo, 
+        int id)
+    {
+        var dto = new UpdateFunkoDto() { Nombre = nombre, Precio = precio, Stock =  stock, Categoria = categoriaId, Proveedor = proveedorId, Imagen = archivo };
         return await service.Update(dto, id).Match(
             response => Ok(response),
             error => error.ToHttpResult<FunkoDto>()
