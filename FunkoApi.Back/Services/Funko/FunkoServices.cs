@@ -137,7 +137,7 @@ public class FunkoServices(
     }
 
     /// <inheritdoc cref="IFunkoService.GetPaged" />
-    public async Task<(IEnumerable<FunkoDto> Items, int TotalPages, int TotalItems)> GetPagedAsync(int page, int pageSize)
+    public async Task<(IEnumerable<FunkoDto> Items, int TotalPages, int TotalItems)> GetPaged(int page, int pageSize)
     {
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
