@@ -64,7 +64,7 @@ public class FunkoServices(
             item.Nombre,
             item.Precio,
             item.Stock,
-            Path.Combine(_funkoFolder, _storageOptions.DefaultImage),
+            storage.GetRelativePath(_storageOptions.DefaultImage, _funkoFolder),
             item.Categoria,
             categoria,
             ObjectId.Parse(item.Proveedor),
