@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using FunkoApi.Back.Dto.Auth;
 using FunkoApi.Back.Dtos.Auth;
 using FunkoApi.Back.Extensions;
 using FunkoApi.Back.Services.Auth.Common;

@@ -1,3 +1,3 @@
-namespace FunkoApi.Back.Dtos.Auth;
+namespace FunkoApi.Back.Dto.Auth;
 
 public record UserDto(long Id, string Email, string Nombre, string Apellidos, string Role);

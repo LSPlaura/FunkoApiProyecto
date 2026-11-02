@@ -4,6 +4,7 @@ using System.Text;
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Config;
 using FunkoApi.Back.Data;
+using FunkoApi.Back.Dto.Auth;
 using FunkoApi.Back.Dtos.Auth;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Models;
