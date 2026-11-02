@@ -1,6 +1,8 @@
 using CSharpFunctionalExtensions;
+using FunkoApi.Back.Dto;
 using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Extensions;
+using FunkoApi.Back.Helpers;
 using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Storage;
 using Microsoft.AspNetCore.Authorization;
@@ -149,5 +151,28 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         var dto = new UpdateFunkoDto { Nombre = existente.Value.Nombre, Precio = existente.Value.Precio, Stock = existente.Value.Stock, Categoria = existente.Value.Categoria.Id, Proveedor = existente.Value.Proveedor.Id, Imagen = archivo };
         var updateResult = await service.Update(dto, id);
         return updateResult.IsSuccess ? Ok(updateResult.Value) : updateResult.Error.ToHttpResult<FunkoDto>();
+    }
+    
+    [HttpGet("paged")]
+    public async Task<ActionResult<PagedResponse<FunkoDto>>> GetPaged(
+        [FromQuery] int page = 1, 
+        [FromQuery] int pageSize = 10)
+    {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+        
+        var (items, totalPages, totalItems) = await service.GetPaged(page, pageSize);
+        var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
+        var linkHeader = PaginationHelper.CreateLinkHeader(page, totalPages, pageSize, baseUrl);
+        if (!string.IsNullOrEmpty(linkHeader))
+        {
+            Response.Headers["Link"] = linkHeader;
+        }
+        
+        return Ok(new PagedResponse<FunkoDto>
+        {
+            Data = items.ToList(),
+            Pagination = new PageMetadata(page, pageSize, totalPages, totalItems)
+        });
     }
 }

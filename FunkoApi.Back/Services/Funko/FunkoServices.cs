@@ -136,6 +136,23 @@ public class FunkoServices(
         return funko.ToDto();
     }
 
+    /// <inheritdoc cref="IFunkoService.GetPaged" />
+    public async Task<(IEnumerable<FunkoDto> Items, int TotalPages, int TotalItems)> GetPagedAsync(int page, int pageSize)
+    {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+        
+        var all = await funkoRepository.GetAll();
+        var list = all.ToList();
+        var totalItems = list.Count;
+        
+        var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+        
+        var items = list.Skip((page - 1) * pageSize).Take(pageSize);
+        
+        return (items.Select(p => p.ToDto()), totalPages, totalItems);
+    }
+
     /// <inheritdoc cref="IFunkoService.SoftDelete" />
     public async Task<Result<bool, DomainError>> SoftDelete(long id)
     {
