@@ -1,6 +1,8 @@
+using FunkoApi.Back.Config;
 using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Proveedor;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace FunkoApi.Back.Data.Seed.Efc;
 
@@ -11,8 +13,12 @@ namespace FunkoApi.Back.Data.Seed.Efc;
 public class EfcSeeder(
     AppDbContext context,
     ILogger<EfcSeeder> logger,
-    IProveedorRepository proveedorRepository
-    ) {
+    IProveedorRepository proveedorRepository,
+    IOptions<StorageSettings> storageOptions)
+{
+
+    private readonly string _defaultImagePath =
+        Path.Combine(storageOptions.Value.UploadPath, storageOptions.Value.FunkosFolder, storageOptions.Value.DefaultImage);
     
     /// <summary>
     /// Ejecuta el sembrado inicial de categorías y Funkos,
@@ -57,7 +63,7 @@ public class EfcSeeder(
         logger.LogInformation("Insertadas {Count} categorías de ejemplo.", categoriasNuevas.Count);
     }
 
-    /// <summary>
+   /// <summary>
     /// Inserta los Funkos iniciales si la base de datos todavía
     /// no contiene ninguno, asociándolos con sus categorías
     /// y proveedores correspondientes.
@@ -79,14 +85,14 @@ public class EfcSeeder(
                 "Deben existir los proveedores activos Funko Corp, Toy Master y Geek Toys en MongoDB antes de sembrar los Funkos.");
 
         var funkos = new List<Funko> {
-            new(1, "Iron Man", 14.99m, 10, string.Empty,
-                categoriaMarvel.Id, categoriaMarvel, proveedorFunkoCorp.Id, null,
+            new(1, "Iron Man", 14.99m, 10, _defaultImagePath,
+                categoriaMarvel.Id, categoriaMarvel, proveedorFunkoCorp.Id,
                 false, DateTime.UtcNow, DateTime.UtcNow),
-            new(2, "Darth Vader", 16.50m, 5, string.Empty,
-                categoriaStarWars.Id, categoriaStarWars, proveedorToyMaster.Id, null,
+            new(2, "Darth Vader", 16.50m, 5, _defaultImagePath,
+                categoriaStarWars.Id, categoriaStarWars, proveedorToyMaster.Id,
                 false, DateTime.UtcNow, DateTime.UtcNow),
-            new(3, "Goku Super Saiyan", 15.00m, 8, string.Empty,
-                categoriaAnime.Id, categoriaAnime, proveedorGeekToys.Id, null,
+            new(3, "Goku Super Saiyan", 15.00m, 8, _defaultImagePath,
+                categoriaAnime.Id, categoriaAnime, proveedorGeekToys.Id,
                 false, DateTime.UtcNow, DateTime.UtcNow)
         };
 
