@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using FunkoApi.Back.Errors;
+using Serilog;
 
 namespace FunkoApi.Back.Storage;
 

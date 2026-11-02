@@ -7,9 +7,11 @@ using FunkoApi.Back.Mappers;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Repositories.Proveedor;
+using FunkoApi.Back.Services.Funko.Transactions;
 using FunkoApi.Back.Storage;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
+using Serilog;
 
 namespace FunkoApi.Back.Services.Funko;
 
@@ -25,7 +27,8 @@ public class FunkoServices(
     ICacheService cache,
     IOptions<CacheOptions> cacheOptions,
     IStorageService storage,
-    IOptions<StorageSettings> storageOptions
+    IOptions<StorageSettings> storageOptions,
+    FunkoTransactionsService transactionsService
     ) : IFunkoService
 {
     private readonly CacheOptions _cacheOptions = cacheOptions.Value;
@@ -38,20 +41,20 @@ public class FunkoServices(
     public async Task<Result<FunkoDto, DomainError>> Create(CreateFunkoDto item)
     {
         
-        if (!await funkoRepository.ExitsName(item.Nombre))
+        if (await funkoRepository.ExitsName(item.Nombre))
             return FunkoError.FunkoAlreadyExists(item.Nombre);
 
-        if (await categoriaRepository.ExistsById(item.Categoria))
+        if (!await categoriaRepository.ExistsById(item.Categoria))
             return CategoriaError.CategoriaBadRequest(item.Categoria);
 
-        if (await proveedorRepository.ExistsById(item.Proveedor))
-            ProveedorError.ProveedorBadRequest(item.Categoria);
+        if (!await proveedorRepository.ExistsById(item.Proveedor))
+            return ProveedorError.ProveedorBadRequest(item.Proveedor);
 
         var categoria = await categoriaRepository.GetById(item.Categoria);
 
         if (categoria is null) return CategoriaError.CategoriaNotFound(item.Categoria);
 
-        if (!storage.IsEmpty(item.Imagen)) return await CreateNoImage(item, categoria);
+        if (storage.IsEmpty(item.Imagen)) return await CreateNoImage(item, categoria);
         
         return await CreateWithImage(item, categoria);
     }
@@ -73,8 +76,15 @@ public class FunkoServices(
             DateTime.UtcNow
         );
 
-        var result = await funkoRepository.Create(model);
-        return result.ToDto();
+        try
+        {
+            var result = await funkoRepository.Create(model);
+            return result.ToDto();
+        }
+        catch (Exception ex)
+        {
+            return new ConflictError(ex.Message);
+        }
     }
     
     private async Task<Result<FunkoDto, DomainError>> CreateWithImage(CreateFunkoDto item, Models.Categoria categoria)
@@ -95,8 +105,16 @@ public class FunkoServices(
             DateTime.UtcNow,
             DateTime.UtcNow
         );
-        var result = await funkoRepository.Create(model);
-        return result.ToDto();
+        try
+        {
+            var result = await funkoRepository.Create(model);
+            return result.ToDto();
+        }
+        catch (Exception ex)
+        {
+            var resultFile = await storage.DeleteFileAsync(file.Value);
+            return new ConflictError(ex.Message);
+        }
     }
 
     /// <inheritdoc cref="IFunkoService.GetById" />
@@ -122,19 +140,47 @@ public class FunkoServices(
     /// <inheritdoc cref="IFunkoService.SoftDelete" />
     public async Task<Result<bool, DomainError>> SoftDelete(long id)
     {
-        await cache.RemoveAsync(_funkoKey + id);
-        var funko = await funkoRepository.GetById(id);
-        if (funko == null) return FunkoError.FunkoNotFound(id);
-        return await funkoRepository.SoftDelete(id);
+        var funko = await cache.GetAsync<Models.Funko>( _funkoKey + id);
+        if (funko is null)
+        {
+            funko = await funkoRepository.GetById(id);
+            if (funko is null)
+            {
+                Log.Warning("Funko con ID {Id} no encontrado ni en caché ni en base de datos", id);
+                return FunkoError.FunkoNotFound(id);
+            }
+        }
+        var result = await funkoRepository.SoftDelete(id);
+    
+        if (result)
+        {
+            await cache.RemoveAsync(_funkoKey + id);
+        }
+
+        return result;
     }
 
     /// <inheritdoc cref="IFunkoService.HardDelete" />
     public async Task<Result<bool, DomainError>> HardDelete(long id)
     {
-        await cache.RemoveAsync(_funkoKey + id);
-        var funko = await funkoRepository.GetById(id);
-        if (funko == null) return FunkoError.FunkoNotFound(id);
-        return await funkoRepository.HardDelete(funko);
+        var funko = await cache.GetAsync<Models.Funko>( _funkoKey + id);
+        if (funko is null)
+        {
+            funko = await funkoRepository.GetById(id);
+            if (funko is null)
+            {
+                Log.Warning("Funko con ID {Id} no encontrado ni en caché ni en base de datos", id);
+                return FunkoError.FunkoNotFound(id);
+            }
+        }
+        var result = await transactionsService.Delete(funko);
+    
+        if (result.IsSuccess)
+        {
+            await cache.RemoveAsync(_funkoKey + id);
+        }
+
+        return result;
     }
 
     /// <inheritdoc cref="IFunkoService.Update" />
