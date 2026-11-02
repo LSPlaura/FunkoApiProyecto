@@ -1,6 +1,7 @@
 using System.Text.Json;
 using FunkoApi.Back.Config;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using StackExchange.Redis;
 
@@ -13,7 +14,8 @@ namespace FunkoApi.Back.Cache;
 public class RedisCacheService(
     IDistributedCache cache,
     IConnectionMultiplexer redis,
-    IOptions<CacheOptions> options) : ICacheService
+    IOptions<CacheOptions> options,
+    ILogger<RedisCacheService> logger) : ICacheService
 {
     private readonly SemaphoreSlim _factoryLock = new(1, 1);
     private readonly CacheOptions _options = options.Value;
@@ -22,35 +24,50 @@ public class RedisCacheService(
     /// <inheritdoc />
     public async Task<T?> GetAsync<T>(string key, CancellationToken ct = default)
     {
+        logger.LogDebug("Obteniendo elemento de caché con clave '{Key}'...", key);
+        
         var bytes = await cache.GetAsync(key, ct);
-        if (bytes is null) return default;
+        if (bytes is null)
+        {
+            logger.LogDebug("Elemento con clave '{Key}' no encontrado en caché (Cache Miss).", key);
+            return default;
+        }
 
+        logger.LogDebug("Elemento con clave '{Key}' recuperado exitosamente de la caché (Cache Hit).", key);
         return JsonSerializer.Deserialize<T>(bytes);
     }
 
     /// <inheritdoc />
     public async Task SetAsync<T>(string key, T value, TimeSpan? expiration = null, CancellationToken ct = default)
     {
+        logger.LogDebug("Guardando elemento en caché con clave '{Key}'...", key);
+        
         var bytes = JsonSerializer.SerializeToUtf8Bytes(value);
         var cacheOptions = new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = expiration ?? _options.DefaultExpiration,
             SlidingExpiration = _options.SlidingExpiration
         };
+        
         await cache.SetAsync(key, bytes, cacheOptions, ct);
+        logger.LogDebug("Elemento con clave '{Key}' guardado exitosamente en la caché.", key);
     }
 
     /// <inheritdoc />
-    public Task RemoveAsync(string key, CancellationToken ct = default)
+    public async Task RemoveAsync(string key, CancellationToken ct = default)
     {
-        return cache.RemoveAsync(key, ct);
+        logger.LogInformation("Eliminando elemento de la caché con clave '{Key}'...", key);
+        await cache.RemoveAsync(key, ct);
     }
 
     /// <inheritdoc />
     public async Task<bool> ExistsAsync(string key, CancellationToken ct = default)
     {
         var bytes = await cache.GetAsync(key, ct);
-        return bytes is not null;
+        var exists = bytes is not null;
+        
+        logger.LogDebug("Comprobando existencia de clave '{Key}' en caché: {Exists}", key, exists);
+        return exists;
     }
 
     /// <inheritdoc />
@@ -58,30 +75,42 @@ public class RedisCacheService(
         TimeSpan? expiration = null, CancellationToken ct = default)
     {
         var cached = await GetAsync<T>(key, ct);
-        if (cached is not null) return cached;
+        if (cached is not null)
+        {
+            return cached;
+        }
 
+        logger.LogDebug("Cache Miss en GetOrSet para la clave '{Key}'. Adquiriendo bloqueo...", key);
+        
         await _factoryLock.WaitAsync(ct);
         try
         {
             var lockKey = $"lock:{key}";
             var ganado = await db.StringSetAsync(lockKey, "1",
                 TimeSpan.FromSeconds(10), When.NotExists);
+                
             if (!ganado)
             {
+                logger.LogDebug("No se pudo adquirir el bloqueo distribuido para la clave '{Key}'. Reintentando lectura...", key);
                 await Task.Delay(100, ct);
                 return await GetAsync<T>(key, ct);
             }
 
             try
             {
+                logger.LogDebug("Bloqueo adquirido para la clave '{Key}'. Ejecutando función de fábrica...", key);
+                
                 var value = await factory();
                 if (value is not null)
+                {
                     await SetAsync(key, value, expiration, ct);
+                }
                 return value;
             }
             finally
             {
                 await db.KeyDeleteAsync(new RedisKey(lockKey));
+                logger.LogDebug("Bloqueo liberado para la clave '{Key}'.", key);
             }
         }
         finally

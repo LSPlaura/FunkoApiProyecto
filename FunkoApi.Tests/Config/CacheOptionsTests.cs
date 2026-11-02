@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FunkoApi.Back.Cache;
 using FunkoApi.Back.Config;
 using NUnit.Framework;
 
