@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
-using FunkoApi.Back.Dtos.Categoria;
+using FunkoApi.Back.Dto.Categoria;
 using NUnit.Framework;
 
 namespace FunkoApi.Tests.Dtos.Categoria;

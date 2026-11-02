@@ -1,6 +1,6 @@
 using FluentAssertions;
+using FunkoApi.Back.Dto.Categoria;
 using FunkoApi.Back.Mappers;
-using FunkoApi.Back.Dtos.Categoria;
 using FunkoApi.Back.Models;
 using NUnit.Framework;
 

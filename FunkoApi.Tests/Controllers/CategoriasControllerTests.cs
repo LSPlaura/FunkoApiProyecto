@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
 using FluentAssertions;
 using FunkoApi.Back.Controllers;
-using FunkoApi.Back.Dtos.Categoria;
+using FunkoApi.Back.Dto.Categoria;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Services.Get.Categoria;
 using Microsoft.AspNetCore.Mvc;
