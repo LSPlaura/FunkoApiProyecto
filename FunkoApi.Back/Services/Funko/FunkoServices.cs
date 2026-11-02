@@ -7,8 +7,10 @@ using FunkoApi.Back.Mappers;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Repositories.Proveedor;
+using FunkoApi.Back.Storage;
 using Microsoft.Extensions.Options;
- 
+using MongoDB.Bson;
+
 namespace FunkoApi.Back.Services.Funko;
 
 /// <summary>
@@ -21,15 +23,18 @@ public class FunkoServices(
     ICategoriaRepository categoriaRepository,
     IProveedorRepository proveedorRepository,
     ICacheService cache,
-    IOptions<CacheOptions> options) : IFunkoService
+    IOptions<CacheOptions> options,
+    IStorageService storage) : IFunkoService
 {
     private readonly CacheOptions _options = options.Value;
-
-    /// <inheritdoc cref="IFunkoService.Create" />
+    
     private string _funkoKey => "funko:";
+    private string _funkoFolder => "funkos";
 
+    /// <inheritdoc cref="IFunkoService.Create"/>
     public async Task<Result<FunkoDto, DomainError>> Create(CreateFunkoDto item)
     {
+        
         if (!await funkoRepository.ExitsName(item.Nombre))
             return FunkoError.FunkoAlreadyExists(item.Nombre);
 
@@ -39,8 +44,54 @@ public class FunkoServices(
         if (await proveedorRepository.ExistsById(item.Proveedor))
             ProveedorError.ProveedorBadRequest(item.Categoria);
 
-        var model = new Models.Funko();
+        var categoria = await categoriaRepository.GetById(item.Categoria);
 
+        if (categoria is null) return CategoriaError.CategoriaNotFound(item.Categoria);
+
+        if (!storage.IsEmpty(item.Imagen)) return await CreateNoImage(item, categoria);
+        
+        return await CreateWithImage(item, categoria);
+    }
+    
+    private async Task<Result<FunkoDto, DomainError>> CreateNoImage(CreateFunkoDto item, Models.Categoria categoria)
+    {
+
+        var model = new Models.Funko(
+            0,
+            item.Nombre,
+            item.Precio,
+            item.Stock,
+            Path.Combine(path1, _funkoFolder, fileName),
+            item.Categoria,
+            categoria,
+            ObjectId.Parse(item.Proveedor),
+            false,
+            DateTime.UtcNow,
+            DateTime.UtcNow
+        );
+
+        var result = await funkoRepository.Create(model);
+        return result.ToDto();
+    }
+    
+    private async Task<Result<FunkoDto, DomainError>> CreateWithImage(CreateFunkoDto item, Models.Categoria categoria)
+    {
+        var file = await storage.SaveFileAsync(item.Imagen!, _funkoFolder);
+        if (file.IsFailure) return file.Error;
+
+        var model = new Models.Funko(
+            0,
+            item.Nombre,
+            item.Precio,
+            item.Stock,
+            file.Value,
+            item.Categoria,
+            categoria,
+            ObjectId.Parse(item.Proveedor),
+            false,
+            DateTime.UtcNow,
+            DateTime.UtcNow
+        );
         var result = await funkoRepository.Create(model);
         return result.ToDto();
     }

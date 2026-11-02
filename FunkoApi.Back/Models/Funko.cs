@@ -15,7 +15,6 @@ public record Funko(
     string CategoriaId,
     Categoria? Categoria,
     ObjectId ProveedorId,
-    Proveedor? Proveedor,
     bool IsDeleted,
     DateTime CreatedAt,
     DateTime UpdatedAt
@@ -26,5 +25,5 @@ public record Funko(
     /// navegaciones <see cref="Categoria" /> y <see cref="Proveedor" />.
     /// El constructor posicional público es el que debe utilizar el código de aplicación.
     /// </summary>
-    public Funko() : this(0, string.Empty, 0m, 0, string.Empty, string.Empty, null, ObjectId.Empty, null, false, default, default) { }
+    public Funko() : this(0, string.Empty, 0m, 0, string.Empty, string.Empty, null, ObjectId.Empty, false, default, default) { }
 }

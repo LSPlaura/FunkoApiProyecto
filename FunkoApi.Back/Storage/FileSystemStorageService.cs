@@ -123,6 +123,12 @@ public class FileSystemStorageService : IStorageService {
     public string GetRelativePath(string filename, string folder = "funkos") {
         return $"/{_uploadPath}/{folder}/{filename}";
     }
+
+   ///<inheritdoc/>
+    public bool IsEmpty(IFormFile? file)
+    {
+        return file is null or { Length: 0 };
+    }
     
     /// <summary>
     /// Revisa que el archivo tenga contenido, no supere el tamaño permitido
@@ -131,7 +137,6 @@ public class FileSystemStorageService : IStorageService {
     /// <param name="file">Archivo que se comprueba antes de escribirlo en disco.</param>
     /// <returns>Éxito sin un valor asociado, o el primer error detectado.</returns>
     private UnitResult<DomainError> ValidateFile(IFormFile file) {
-        if (file is null or { Length: 0 }) return UnitResult.Failure<DomainError>(StorageError.ArchivoVacio());
 
         if (file.Length > _maxFileSize) return UnitResult.Failure<DomainError>(StorageError.ArchivoMuyGrande());
 

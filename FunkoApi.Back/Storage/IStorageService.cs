@@ -45,4 +45,11 @@ public interface IStorageService {
     /// <param name="folder">Carpeta a la que pertenece; se utiliza funkos si no se indica otra.</param>
     /// <returns>Una referencia con la estructura /uploads/{carpeta}/{nombre}.</returns>
     string GetRelativePath(string filename, string folder = "funkos");
+
+    /// <summary>
+    /// Detecta si el archivo es nulo o está vacío
+    /// </summary>
+    /// <param name="file">El archivo</param>
+    /// <returns>True si está vacío o es nulo, False en caso contrario</returns>
+    bool IsEmpty(IFormFile? file);
 }

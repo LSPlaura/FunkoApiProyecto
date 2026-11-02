@@ -17,16 +17,29 @@ namespace FunkoApi.Back.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class FunkosController(IFunkoService service, IStorageService storage) : ControllerBase {
+    
     /// <summary>
-    ///     Crea un nuevo Funko a partir de los datos proporcionados.
+    /// Crea un funko con o sin imagen
     /// </summary>
-    /// <param name="dto">DTO con los datos necesarios para crear el Funko.</param>
+    /// <param name="nombre">Nombre del Funko.</param>
+    /// <param name="precio">Precio del Funko.</param>
+    /// <param name="stock">Unidades disponibles.</param>
+    /// <param name="categoriaId">Identificador de la categoría asociada.</param>
+    /// <param name="proveedorId">Identificador del proveedor asociado.</param>
+    /// <param name="archivo">Imagen que se guarda en la carpeta de Funkos.</param>
     /// <returns>Respuesta HTTP con el Funko creado o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpPost]
-    public async Task<ActionResult<FunkoDto>> Create([FromBody] CreateFunkoDto dto) {
+    public async Task<ActionResult<FunkoDto>> Create(
+        [FromForm] string nombre, 
+        [FromForm] decimal precio, 
+        [FromForm] int stock, 
+        [FromForm] string categoriaId, 
+        [FromForm] string proveedorId, 
+        [FromForm] IFormFile? archivo)
+    {
+        var dto = new CreateFunkoDto { Nombre = nombre, Precio = precio, Stock =  stock, Categoria = categoriaId, Proveedor = proveedorId, Imagen = archivo };
         var result = await service.Create(dto);
-
         return result.Match(
             response => CreatedAtAction(nameof(GetById), new { id = response.Id }, response),
             error => error.ToHttpResult<FunkoDto>()
@@ -99,36 +112,6 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
             error => error.ToHttpResult<FunkoDto>()
         );
     }
-    
-    
-    /// <summary>
-    /// Guarda una imagen y solicita la creación de un Funko con los datos de un formulario multipart/form-data.
-    /// </summary>
-    /// <param name="nombre">Nombre del Funko.</param>
-    /// <param name="precio">Precio del Funko.</param>
-    /// <param name="stock">Unidades disponibles.</param>
-    /// <param name="categoriaId">Identificador de la categoría asociada.</param>
-    /// <param name="proveedorId">Identificador del proveedor asociado.</param>
-    /// <param name="archivo">Imagen que se guarda en la carpeta de Funkos.</param>
-    /// <returns>Respuesta 201 con el Funko creado y su ubicación, o el error de almacenamiento o creación.</returns>
-    [Authorize(Roles = "ADMIN")]
-    [HttpPost("imagen")]
-    public async Task<ActionResult<FunkoDto>> CreateConImagen(
-        [FromForm] string nombre, 
-        [FromForm] decimal precio, 
-        [FromForm] int stock, 
-        [FromForm] string categoriaId, 
-        [FromForm] ObjectId proveedorId, 
-        [FromForm] IFormFile archivo) {
-        
-        var saveResult = await storage.SaveFileAsync(archivo, "funkos");
-        if (saveResult.IsFailure) return saveResult.Error.ToHttpResult<FunkoDto>();
-
-        var dto = new CreateFunkoDto { Nombre = nombre, Precio = precio, Stock =  stock, Categoria = categoriaId, Proveedor = proveedorId.ToString(), Imagen = saveResult.Value };
-        var result = await service.Create(dto);
-        return result.IsSuccess ? CreatedAtAction(nameof(GetById), new { id = result.Value.Id }, result.Value) : result.Error.ToHttpResult<FunkoDto>();
-    }
-    
     
     /// <summary>
     /// Solicita la actualización de la imagen de un Funko, conservando sus demás datos.
