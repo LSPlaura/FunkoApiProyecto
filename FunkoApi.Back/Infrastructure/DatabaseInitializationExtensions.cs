@@ -1,6 +1,7 @@
 using FunkoApi.Back.Config;
 using FunkoApi.Back.Data;
 using FunkoApi.Back.Data.Seed.Efc;
+using FunkoApi.Back.Data.Seed.Identity;
 using FunkoApi.Back.Data.Seed.Mongo;
 using MongoDB.Driver;
 using Serilog;
@@ -12,13 +13,20 @@ public static class DatabaseInitializationExtensions
     public static async Task InitializeDatabaseAsync(
         this WebApplication app)
     {
+        using var scope = app.Services.CreateScope();
+        
         // ---------- MongoDB (driver nativo) ----------
         Log.Information("Configurando MongoDB con driver nativo...");
 
+        var mongoDatabase = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+        
+        await mongoDatabase.Client.DropDatabaseAsync(mongoDatabase.DatabaseNamespace.DatabaseName);
+        Log.Information("[MongoDB] Base de datos eliminada y lista para resembrar.");
         var mongoSeeder = app.Services.GetRequiredService<MongoSeeder>();
+        
         await mongoSeeder.SeedAsync();
 
-        Log.Information("[MongoDB]Sembrado de datos realizado");
+        Log.Information("[MongoDB] Sembrado de datos realizado");
 
         // ---------- PostgreSQL (EF Core) ----------
         Log.Information("Configurando PostgreSQL con EF Core...");
@@ -33,5 +41,9 @@ public static class DatabaseInitializationExtensions
         await efSeeder.SeedAsync();
 
         Log.Information("[EF Core] Base de datos recreada con sembrado de datos");
+        
+        // ── Identity Seeder (después de recrear BD) ──────────────────────────
+        await IdentitySeeder.SeedAsync(scope.ServiceProvider);
+        Log.Information("[Identity] Sembrado de datos realizado");
     }
 }
