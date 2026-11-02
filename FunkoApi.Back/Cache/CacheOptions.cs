@@ -1,11 +1,10 @@
-namespace FunkoApi.Back.Config;
+namespace FunkoApi.Back.Cache;
 
 /// <summary>
 ///     Opciones de configuración de caché.
 /// </summary>
 public class CacheOptions
 {
-    public string ConnectionString { get; set; } = string.Empty;
     public string RedisInstanceName { get; set; } = string.Empty;
     /// <summary>
     ///     Sección de configuración.

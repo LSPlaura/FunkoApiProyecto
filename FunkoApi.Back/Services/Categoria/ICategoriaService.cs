@@ -1,5 +1,5 @@
 using CSharpFunctionalExtensions;
-using FunkoApi.Back.Dtos.Categoria;
+using FunkoApi.Back.Dto.Categoria;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Services.Crud.Common;
 

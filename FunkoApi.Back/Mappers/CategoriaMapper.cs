@@ -1,4 +1,4 @@
-using FunkoApi.Back.Dtos.Categoria;
+using FunkoApi.Back.Dto.Categoria;
 using FunkoApi.Back.Models;
 
 namespace FunkoApi.Back.Mappers;

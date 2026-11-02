@@ -1,4 +1,5 @@
-﻿using FunkoApi.Back.Config;
+﻿using FunkoApi.Back.Cache;
+using FunkoApi.Back.Config;
 using FunkoApi.Back.Storage;
 using Serilog;
 
@@ -15,7 +16,7 @@ public static class StorageConfig {
     /// <param name="configuration">Configuración de la app.</param>
     /// <returns>La colección de servicios para permitir encadenar otros registros.</returns>
     public static IServiceCollection AddStorage(this IServiceCollection services, IConfiguration configuration) {
-        Log.Information("Configurando servicio de almacenamiento de imagenes..");
+        Log.Information("Registrando servicio de almacenamiento de imagenes..");
         
         services.Configure<CacheOptions>(
             configuration.GetSection(StorageSettings.SectionName));

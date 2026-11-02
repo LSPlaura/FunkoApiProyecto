@@ -1,5 +1,5 @@
+using FunkoApi.Back.Dto.Categoria;
 using FunkoApi.Back.Dto.Funko;
-using FunkoApi.Back.Dtos.Categoria;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Models;
 

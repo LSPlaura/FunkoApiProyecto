@@ -1,5 +1,5 @@
 using CSharpFunctionalExtensions;
-using FunkoApi.Back.Dtos.Categoria;
+using FunkoApi.Back.Dto.Categoria;
 using FunkoApi.Back.Extensions;
 using FunkoApi.Back.Services.Get.Categoria;
 using Microsoft.AspNetCore.Authorization;
