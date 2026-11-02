@@ -28,8 +28,6 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             entity.HasIndex(p => p.Nombre).IsUnique();
             entity.Property(p => p.Precio).IsRequired().HasPrecision(18, 2);
             entity.Property(p => p.Stock).IsRequired();
-            
-            entity.Ignore(f => f.Proveedor);
 
             entity.Property(f => f.ProveedorId)
                 .HasConversion(
