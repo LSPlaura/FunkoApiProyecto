@@ -8,6 +8,5 @@ public class StorageSettings
     public string AllowedExtensions { get; set; } = string.Empty;
     public string AllowedContentTypes { get; set; } = string.Empty;
     public string DefaultImage { get; set; } = string.Empty;
-    public string FunkosFolder { get; set; } = string.Empty;
-
+    public Dictionary<string, string> Folders { get; set; } = new(StringComparer.OrdinalIgnoreCase);
 }

@@ -83,8 +83,9 @@ try
     }
 
     app.MapControllers();
-
-   await app.InitializeDatabaseAsync();
+    
+    app.InitializeStorage(app.Configuration);
+    await app.InitializeDatabaseAsync();
 
     // ── CONFIGURACIÓN TIPADA: se lee y se muestra al arrancar ────────────────
     var apiConfig = app.Services.GetRequiredService<IOptions<ApiConfig>>().Value;

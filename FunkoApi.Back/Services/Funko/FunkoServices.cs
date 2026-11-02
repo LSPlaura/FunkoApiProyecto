@@ -66,7 +66,7 @@ public class FunkoServices(
             item.Nombre,
             item.Precio,
             item.Stock,
-            storage.GetRelativePath(_storageOptions.DefaultImage, _storageOptions.FunkosFolder),
+            storage.GetRelativePath(_storageOptions.DefaultImage, _storageOptions.Folders["Funkos"]),
             item.Categoria,
             categoria,
             ObjectId.Parse(item.Proveedor),
@@ -88,7 +88,7 @@ public class FunkoServices(
     
     private async Task<Result<FunkoDto, DomainError>> CreateWithImage(CreateFunkoDto item, Models.Categoria categoria)
     {
-        var file = await storage.SaveFileAsync(item.Imagen!, _storageOptions.FunkosFolder);
+        var file = await storage.SaveFileAsync(item.Imagen!, _storageOptions.Folders["Funkos"]);
         if (file.IsFailure) return file.Error;
 
         var model = new Models.Funko(
@@ -207,7 +207,7 @@ public class FunkoServices(
             return FunkoError.FunkoAlreadyExists(item.Nombre);
 
         if (storage.IsEmpty(item.Imagen)) return new BadRequestError("No se ha mandado la imagen");
-        var file = await storage.SaveFileAsync(item.Imagen!, _storageOptions.FunkosFolder);
+        var file = await storage.SaveFileAsync(item.Imagen!, _storageOptions.Folders["Funkos"]);
         if (file.IsFailure) return file.Error;
         
         var updating = oldFunko with

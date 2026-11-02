@@ -18,7 +18,7 @@ public class EfcSeeder(
 {
 
     private readonly string _defaultImagePath =
-        Path.Combine(storageOptions.Value.UploadPath, storageOptions.Value.FunkosFolder, storageOptions.Value.DefaultImage);
+        Path.Combine(storageOptions.Value.UploadPath, storageOptions.Value.Folders["Funkos"], storageOptions.Value.DefaultImage);
     
     /// <summary>
     /// Ejecuta el sembrado inicial de categorías y Funkos,
