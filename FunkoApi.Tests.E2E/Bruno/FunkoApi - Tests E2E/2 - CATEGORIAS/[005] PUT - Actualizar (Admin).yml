@@ -1,0 +1,37 @@
+info:
+  name: "[005] PUT - Actualizar (Admin)"
+  type: http
+  seq: 4
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/categorias/{{categoriaId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "Categoria E2E Actualizada"
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Update - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Categorias Update - Returns updated categoria", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.nombre).to.equal("Categoria E2E Actualizada");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

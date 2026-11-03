@@ -1,0 +1,44 @@
+info:
+  name: "[002] POST - Crear (Admin)"
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/categorias"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "Categoria E2E"
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Create - Status 201 Created", function () {
+            expect(res.getStatus()).to.equal(201);
+        });
+
+        test("Categorias Create - Returns created categoria", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.be.a("string");
+            expect(jsonData.id).to.not.be.empty;
+            expect(jsonData.nombre).to.equal("Categoria E2E");
+        });
+
+        if (res.getStatus() === 201) {
+            const jsonData = res.getBody();
+            bru.setVar("categoriaId", jsonData.id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
