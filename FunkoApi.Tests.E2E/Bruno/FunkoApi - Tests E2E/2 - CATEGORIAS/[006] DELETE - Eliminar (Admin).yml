@@ -1,0 +1,30 @@
+info:
+  name: "[006] DELETE - Eliminar (Admin)"
+  type: http
+  seq: 5
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/categorias/{{categoriaId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Delete - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Categorias Delete - Returns true", function () {
+            expect(res.getBody()).to.equal(true);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,46 @@
+info:
+  name: "[001] LOGIN - Admin"
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/Auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{adminEmail}}",
+        "password": "{{adminPassword}}"
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Login Admin - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Login Admin - Has token", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.token).to.not.be.empty;
+        });
+
+        test("Login Admin - Role is ADMIN", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.role).to.equal("ADMIN");
+        });
+
+        // Guardar token para las siguientes peticiones
+        if (res.getStatus() === 200) {
+            const jsonData = res.getBody();
+            bru.setVar("adminToken", jsonData.token);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
