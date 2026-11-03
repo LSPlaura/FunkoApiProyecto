@@ -89,7 +89,7 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// <param name="name">Nombre de la categoría que se desea consultar.</param>
     /// <returns>Respuesta HTTP con la categoría encontrada o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN,USER")]
-    [HttpGet]
+    [HttpGet("nombre")]
     public async Task<ActionResult<CategoriaDto>> GetByName([FromQuery] string name) {
         return await service.GetByName(name).Match(
             response => Ok(response),

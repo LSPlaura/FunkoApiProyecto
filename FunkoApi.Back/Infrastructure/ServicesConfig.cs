@@ -1,9 +1,14 @@
+using FunkoApi.Back.Cache;
+using FunkoApi.Back.Data;
 using FunkoApi.Back.Services.Auth;
 using FunkoApi.Back.Services.Auth.Common;
 using FunkoApi.Back.Services.Categoria;
 using FunkoApi.Back.Services.Funko;
+using FunkoApi.Back.Services.Funko.Transactions;
 using FunkoApi.Back.Services.Get.Categoria;
 using FunkoApi.Back.Services.Proveedor;
+using FunkoApi.Back.Storage;
+using Microsoft.Extensions.Options;
 using Serilog;
 
 namespace FunkoApi.Back.Infrastructure;
@@ -26,6 +31,14 @@ public static class ServicesConfig
         services.AddScoped<IFunkoService, FunkoServices>();
         services.AddScoped<ICategoriaService, CategoriaService>();
         services.AddScoped<IProveedorService, ProveedorService>();
+        services.AddScoped<FunkoTransactionsService>(sp => new FunkoTransactionsService(
+            sp.GetRequiredService<AppDbContext>(),
+            "funko:",
+            sp.GetRequiredService<IOptions<CacheOptions>>(),
+            sp.GetRequiredService<ICacheService>(),
+            sp.GetRequiredService<IStorageService>(),
+            sp.GetRequiredService<ILogger<FunkoTransactionsService>>()
+        ));
 
         Log.Information("Servicios registrados correctamente.");
         return services;

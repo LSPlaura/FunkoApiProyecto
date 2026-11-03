@@ -28,7 +28,7 @@ public static class StorageInitializationExtensions {
             }
           
             var storageSettings = configuration
-                .GetSection("StorageSettings")
+                .GetSection(StorageSettings.SectionName)
                 .Get<StorageSettings>() ?? new StorageSettings();
             
             var sourceSeedPath = Path.Combine(app.Environment.ContentRootPath, "SeedImages");

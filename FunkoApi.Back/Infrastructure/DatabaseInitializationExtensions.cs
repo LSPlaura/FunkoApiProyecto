@@ -22,7 +22,7 @@ public static class DatabaseInitializationExtensions
         
         await mongoDatabase.Client.DropDatabaseAsync(mongoDatabase.DatabaseNamespace.DatabaseName);
         Log.Information("[MongoDB] Base de datos eliminada y lista para resembrar.");
-        var mongoSeeder = app.Services.GetRequiredService<MongoSeeder>();
+        var mongoSeeder = scope.ServiceProvider.GetRequiredService<MongoSeeder>();
         
         await mongoSeeder.SeedAsync();
 
@@ -31,13 +31,13 @@ public static class DatabaseInitializationExtensions
         // ---------- PostgreSQL (EF Core) ----------
         Log.Information("Configurando PostgreSQL con EF Core...");
 
-        var context = app.Services.GetRequiredService<AppDbContext>();
+        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         Log.Information("[EF Core] Eliminando y recreando la base de datos...");
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();
 
-        var efSeeder = app.Services.GetRequiredService<EfcSeeder>();
+        var efSeeder = scope.ServiceProvider.GetRequiredService<EfcSeeder>();
         await efSeeder.SeedAsync();
 
         Log.Information("[EF Core] Base de datos recreada con sembrado de datos");
