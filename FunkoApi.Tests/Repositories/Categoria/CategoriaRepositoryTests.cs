@@ -43,6 +43,7 @@ public class CategoriaRepositoryTests
         _databaseCreated = true;
         var servicios = new ServiceCollection();
         servicios.AddSingleton(_context);
+        servicios.AddLogging();
         servicios.AddRepositories(new ConfigurationBuilder().Build());
         _provider = servicios.BuildServiceProvider();
         _repository = _provider.GetRequiredService<ICategoriaRepository>();

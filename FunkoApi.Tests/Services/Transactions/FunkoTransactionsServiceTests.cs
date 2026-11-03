@@ -14,6 +14,7 @@ using FunkoApi.Back.Services.Funko.Transactions;
 using FunkoApi.Back.Storage;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using Moq;
@@ -54,7 +55,8 @@ public class FunkoTransactionsServiceTests
         _storageMock = new Mock<IStorageService>();
         _cacheMock = new Mock<ICacheService>();
         _storageMock.Setup(s => s.DeleteFileAsync(It.IsAny<string>())).ReturnsAsync(Result.Success<bool, DomainError>(true));
-        _transactions = new FunkoTransactionsService(_context, "funko:", Options.Create(new CacheOptions()), _cacheMock.Object, _storageMock.Object);
+        _transactions = new FunkoTransactionsService(_context, "funko:", Options.Create(new CacheOptions()),
+            _cacheMock.Object, _storageMock.Object, new Mock<ILogger<FunkoTransactionsService>>().Object);
     }
 
     [TearDown]
@@ -183,7 +185,8 @@ public class FunkoTransactionsServiceTests
         if (!exito) _storageMock.Setup(s => s.DeleteFileAsync(funko.Imagen)).ThrowsAsync(new IOException("Bloqueado"));
         var service = new FunkoServices(repositoryMock.Object, new Mock<ICategoriaRepository>().Object,
             new Mock<IProveedorRepository>().Object, _cacheMock.Object, Options.Create(new CacheOptions()),
-            _storageMock.Object, Options.Create(new StorageSettings()), _transactions);
+            _storageMock.Object, Options.Create(new StorageSettings()), _transactions,
+            new Mock<ILogger<FunkoServices>>().Object);
 
         // Act
         var resultado = await service.HardDelete(1);
@@ -221,7 +224,8 @@ public class FunkoTransactionsServiceTests
         _storageMock.Setup(s => s.SaveFileAsync(archivo, "funkos")).ReturnsAsync(Result.Success<string, DomainError>("nueva.png"));
         var storageOptions = Options.Create(new StorageSettings { Folders = new Dictionary<string, string> { ["Funkos"] = "funkos" } });
         var service = new FunkoServices(repositoryMock.Object, categoriaMock.Object, proveedorMock.Object,
-            _cacheMock.Object, Options.Create(new CacheOptions()), _storageMock.Object, storageOptions, _transactions);
+            _cacheMock.Object, Options.Create(new CacheOptions()), _storageMock.Object, storageOptions, _transactions,
+            new Mock<ILogger<FunkoServices>>().Object);
         var dto = new UpdateFunkoDto { Nombre = falla ? new string('A', 101) : funko.Nombre, Precio = 20m,
             Stock = 5, Categoria = categoria.Id, Proveedor = proveedorId.ToString(), Imagen = archivo };
 
