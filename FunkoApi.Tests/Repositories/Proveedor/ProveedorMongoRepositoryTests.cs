@@ -1,12 +1,13 @@
 using FluentAssertions;
-using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Proveedor;
+using Microsoft.Extensions.Logging;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using Moq;
 using NUnit.Framework;
 using Testcontainers.MongoDb;
 
-namespace FunkoApi.Tests.Repositories;
+namespace FunkoApi.Tests.Repositories.Proveedor;
 
 [TestFixture]
 [Category("Integration")]
@@ -24,12 +25,12 @@ public class ProveedorMongoRepositoryTests
         _container = new MongoDbBuilder().WithImage("mongo:7").Build();
         await _container.StartAsync();
         _database = new MongoClient(_container.GetConnectionString()).GetDatabase("proveedores_test");
-        _repository = new ProveedorMongoRepository(_database);
+        _repository = new ProveedorMongoRepository(_database, new Mock<ILogger<ProveedorMongoRepository>>().Object);
     }
 
     [SetUp]
-    public async Task SetUp() => await _database.GetCollection<Proveedor>("proveedores")
-        .DeleteManyAsync(Builders<Proveedor>.Filter.Empty);
+    public async Task SetUp() => await _database.GetCollection<Back.Models.Proveedor>("proveedores")
+        .DeleteManyAsync(Builders<Back.Models.Proveedor>.Filter.Empty);
 
     [OneTimeTearDown]
     public async Task OneTimeTearDown() => await _container.DisposeAsync();
@@ -39,7 +40,7 @@ public class ProveedorMongoRepositoryTests
     {
         // Arrange
         var fecha = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var proveedor = new Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
 
         // Act
         var resultado = await _repository.Create(proveedor);
@@ -55,8 +56,8 @@ public class ProveedorMongoRepositoryTests
     {
         // Arrange
         var fecha = DateTime.UtcNow;
-        var proveedorZeta = new Proveedor(ObjectId.Parse(Id), "Zeta", false, fecha, fecha);
-        var proveedorAlpha = new Proveedor(ObjectId.Parse("000000000000000000000002"), "Alpha", false, fecha, fecha);
+        var proveedorZeta = new Back.Models.Proveedor(ObjectId.Parse(Id), "Zeta", false, fecha, fecha);
+        var proveedorAlpha = new Back.Models.Proveedor(ObjectId.Parse("000000000000000000000002"), "Alpha", false, fecha, fecha);
         if (conDatos)
         {
             await _repository.Create(proveedorZeta);
@@ -77,7 +78,7 @@ public class ProveedorMongoRepositoryTests
     {
         // Arrange
         var fecha = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var proveedor = new Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
         if (existe) await _repository.Create(proveedor);
 
         // Act
@@ -94,7 +95,7 @@ public class ProveedorMongoRepositoryTests
     {
         // Arrange
         var fecha = DateTime.UtcNow;
-        var proveedor = new Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
         if (existe) await _repository.Create(proveedor);
 
         // Act
@@ -110,7 +111,7 @@ public class ProveedorMongoRepositoryTests
     {
         // Arrange
         var fecha = DateTime.UtcNow;
-        var proveedor = new Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
         if (existe) await _repository.Create(proveedor);
 
         // Act
@@ -126,7 +127,7 @@ public class ProveedorMongoRepositoryTests
     {
         // Arrange
         var fecha = DateTime.UtcNow;
-        var proveedor = new Proveedor(ObjectId.Parse(Id), "Funko Corp", true, fecha, fecha);
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko Corp", true, fecha, fecha);
         await _repository.Create(proveedor);
 
         // Act
@@ -142,7 +143,7 @@ public class ProveedorMongoRepositoryTests
     {
         // Arrange
         var fecha = DateTime.UtcNow;
-        var proveedor = new Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
         if (existe) await _repository.Create(proveedor);
 
         // Act
@@ -158,7 +159,7 @@ public class ProveedorMongoRepositoryTests
     {
         // Arrange
         var fecha = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var proveedor = new Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
         await _repository.Create(proveedor);
         var actualizado = proveedor with { Nombre = "Actualizado" };
 
@@ -175,7 +176,7 @@ public class ProveedorMongoRepositoryTests
     {
         // Arrange
         var fecha = DateTime.UtcNow;
-        var proveedor = new Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha);
 
         // Act
         var resultado = await _repository.Update(proveedor);
@@ -191,7 +192,7 @@ public class ProveedorMongoRepositoryTests
     {
         // Arrange
         var fecha = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-        var proveedor = new Proveedor(ObjectId.Parse(Id), "Funko Corp", true, fecha, fecha);
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko Corp", true, fecha, fecha);
         await _repository.Create(proveedor);
 
         // Act

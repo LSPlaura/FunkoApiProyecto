@@ -3,6 +3,7 @@ using FluentAssertions;
 using FunkoApi.Back.Cache;
 using FunkoApi.Back.Config;
 using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
 using NUnit.Framework;
@@ -26,7 +27,8 @@ public class RedisCacheServiceTests
         _redisMock = new Mock<IConnectionMultiplexer>();
         _databaseMock = new Mock<IDatabase>();
         _redisMock.Setup(r => r.GetDatabase(-1, null)).Returns(_databaseMock.Object);
-        _service = new RedisCacheService(_cacheMock.Object, _redisMock.Object, Options.Create(new CacheOptions()));
+        _service = new RedisCacheService(_cacheMock.Object, _redisMock.Object, Options.Create(new CacheOptions()),
+            new Mock<ILogger<RedisCacheService>>().Object);
     }
 
     [TestCase(true)]

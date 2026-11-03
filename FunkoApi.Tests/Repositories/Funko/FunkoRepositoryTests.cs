@@ -1,17 +1,19 @@
 using FluentAssertions;
 using FunkoApi.Back.Data;
 using FunkoApi.Back.Models;
-using MongoDB.Bson;
 using FunkoApi.Back.Repositories.Funko;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using Moq;
 using NUnit.Framework;
 using Testcontainers.PostgreSql;
 
-namespace FunkoApi.Tests.Repositories;
+namespace FunkoApi.Tests.Repositories.Funko;
 
 /// <summary>
-///     Tests de integración de FunkoRepository contra PostgreSQL real
-///     usando un contenedor efímero de Testcontainers.
+/// Tests de integración de FunkoRepository contra PostgreSQL real
+/// usando un contenedor efímero de Testcontainers.
 /// </summary>
 [TestFixture]
 [Category("Integration")]
@@ -42,7 +44,7 @@ public class FunkoRepositoryTests
             .UseNpgsql(_container.GetConnectionString()).Options);
         await _context.Database.EnsureCreatedAsync();
         _databaseCreated = true;
-        _repository = new FunkoRepository(_context);
+        _repository = new FunkoRepository(_context, new Mock<ILogger<FunkoRepository>>().Object);
     }
 
     [TearDown]
@@ -72,7 +74,7 @@ public class FunkoRepositoryTests
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
 
         // Act
@@ -90,9 +92,9 @@ public class FunkoRepositoryTests
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
         var proveedorId = ObjectId.Parse("000000000000000000000001");
-        var funkoZeta = new Funko(1, "Zeta", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funkoZeta = new Back.Models.Funko(1, "Zeta", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             proveedorId, false, fecha, fecha);
-        var funkoAlpha = new Funko(2, "Alpha", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funkoAlpha = new Back.Models.Funko(2, "Alpha", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             proveedorId, false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -112,7 +114,7 @@ public class FunkoRepositoryTests
         // Arrange
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -145,7 +147,7 @@ public class FunkoRepositoryTests
         // Arrange
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -178,7 +180,7 @@ public class FunkoRepositoryTests
         // Arrange
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -213,7 +215,7 @@ public class FunkoRepositoryTests
         // Arrange
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -246,7 +248,7 @@ public class FunkoRepositoryTests
         // Arrange
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -267,7 +269,7 @@ public class FunkoRepositoryTests
         // Arrange
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -312,7 +314,7 @@ public class FunkoRepositoryTests
     {
         // Arrange
         var fecha = DateTime.UtcNow;
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", "cat00000001", null,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", "cat00000001", null,
             ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
 
         // Act
@@ -328,7 +330,7 @@ public class FunkoRepositoryTests
         // Arrange
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), true, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -348,7 +350,7 @@ public class FunkoRepositoryTests
         // Arrange
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), true, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -369,7 +371,7 @@ public class FunkoRepositoryTests
         // Arrange
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), true, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -387,7 +389,7 @@ public class FunkoRepositoryTests
     {
         // Arrange
         var fecha = DateTime.UtcNow;
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", "cat00000001", null,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", "cat00000001", null,
             ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
 
         // Act
@@ -404,7 +406,7 @@ public class FunkoRepositoryTests
         // Arrange
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             ObjectId.Parse("000000000000000000000001"), false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
@@ -425,7 +427,7 @@ public class FunkoRepositoryTests
         var fecha = DateTime.UtcNow;
         var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
         var proveedorId = ObjectId.Parse("000000000000000000000001");
-        var funko = new Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
+        var funko = new Back.Models.Funko(1, "Iron Man", 14.99m, 10, "iron-man.png", categoria.Id, categoria,
             proveedorId, false, fecha, fecha);
         await _context.Categorias.AddAsync(categoria);
         await _context.SaveChangesAsync();
