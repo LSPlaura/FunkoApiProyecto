@@ -1,0 +1,40 @@
+{
+  "name": "FunkoApi - CLI Docker",
+  "variables": [
+    {
+      "name": "baseUrl",
+      "value": "http://host.docker.internal:5000",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "adminEmail",
+      "value": "admin@admin.com",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "adminPassword",
+      "value": "",
+      "type": "text",
+      "enabled": true,
+      "secret": true
+    },
+    {
+      "name": "userEmail",
+      "value": "user@user.com",
+      "type": "text",
+      "enabled": true,
+      "secret": false
+    },
+    {
+      "name": "userPassword",
+      "value": "",
+      "type": "text",
+      "enabled": true,
+      "secret": true
+    }
+  ]
+}

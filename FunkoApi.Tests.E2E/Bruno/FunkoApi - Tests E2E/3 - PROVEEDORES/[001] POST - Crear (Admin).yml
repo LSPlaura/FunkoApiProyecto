@@ -1,0 +1,41 @@
+info:
+  name: "[001] POST - Crear (Admin)"
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/proveedores"
+  body:
+    type: json
+    data: |-
+      { "nombre": "{{proveedorNombre}}" }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("proveedorId", null);
+        test("Proveedores Create - Status 201 Created", function () {
+            expect(res.getStatus()).to.equal(201);
+        });
+        test("Proveedores Create - Returns proveedor", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.be.a("string");
+            expect(jsonData.id).to.not.be.empty;
+            expect(jsonData.nombre).to.equal(bru.getVar("proveedorNombre"));
+            expect(jsonData.isDeleted).to.equal(false);
+        });
+        if (res.getStatus() === 201) {
+            bru.setVar("proveedorId", res.getBody().id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

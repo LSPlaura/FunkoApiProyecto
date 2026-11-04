@@ -1,0 +1,51 @@
+info:
+  name: "[017] PUT - Archivo no permitido"
+  type: http
+  seq: 17
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/funkos/{{funkoId}}"
+  body:
+    type: multipart-form
+    data:
+      - name: nombre
+        type: text
+        value: "{{funkoNombre}}"
+      - name: precio
+        type: text
+        value: "19.99"
+      - name: stock
+        type: text
+        value: "5"
+      - name: categoriaId
+        type: text
+        value: "{{funkoCategoriaId}}"
+      - name: proveedorId
+        type: text
+        value: "{{funkoProveedorId}}"
+      - name: archivo
+        type: file
+        value:
+          - assets/archivo-no-imagen.txt
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos Update InvalidFile - Status 422", function () {
+            expect(res.getStatus()).to.equal(422);
+        });
+        test("Funkos Update InvalidFile - Has message", function () {
+            expect(res.getBody().message).to.equal("La extensión del archivo no está permitida.");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

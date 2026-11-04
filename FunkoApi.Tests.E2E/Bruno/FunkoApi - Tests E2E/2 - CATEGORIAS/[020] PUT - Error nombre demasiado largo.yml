@@ -1,0 +1,39 @@
+info:
+  name: "[020] PUT - Error nombre demasiado largo"
+  type: http
+  seq: 10
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/categorias/{{categoriaId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890"
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Update LongName - Status 400 Bad Request", function () {
+            expect(res.getStatus()).to.equal(400);
+        });
+
+        test("Categorias Update LongName - Has validation errors", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.status).to.equal(400);
+            expect(jsonData.errors.Nombre).to.be.an("array");
+            expect(jsonData.errors.Nombre).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

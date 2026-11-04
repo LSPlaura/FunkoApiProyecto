@@ -1,0 +1,37 @@
+info:
+  name: "[022] PUT - Error nombre duplicado"
+  type: http
+  seq: 12
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/categorias/{{categoriaId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "Marvel"
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Update Duplicate - Status 409 Conflict", function () {
+            expect(res.getStatus()).to.equal(409);
+        });
+
+        test("Categorias Update Duplicate - Has error message", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

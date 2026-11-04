@@ -1,0 +1,29 @@
+info:
+  name: "[030] PUT - Error sin auth"
+  type: http
+  seq: 21
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/categorias/{{categoriaId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "Categoria Sin Auth E2E"
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Update NoAuth - Status 401 Unauthorized", function () {
+            expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,32 @@
+info:
+  name: "[025] PUT - Error rol USER"
+  type: http
+  seq: 15
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/categorias/{{categoriaId}}"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "Categoria Prohibida E2E"
+      }
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Update Forbidden - Status 403 Forbidden", function () {
+            expect(res.getStatus()).to.equal(403);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

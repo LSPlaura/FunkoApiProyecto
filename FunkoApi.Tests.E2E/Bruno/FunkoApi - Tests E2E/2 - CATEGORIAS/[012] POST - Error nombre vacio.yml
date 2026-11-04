@@ -1,0 +1,39 @@
+info:
+  name: "[012] POST - Error nombre vacio"
+  type: http
+  seq: 27
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/categorias"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": ""
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Create InvalidName - Status 400 Bad Request", function () {
+            expect(res.getStatus()).to.equal(400);
+        });
+
+        test("Categorias Create InvalidName - Has validation errors", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.status).to.equal(400);
+            expect(jsonData.errors.Nombre).to.be.an("array");
+            expect(jsonData.errors.Nombre).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

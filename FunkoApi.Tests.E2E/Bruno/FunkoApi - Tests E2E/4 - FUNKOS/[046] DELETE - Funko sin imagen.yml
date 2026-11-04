@@ -1,0 +1,29 @@
+info:
+  name: "[046] DELETE - Funko sin imagen"
+  type: http
+  seq: 46
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/funkos/{{funkoSinImagenId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos Delete NoImage - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("Funkos Delete NoImage - Returns true", function () {
+            expect(res.getBody()).to.equal(true);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

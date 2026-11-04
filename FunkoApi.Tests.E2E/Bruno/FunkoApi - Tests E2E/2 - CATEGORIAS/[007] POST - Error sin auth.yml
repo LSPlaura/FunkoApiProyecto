@@ -1,0 +1,29 @@
+info:
+  name: "[007] POST - Error sin auth"
+  type: http
+  seq: 20
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/categorias"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "Categoria Sin Auth E2E"
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Create NoAuth - Status 401 Unauthorized", function () {
+            expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

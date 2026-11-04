@@ -1,0 +1,62 @@
+info:
+  name: "[004] POST - Crear con imagen (Admin)"
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/funkos"
+  body:
+    type: multipart-form
+    data:
+      - name: nombre
+        type: text
+        value: "{{funkoNombre}}"
+      - name: precio
+        type: text
+        value: "19.99"
+      - name: stock
+        type: text
+        value: "5"
+      - name: categoriaId
+        type: text
+        value: "{{funkoCategoriaId}}"
+      - name: proveedorId
+        type: text
+        value: "{{funkoProveedorId}}"
+      - name: archivo
+        type: file
+        value:
+          - ../../../SeedImages/funkos/DefaultImage.jpg
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("funkoId", null);
+        test("Funkos Create Image - Status 201 Created", function () {
+            expect(res.getStatus()).to.equal(201);
+        });
+        test("Funkos Create Image - Returns funko", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.be.a("number");
+            expect(jsonData.nombre).to.equal(bru.getVar("funkoNombre"));
+            expect(jsonData.precio).to.equal(19.99);
+            expect(jsonData.stock).to.equal(5);
+            expect(jsonData.imagen).to.not.be.empty;
+            expect(jsonData.categoria.id).to.equal(bru.getVar("funkoCategoriaId"));
+            expect(jsonData.isDeleted).to.equal(false);
+        });
+        if (res.getStatus() === 201) {
+            bru.setVar("funkoId", res.getBody().id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

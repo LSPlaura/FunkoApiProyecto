@@ -1,0 +1,33 @@
+info:
+  name: "[006] PUT - Nombre vacio"
+  type: http
+  seq: 6
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/proveedores/{{proveedorId}}"
+  body:
+    type: json
+    data: |-
+      { "nombre": "" }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores Update EmptyName - Status 400", function () {
+            expect(res.getStatus()).to.equal(400);
+        });
+        test("Proveedores Update EmptyName - Validation errors", function () {
+            expect(res.getBody().errors.Nombre).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

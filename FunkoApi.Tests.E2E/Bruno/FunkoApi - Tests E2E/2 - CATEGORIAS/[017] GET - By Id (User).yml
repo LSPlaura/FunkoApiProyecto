@@ -1,0 +1,32 @@
+info:
+  name: "[017] GET - By Id (User)"
+  type: http
+  seq: 7
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/categorias/{{categoriaId}}"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias GetById User - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Categorias GetById User - Returns categoria", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.equal(bru.getVar("categoriaId"));
+            expect(jsonData.nombre).to.equal(bru.getVar("categoriaNombre"));
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

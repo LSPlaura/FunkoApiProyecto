@@ -1,0 +1,31 @@
+info:
+  name: "[023] DELETE - Error categoria con funkos"
+  type: http
+  seq: 13
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/categorias/{{categoriaEnUsoId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Delete InUse - Status 400 Bad Request", function () {
+            expect(res.getStatus()).to.equal(400);
+        });
+
+        test("Categorias Delete InUse - Has error message", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

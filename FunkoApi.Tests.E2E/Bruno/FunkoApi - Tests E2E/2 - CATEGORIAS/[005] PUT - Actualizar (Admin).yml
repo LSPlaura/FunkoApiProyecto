@@ -1,7 +1,7 @@
 info:
   name: "[005] PUT - Actualizar (Admin)"
   type: http
-  seq: 4
+  seq: 29
 
 http:
   method: PUT
@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "nombre": "Categoria E2E Actualizada"
+        "nombre": "{{categoriaNombreActualizada}}"
       }
   auth:
     type: bearer
@@ -26,7 +26,8 @@ runtime:
 
         test("Categorias Update - Returns updated categoria", function () {
             const jsonData = res.getBody();
-            expect(jsonData.nombre).to.equal("Categoria E2E Actualizada");
+            expect(jsonData.id).to.equal(bru.getVar("categoriaId"));
+            expect(jsonData.nombre).to.equal(bru.getVar("categoriaNombreActualizada"));
         });
 
 settings:

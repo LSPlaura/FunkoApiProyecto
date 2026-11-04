@@ -119,12 +119,12 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// <summary>
     /// Busca y recupera un Funko a partir de su nombre exacto.
     /// </summary>
-    /// <param name="name">Nombre del Funko que se desea consultar.</param>
+    /// <param name="nombre">Nombre del Funko que se desea consultar.</param>
     /// <returns>Respuesta HTTP 200 (OK) con el Funko encontrado, o un error si no existe.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpGet("{nombre}")]
-    public async Task<ActionResult<FunkoDto>> GetByNombre(string name) {
-        return await service.GetByName(name).Match(
+    public async Task<ActionResult<FunkoDto>> GetByNombre(string nombre) {
+        return await service.GetByName(nombre).Match(
             response => Ok(response),
             error => error.ToHttpResult<FunkoDto>()
         );
@@ -163,6 +163,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// Una tarea que representa la operación asíncrona, devolviendo un <see cref="ActionResult{T}"/> 
     /// que contiene la respuesta estructurada <see cref="PagedResponse{FunkoDto}"/> con los elementos y metadatos.
     /// </returns>
+    [Authorize(Roles = "ADMIN,USER")]
     [HttpGet("paged")]
     public async Task<ActionResult<PagedResponse<FunkoDto>>> GetPaged(
         [FromQuery] int page = 1, 

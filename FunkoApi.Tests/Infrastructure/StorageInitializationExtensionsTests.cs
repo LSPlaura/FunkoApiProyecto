@@ -1,4 +1,5 @@
 using FluentAssertions;
+using FunkoApi.Back.Config;
 using FunkoApi.Back.Infrastructure;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +21,7 @@ public class StorageInitializationExtensionsTests
         var uploads = Path.Combine(raiz, "uploads");
         var configuracion = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["StorageSettings:Folders:Funkos"] = "funkos"
+            [$"{StorageSettings.SectionName}:Folders:Funkos"] = "funkos"
         }).Build();
         try
         {
@@ -71,7 +72,7 @@ public class StorageInitializationExtensionsTests
         await File.WriteAllTextAsync(uploads, "no soy una carpeta");
         var configuracion = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
         {
-            ["StorageSettings:Folders:Funkos"] = "funkos"
+            [$"{StorageSettings.SectionName}:Folders:Funkos"] = "funkos"
         }).Build();
         try
         {

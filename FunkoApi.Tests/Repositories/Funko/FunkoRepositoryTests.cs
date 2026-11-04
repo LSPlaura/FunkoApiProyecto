@@ -86,6 +86,33 @@ public class FunkoRepositoryTests
     }
 
     [Test]
+    public async Task Create_CategoriaExistenteSinTracking_NoDuplicaCategoria()
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        await _context.Categorias.AddAsync(categoria);
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+        var categoriaSinTracking = await _context.Categorias.AsNoTracking()
+            .FirstAsync(c => c.Id == categoria.Id);
+        var funko = new Back.Models.Funko(0, "Iron Man", 14.99m, 10, "default.png",
+            categoria.Id, categoriaSinTracking, ObjectId.Parse("000000000000000000000001"),
+            false, fecha, fecha);
+
+        // Act
+        var resultado = await _repository.Create(funko);
+
+        // Assert
+        resultado.Id.Should().BeGreaterThan(0);
+        resultado.CategoriaId.Should().Be(categoria.Id);
+        resultado.Categoria.Should().NotBeNull();
+        resultado.Categoria!.Nombre.Should().Be("Marvel");
+        (await _context.Categorias.CountAsync()).Should().Be(1);
+        (await _context.Funkos.CountAsync()).Should().Be(1);
+    }
+
+    [Test]
     public async Task GetAll_ConDatos_RetornaFunkosOrdenadosPorNombre()
     {
         // Arrange

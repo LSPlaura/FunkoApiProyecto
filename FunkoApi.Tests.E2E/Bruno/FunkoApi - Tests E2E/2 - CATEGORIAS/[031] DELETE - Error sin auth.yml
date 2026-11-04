@@ -1,0 +1,23 @@
+info:
+  name: "[031] DELETE - Error sin auth"
+  type: http
+  seq: 22
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/categorias/{{categoriaId}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Delete NoAuth - Status 401 Unauthorized", function () {
+            expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

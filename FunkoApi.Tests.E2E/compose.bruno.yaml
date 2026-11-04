@@ -1,0 +1,37 @@
+services:
+  bruno:
+    # Mismo procedimiento que el ejemplo Bruno-Cli del profesor.
+    # Comprobado con usebruno/cli:latest, version 4.3.0.
+    image: usebruno/cli:latest
+    working_dir: /workspace/FunkoApi.Tests.E2E/Bruno/FunkoApi - Tests E2E
+    volumes:
+      # Solo la coleccion y sus imagenes; no se monta el .env de la API.
+      - "./Bruno/FunkoApi - Tests E2E:/workspace/FunkoApi.Tests.E2E/Bruno/FunkoApi - Tests E2E:ro"
+      - ../SeedImages:/workspace/SeedImages:ro
+      - ./reports:/reports
+      - ./environments/cli.local.json:/run/bruno/environment.json:ro
+    command:
+      - run
+      - "1 - AUTHENTICATION"
+      - "2 - CATEGORIAS"
+      - "3 - PROVEEDORES"
+      - "4 - FUNKOS"
+      - --env-file
+      - /run/bruno/environment.json
+      - --delay
+      - "250"
+      # Parar si falla la preparacion o una comprobacion. No seguir borrando.
+      - --bail
+      - --reporter-json
+      - /reports/report.json
+      - --reporter-junit
+      - /reports/junit-report.xml
+      - --reporter-html
+      - /reports/report.html
+      # Los informes no deben guardar contrasenas de login ni JWT.
+      - --reporter-skip-all-headers
+      - --reporter-skip-body
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    # Una sola ejecucion: sin reinicios automaticos de la suite ni de la API.
+    restart: "no"

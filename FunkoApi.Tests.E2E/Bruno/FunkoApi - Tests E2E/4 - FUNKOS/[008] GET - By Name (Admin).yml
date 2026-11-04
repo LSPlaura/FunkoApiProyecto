@@ -1,0 +1,31 @@
+info:
+  name: "[008] GET - By Name (Admin)"
+  type: http
+  seq: 8
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/funkos/{{funkoNombre}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos GetByName Route - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("Funkos GetByName Route - Returns funko", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.equal(bru.getVar("funkoId"));
+            expect(jsonData.nombre).to.equal(bru.getVar("funkoNombre"));
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

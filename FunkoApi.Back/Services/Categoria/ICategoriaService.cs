@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Dto.Categoria;
 using FunkoApi.Back.Errors;
-using FunkoApi.Back.Services.Crud.Common;
+using FunkoApi.Back.Services.Common;
 
 namespace FunkoApi.Back.Services.Get.Categoria;
 

@@ -10,7 +10,7 @@ http:
     type: json
     data: |-
       {
-        "nombre": "Categoria E2E"
+        "nombre": "{{categoriaNombre}}"
       }
   auth:
     type: bearer
@@ -28,7 +28,7 @@ runtime:
             const jsonData = res.getBody();
             expect(jsonData.id).to.be.a("string");
             expect(jsonData.id).to.not.be.empty;
-            expect(jsonData.nombre).to.equal("Categoria E2E");
+            expect(jsonData.nombre).to.equal(bru.getVar("categoriaNombre"));
         });
 
         if (res.getStatus() === 201) {

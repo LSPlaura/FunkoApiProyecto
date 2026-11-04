@@ -1,0 +1,30 @@
+info:
+  name: "[036] PATCH - Imagen sin auth"
+  type: http
+  seq: 36
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/funkos/{{funkoId}}/imagen"
+  body:
+    type: multipart-form
+    data:
+      - name: archivo
+        type: file
+        value:
+          - ../../../SeedImages/funkos/DefaultImage.jpg
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos PatchImage NoAuth - Status 401 Unauthorized", function () {
+            expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

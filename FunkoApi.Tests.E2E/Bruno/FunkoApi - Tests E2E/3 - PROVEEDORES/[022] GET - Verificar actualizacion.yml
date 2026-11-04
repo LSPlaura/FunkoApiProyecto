@@ -1,0 +1,30 @@
+info:
+  name: "[022] GET - Verificar actualizacion"
+  type: http
+  seq: 22
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/proveedores/{{proveedorId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores GetUpdated - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("Proveedores GetUpdated - Returns updated proveedor", function () {
+            expect(res.getBody().id).to.equal(bru.getVar("proveedorId"));
+            expect(res.getBody().nombre).to.equal(bru.getVar("proveedorNombreActualizado"));
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

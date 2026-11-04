@@ -3,8 +3,16 @@ variables:
   - name: baseUrl
     value: |
       http://localhost:5000
+    description: ""
   - name: adminEmail
     value: admin@admin.com
+    description: ""
   - secret: true
     name: adminPassword
+    description: ""
+  - secret: true
+    name: userPassword
+    description: ""
+  - name: userEmail
+    value: user@user.com
     description: ""

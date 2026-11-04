@@ -1,0 +1,27 @@
+info:
+  name: "[019] PUT - Sin auth"
+  type: http
+  seq: 19
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/proveedores/{{proveedorId}}"
+  body:
+    type: json
+    data: |-
+      { "nombre": "Proveedor Sin Auth E2E" }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores Update NoAuth - Status 401 Unauthorized", function () {
+            expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

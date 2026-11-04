@@ -1,0 +1,26 @@
+info:
+  name: "[047] GET - Funko sin imagen borrado"
+  type: http
+  seq: 47
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/funkos/{{funkoSinImagenId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos GetDeleted NoImage - Status 404 Not Found", function () {
+            expect(res.getStatus()).to.equal(404);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
