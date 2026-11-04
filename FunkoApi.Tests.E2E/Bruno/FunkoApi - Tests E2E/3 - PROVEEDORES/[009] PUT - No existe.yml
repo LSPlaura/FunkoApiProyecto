@@ -1,0 +1,33 @@
+info:
+  name: "[009] PUT - No existe"
+  type: http
+  seq: 9
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/proveedores/fffffffffffffffffffffffe"
+  body:
+    type: json
+    data: |-
+      { "nombre": "Proveedor Inexistente E2E" }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores Update NotFound - Status 404", function () {
+            expect(res.getStatus()).to.equal(404);
+        });
+        test("Proveedores Update NotFound - Has message", function () {
+            expect(res.getBody().message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

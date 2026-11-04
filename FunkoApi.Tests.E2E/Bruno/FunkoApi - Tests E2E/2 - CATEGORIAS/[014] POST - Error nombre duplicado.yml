@@ -1,0 +1,37 @@
+info:
+  name: "[014] POST - Error nombre duplicado"
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/categorias"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "{{categoriaNombre}}"
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Create Duplicate - Status 409 Conflict", function () {
+            expect(res.getStatus()).to.equal(409);
+        });
+
+        test("Categorias Create Duplicate - Has error message", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

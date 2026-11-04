@@ -1,0 +1,47 @@
+info:
+  name: "[012] POST - Proveedor inexistente"
+  type: http
+  seq: 12
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/funkos"
+  body:
+    type: multipart-form
+    data:
+      - name: nombre
+        type: text
+        value: "{{funkoNombre}} Proveedor Inexistente"
+      - name: precio
+        type: text
+        value: "19.99"
+      - name: stock
+        type: text
+        value: "5"
+      - name: categoriaId
+        type: text
+        value: "{{funkoCategoriaId}}"
+      - name: proveedorId
+        type: text
+        value: fffffffffffffffffffffffe
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos Create MissingProveedor - Status 400", function () {
+            expect(res.getStatus()).to.equal(400);
+        });
+        test("Funkos Create MissingProveedor - Has message", function () {
+            expect(res.getBody().message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

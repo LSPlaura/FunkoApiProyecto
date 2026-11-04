@@ -1,0 +1,23 @@
+info:
+  name: "[020] DELETE - Sin auth"
+  type: http
+  seq: 20
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/proveedores/{{proveedorId}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores Delete NoAuth - Status 401 Unauthorized", function () {
+            expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

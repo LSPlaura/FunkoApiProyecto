@@ -1,0 +1,29 @@
+info:
+  name: "[040] DELETE - Proveedor propio con funkos"
+  type: http
+  seq: 40
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/proveedores/{{funkoProveedorId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores Delete InUse - Status 409 Conflict", function () {
+            expect(res.getStatus()).to.equal(409);
+        });
+        test("Proveedores Delete InUse - Has message", function () {
+            expect(res.getBody().message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

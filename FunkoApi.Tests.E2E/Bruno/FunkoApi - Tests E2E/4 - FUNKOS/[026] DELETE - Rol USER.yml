@@ -1,0 +1,26 @@
+info:
+  name: "[026] DELETE - Rol USER"
+  type: http
+  seq: 26
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/funkos/{{funkoId}}"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos Delete User - Status 403 Forbidden", function () {
+            expect(res.getStatus()).to.equal(403);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

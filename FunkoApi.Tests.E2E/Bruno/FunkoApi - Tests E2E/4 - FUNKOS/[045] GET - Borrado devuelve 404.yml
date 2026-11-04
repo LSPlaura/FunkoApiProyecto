@@ -1,0 +1,29 @@
+info:
+  name: "[045] GET - Borrado devuelve 404"
+  type: http
+  seq: 45
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/funkos/{{funkoId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos GetDeleted - Status 404 Not Found", function () {
+            expect(res.getStatus()).to.equal(404);
+        });
+        test("Funkos GetDeleted - Has message", function () {
+            expect(res.getBody().message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

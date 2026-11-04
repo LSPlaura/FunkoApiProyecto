@@ -1,7 +1,7 @@
 info:
   name: "[006] DELETE - Eliminar (Admin)"
   type: http
-  seq: 5
+  seq: 30
 
 http:
   method: DELETE

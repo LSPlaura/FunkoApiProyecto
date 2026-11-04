@@ -1,0 +1,29 @@
+info:
+  name: "[041] DELETE - Categoria propia con funkos"
+  type: http
+  seq: 41
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/categorias/{{funkoCategoriaId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Delete OwnInUse - Status 400", function () {
+            expect(res.getStatus()).to.equal(400);
+        });
+        test("Categorias Delete OwnInUse - Has message", function () {
+            expect(res.getBody().message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

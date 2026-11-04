@@ -1,0 +1,34 @@
+info:
+  name: "[004] POST - Nombre vacio"
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/proveedores"
+  body:
+    type: json
+    data: |-
+      { "nombre": "" }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores Create EmptyName - Status 400", function () {
+            expect(res.getStatus()).to.equal(400);
+        });
+        test("Proveedores Create EmptyName - Validation errors", function () {
+            expect(res.getBody().errors.Nombre).to.be.an("array");
+            expect(res.getBody().errors.Nombre).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

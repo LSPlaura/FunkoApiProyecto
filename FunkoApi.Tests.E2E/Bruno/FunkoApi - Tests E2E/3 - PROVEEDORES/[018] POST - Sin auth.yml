@@ -1,0 +1,27 @@
+info:
+  name: "[018] POST - Sin auth"
+  type: http
+  seq: 18
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/proveedores"
+  body:
+    type: json
+    data: |-
+      { "nombre": "Proveedor Sin Auth E2E" }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores Create NoAuth - Status 401 Unauthorized", function () {
+            expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

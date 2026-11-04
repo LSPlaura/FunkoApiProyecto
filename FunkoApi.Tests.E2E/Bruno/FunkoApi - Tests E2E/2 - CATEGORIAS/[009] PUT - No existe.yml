@@ -1,0 +1,32 @@
+info:
+  name: "[009] PUT - No existe"
+  type: http
+  seq: 24
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/categorias/999999"
+  body:
+    type: json
+    data: |-
+      {
+        "nombre": "Categoria Inexistente E2E"
+      }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Categorias Update NotFound - Status 404", function () {
+            expect(res.getStatus()).to.equal(404);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

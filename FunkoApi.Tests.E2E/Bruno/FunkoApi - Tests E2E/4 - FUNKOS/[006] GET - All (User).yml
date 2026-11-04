@@ -1,0 +1,29 @@
+info:
+  name: "[006] GET - All (User)"
+  type: http
+  seq: 6
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/funkos"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos GetAll User - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("Funkos GetAll User - Response is array", function () {
+            expect(res.getBody()).to.be.an("array");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

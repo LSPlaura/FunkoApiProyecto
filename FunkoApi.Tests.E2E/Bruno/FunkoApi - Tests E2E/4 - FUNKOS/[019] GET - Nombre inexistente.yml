@@ -1,0 +1,29 @@
+info:
+  name: "[019] GET - Nombre inexistente"
+  type: http
+  seq: 19
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/funkos/{{funkoNombre}} No Existe"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos GetByName NotFound - Status 404", function () {
+            expect(res.getStatus()).to.equal(404);
+        });
+        test("Funkos GetByName NotFound - Has message", function () {
+            expect(res.getBody().message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

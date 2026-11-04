@@ -16,6 +16,8 @@ public class FunkoRepository(
     /// <inheritdoc cref="IFunkoRepository.Create" />
     public async Task<Models.Funko> Create(Models.Funko item) {
         logger.LogInformation("Creando Funko: {Nombre}", item.Nombre);
+        var categoria = await context.Categorias.FindAsync(item.CategoriaId);
+        item = item with { Categoria = categoria };
         await context.Funkos.AddAsync(item);
         await context.SaveChangesAsync();
         return item;

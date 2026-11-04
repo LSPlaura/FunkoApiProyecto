@@ -18,6 +18,25 @@ runtime:
   scripts:
     - type: after-response
       code: |-
+        // No reutilizar identificadores o token de un recorrido anterior.
+        bru.setVar("adminToken", null);
+        bru.setVar("categoriaId", null);
+        bru.setVar("categoriaEnUsoId", null);
+        bru.setVar("categoriaNombre", null);
+        bru.setVar("categoriaNombreActualizada", null);
+        bru.setVar("proveedorId", null);
+        bru.setVar("funkoCategoriaId", null);
+        bru.setVar("funkoProveedorId", null);
+        bru.setVar("funkoId", null);
+        bru.setVar("funkoSinImagenId", null);
+        bru.setVar("proveedorNombre", null);
+        bru.setVar("proveedorNombreActualizado", null);
+        bru.setVar("funkoCategoriaNombre", null);
+        bru.setVar("funkoProveedorNombre", null);
+        bru.setVar("funkoNombre", null);
+        bru.setVar("funkoNombreActualizado", null);
+        bru.setVar("funkoSinImagenNombre", null);
+
         test("Login Admin - Status 200 OK", function () {
             expect(res.getStatus()).to.equal(200);
         });
@@ -36,6 +55,17 @@ runtime:
         if (res.getStatus() === 200) {
             const jsonData = res.getBody();
             bru.setVar("adminToken", jsonData.token);
+            // Nombres nuevos para cada recorrido, sin borrar datos anteriores.
+            const timestamp = Date.now();
+            bru.setVar("categoriaNombre", `Categoria E2E ${timestamp}`);
+            bru.setVar("categoriaNombreActualizada", `Categoria E2E Actualizada ${timestamp}`);
+            bru.setVar("proveedorNombre", `Proveedor E2E ${timestamp}`);
+            bru.setVar("proveedorNombreActualizado", `Proveedor E2E Actualizado ${timestamp}`);
+            bru.setVar("funkoCategoriaNombre", `Categoria Funkos E2E ${timestamp}`);
+            bru.setVar("funkoProveedorNombre", `Proveedor Funkos E2E ${timestamp}`);
+            bru.setVar("funkoNombre", `Funko E2E ${timestamp}`);
+            bru.setVar("funkoNombreActualizado", `Funko E2E Actualizado ${timestamp}`);
+            bru.setVar("funkoSinImagenNombre", `Funko Sin Imagen E2E ${timestamp}`);
         }
 
 settings:

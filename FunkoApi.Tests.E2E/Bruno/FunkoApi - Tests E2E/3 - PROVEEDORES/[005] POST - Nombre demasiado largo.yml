@@ -1,0 +1,33 @@
+info:
+  name: "[005] POST - Nombre demasiado largo"
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/proveedores"
+  body:
+    type: json
+    data: |-
+      { "nombre": "12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890" }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores Create LongName - Status 400", function () {
+            expect(res.getStatus()).to.equal(400);
+        });
+        test("Proveedores Create LongName - Validation errors", function () {
+            expect(res.getBody().errors.Nombre).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

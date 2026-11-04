@@ -1,0 +1,40 @@
+info:
+  name: "[002] POST - Preparar proveedor propio"
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/proveedores"
+  body:
+    type: json
+    data: |-
+      { "nombre": "{{funkoProveedorNombre}}" }
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("funkoProveedorId", null);
+        test("Funkos Setup Proveedor - Status 201 Created", function () {
+            expect(res.getStatus()).to.equal(201);
+        });
+        test("Funkos Setup Proveedor - Returns proveedor", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.be.a("string");
+            expect(jsonData.id).to.not.be.empty;
+            expect(jsonData.nombre).to.equal(bru.getVar("funkoProveedorNombre"));
+        });
+        if (res.getStatus() === 201) {
+            bru.setVar("funkoProveedorId", res.getBody().id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

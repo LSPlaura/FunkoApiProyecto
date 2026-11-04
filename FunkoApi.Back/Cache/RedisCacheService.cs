@@ -1,5 +1,6 @@
 using System.Text.Json;
 using FunkoApi.Back.Config;
+using FunkoApi.Back.Conventers;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -19,6 +20,10 @@ public class RedisCacheService(
 {
     private readonly SemaphoreSlim _factoryLock = new(1, 1);
     private readonly CacheOptions _options = options.Value;
+    private readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        Converters = { new ObjectIdJsonConverter() }
+    };
     private IDatabase db => redis.GetDatabase();
 
     /// <inheritdoc />
@@ -34,7 +39,7 @@ public class RedisCacheService(
         }
 
         logger.LogDebug("Elemento con clave '{Key}' recuperado exitosamente de la caché (Cache Hit).", key);
-        return JsonSerializer.Deserialize<T>(bytes);
+        return JsonSerializer.Deserialize<T>(bytes, _jsonOptions);
     }
 
     /// <inheritdoc />
@@ -42,7 +47,7 @@ public class RedisCacheService(
     {
         logger.LogDebug("Guardando elemento en caché con clave '{Key}'...", key);
         
-        var bytes = JsonSerializer.SerializeToUtf8Bytes(value);
+        var bytes = JsonSerializer.SerializeToUtf8Bytes(value, _jsonOptions);
         var cacheOptions = new DistributedCacheEntryOptions
         {
             AbsoluteExpirationRelativeToNow = expiration ?? _options.DefaultExpiration,

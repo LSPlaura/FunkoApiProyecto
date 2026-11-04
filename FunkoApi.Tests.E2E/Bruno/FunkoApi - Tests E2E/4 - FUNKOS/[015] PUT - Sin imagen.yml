@@ -1,0 +1,47 @@
+info:
+  name: "[015] PUT - Sin imagen"
+  type: http
+  seq: 15
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/funkos/{{funkoId}}"
+  body:
+    type: multipart-form
+    data:
+      - name: nombre
+        type: text
+        value: "{{funkoNombre}}"
+      - name: precio
+        type: text
+        value: "19.99"
+      - name: stock
+        type: text
+        value: "5"
+      - name: categoriaId
+        type: text
+        value: "{{funkoCategoriaId}}"
+      - name: proveedorId
+        type: text
+        value: "{{funkoProveedorId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos Update NoImage - Status 400", function () {
+            expect(res.getStatus()).to.equal(400);
+        });
+        test("Funkos Update NoImage - Explains missing image", function () {
+            expect(res.getBody().message).to.equal("No se ha mandado la imagen");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

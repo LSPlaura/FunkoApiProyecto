@@ -1,14 +1,14 @@
 info:
   name: "[004] GET - By Name siguiendo el paso anterio"
   type: http
-  seq: 3
+  seq: 4
 
 http:
   method: GET
-  url: "{{baseUrl}}/api/categorias/nombre?name=Categoria E2E"
+  url: "{{baseUrl}}/api/categorias/nombre?name={{categoriaNombre}}"
   params:
     - name: name
-      value: Categoria E2E
+      value: "{{categoriaNombre}}"
       type: query
   auth:
     type: bearer
@@ -24,7 +24,8 @@ runtime:
 
         test("Categorias GetByName - Returns categoria", function () {
             const jsonData = res.getBody();
-            expect(jsonData.nombre).to.equal("Categoria E2E");
+            expect(jsonData.id).to.equal(bru.getVar("categoriaId"));
+            expect(jsonData.nombre).to.equal(bru.getVar("categoriaNombre"));
         });
 
 settings:

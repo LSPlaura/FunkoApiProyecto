@@ -1,0 +1,56 @@
+info:
+  name: "[042] PUT - Actualizar con imagen (Admin)"
+  type: http
+  seq: 42
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/funkos/{{funkoId}}"
+  body:
+    type: multipart-form
+    data:
+      - name: nombre
+        type: text
+        value: "{{funkoNombreActualizado}}"
+      - name: precio
+        type: text
+        value: "24.99"
+      - name: stock
+        type: text
+        value: "7"
+      - name: categoriaId
+        type: text
+        value: "{{funkoCategoriaId}}"
+      - name: proveedorId
+        type: text
+        value: "{{funkoProveedorId}}"
+      - name: archivo
+        type: file
+        value:
+          - ../../../SeedImages/funkos/DefaultImage.jpg
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos Update - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("Funkos Update - Returns updated funko", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.equal(bru.getVar("funkoId"));
+            expect(jsonData.nombre).to.equal(bru.getVar("funkoNombreActualizado"));
+            expect(jsonData.precio).to.equal(24.99);
+            expect(jsonData.stock).to.equal(7);
+            expect(jsonData.imagen).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

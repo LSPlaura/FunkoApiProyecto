@@ -2,10 +2,12 @@ using System.Text.Json;
 using FluentAssertions;
 using FunkoApi.Back.Cache;
 using FunkoApi.Back.Config;
+using FunkoApi.Back.Models;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Moq;
+using MongoDB.Bson;
 using NUnit.Framework;
 using StackExchange.Redis;
 
@@ -77,6 +79,39 @@ public class RedisCacheServiceTests
         _cacheMock.Verify(c => c.SetAsync("clave", It.Is<byte[]>(b => b.SequenceEqual(bytes)),
             It.Is<DistributedCacheEntryOptions>(o => o.AbsoluteExpirationRelativeToNow == (expiracion ?? TimeSpan.FromMinutes(30))
                 && o.SlidingExpiration == TimeSpan.FromMinutes(10)), default), Times.Once);
+    }
+
+    [TestCase("507f1f77bcf86cd799439011")]
+    [TestCase("000000000000000000000001")]
+    public async Task SetAsyncYGetAsync_Proveedor_ConservaObjectId(string id)
+    {
+        // Arrange
+        var fecha = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var proveedor = new Proveedor(ObjectId.Parse(id), "Proveedor E2E", false, fecha, fecha);
+        var clave = "proveedor:" + id;
+        byte[]? datosCache = null;
+        _cacheMock.Setup(c => c.SetAsync(clave, It.IsAny<byte[]>(),
+                It.IsAny<DistributedCacheEntryOptions>(), default))
+            .Returns((string key, byte[] value, DistributedCacheEntryOptions opciones, CancellationToken ct) =>
+            {
+                datosCache = value;
+                return Task.CompletedTask;
+            });
+        _cacheMock.Setup(c => c.GetAsync(clave, default))
+            .Returns(() => Task.FromResult(datosCache));
+
+        // Act
+        await _service.SetAsync(clave, proveedor);
+        var resultado = await _service.GetAsync<Proveedor>(clave);
+
+        // Assert
+        resultado.Should().NotBeNull();
+        resultado!.Id.Should().Be(proveedor.Id);
+        resultado.Should().Be(proveedor);
+        _cacheMock.Verify(c => c.SetAsync(clave, It.IsAny<byte[]>(),
+            It.IsAny<DistributedCacheEntryOptions>(), default), Times.Once);
+        _cacheMock.Verify(c => c.GetAsync(clave, default), Times.Once);
+        _redisMock.Verify(r => r.GetDatabase(-1, null), Times.Never);
     }
 
     [Test]

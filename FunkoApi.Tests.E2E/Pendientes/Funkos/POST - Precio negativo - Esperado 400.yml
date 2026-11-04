@@ -1,0 +1,45 @@
+info:
+  name: POST - Precio negativo - Esperado 400
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/funkos"
+  body:
+    type: multipart-form
+    data:
+      - name: nombre
+        type: text
+        value: "{{funkoNombre}} Precio Negativo"
+      - name: precio
+        type: text
+        value: "-1"
+      - name: stock
+        type: text
+        value: "5"
+      - name: categoriaId
+        type: text
+        value: "{{funkoCategoriaId}}"
+      - name: proveedorId
+        type: text
+        value: "{{funkoProveedorId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // Pendiente: el DTO creado dentro de la accion no se valida automaticamente.
+        test("Funkos Create NegativePrice - Status 400", function () {
+            expect(res.getStatus()).to.equal(400);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,7 +1,7 @@
 info:
   name: "[003] GET - By Id"
   type: http
-  seq: 2
+  seq: 3
 
 http:
   method: GET
@@ -20,7 +20,8 @@ runtime:
 
         test("Categorias GetById - Returns categoria", function () {
             const jsonData = res.getBody();
-            expect(jsonData.nombre).to.equal("Categoria E2E");
+            expect(jsonData.id).to.equal(bru.getVar("categoriaId"));
+            expect(jsonData.nombre).to.equal(bru.getVar("categoriaNombre"));
         });
 
 settings:

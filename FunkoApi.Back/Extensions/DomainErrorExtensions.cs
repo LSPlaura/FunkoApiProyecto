@@ -35,6 +35,7 @@ public static class DomainErrorExtensions
                 { message = ve.Message, errors = ve.ValidationErrors }),
             BadRequestError => new BadRequestObjectResult(new { message = error.Message }),
             ConflictError => new ConflictObjectResult(new { message = error.Message }),
+            BusinessRuleError => new UnprocessableEntityObjectResult(new { message = error.Message }),
             UnauthorizedError => new UnauthorizedObjectResult(new { message = error.Message }),
             _ => new ObjectResult(new { message = "Error interno del servidor" }) { StatusCode = 500 }
         };
@@ -59,6 +60,7 @@ public static class DomainErrorExtensions
                 { message = ve.Message, errors = ve.ValidationErrors }),
             BadRequestError => new BadRequestObjectResult(new { message = error.Message }),
             ConflictError => new ConflictObjectResult(new { message = error.Message }),
+            BusinessRuleError => new UnprocessableEntityObjectResult(new { message = error.Message }),
             UnauthorizedError => new UnauthorizedObjectResult(new { message = error.Message }),
             _ => new ObjectResult(new { message = "Error interno del servidor" }) { StatusCode = 500 }
         };

@@ -1,0 +1,39 @@
+info:
+  name: PATCH - Actualizar imagen - Esperado 200
+  type: http
+  seq: 7
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/funkos/{{funkoId}}/imagen"
+  body:
+    type: multipart-form
+    data:
+      - name: archivo
+        type: file
+        value:
+          - ../../../SeedImages/funkos/DefaultImage.jpg
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        // No integrar hasta corregir proveedor omitido y doble guardado en UpdateImagen.
+        test("Funkos PatchImage - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("Funkos PatchImage - Returns funko with image", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.equal(bru.getVar("funkoId"));
+            expect(jsonData.imagen).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Errors;
-using FunkoApi.Back.Services.Crud.Common;
+using FunkoApi.Back.Services.Common;
 using MongoDB.Bson;
 
 namespace FunkoApi.Back.Services.Proveedor;

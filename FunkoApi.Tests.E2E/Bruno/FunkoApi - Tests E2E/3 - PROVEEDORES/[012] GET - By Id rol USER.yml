@@ -1,0 +1,26 @@
+info:
+  name: "[012] GET - By Id rol USER"
+  type: http
+  seq: 12
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/proveedores/{{proveedorId}}"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores GetById User - Status 403 Forbidden", function () {
+            expect(res.getStatus()).to.equal(403);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

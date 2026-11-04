@@ -13,6 +13,7 @@ public class DomainErrorExtensionsTests
     [TestCase("badrequest", 400)]
     [TestCase("validation", 400)]
     [TestCase("conflict", 409)]
+    [TestCase("businessrule", 422)]
     [TestCase("internal", 500)]
     public void ToHttpResult_NoGenerico_MapeaCodigoYCuerpo(string tipo, int codigo)
     {
@@ -23,6 +24,7 @@ public class DomainErrorExtensionsTests
             "badrequest" => new BadRequestError("mensaje"),
             "validation" => new BadRequestError.ValidationError("mensaje", new Dictionary<string, string[]> { ["Nombre"] = ["obligatorio"] }),
             "conflict" => new ConflictError("mensaje"),
+            "businessrule" => new BusinessRuleError("mensaje"),
             _ => new InternalError("privado")
         };
 
@@ -45,6 +47,7 @@ public class DomainErrorExtensionsTests
         [TestCase(typeof(NotFoundError), 404)]
         [TestCase(typeof(BadRequestError), 400)]
         [TestCase(typeof(ConflictError), 409)]
+        [TestCase(typeof(BusinessRuleError), 422)]
         public void ToHttpResult_Generico_MapeaCodigoHttp(Type errorType, int statusCode)
         {
             // Arrange
@@ -88,6 +91,36 @@ public class DomainErrorExtensionsTests
 
             // Assert
             result.Should().BeOfType<NotFoundObjectResult>();
+        }
+
+        [Test]
+        public void ToHttpResult_ExtensionNoPermitida_Devuelve422ConMensaje()
+        {
+            // Arrange
+            var error = StorageError.ExtensionNoPermitida();
+
+            // Act
+            var result = error.ToHttpResult<string>();
+
+            // Assert
+            var response = result.Result.Should().BeOfType<UnprocessableEntityObjectResult>().Subject;
+            response.StatusCode.Should().Be(422);
+            response.Value.Should().BeEquivalentTo(new { message = "La extensión del archivo no está permitida." });
+        }
+
+        [Test]
+        public void ToHttpResult_TipoContenidoNoPermitido_NoGenerico_Devuelve422ConMensaje()
+        {
+            // Arrange
+            var error = StorageError.TipoContenidoNoPermitido();
+
+            // Act
+            var result = error.ToHttpResult();
+
+            // Assert
+            var response = result.Should().BeOfType<UnprocessableEntityObjectResult>().Subject;
+            response.StatusCode.Should().Be(422);
+            response.Value.Should().BeEquivalentTo(new { message = "El tipo de contenido del archivo no está permitido." });
         }
     }
 

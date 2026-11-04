@@ -1,0 +1,36 @@
+info:
+  name: "[022] PATCH - Imagen Id inexistente"
+  type: http
+  seq: 22
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/funkos/2147483647/imagen"
+  body:
+    type: multipart-form
+    data:
+      - name: archivo
+        type: file
+        value:
+          - ../../../SeedImages/funkos/DefaultImage.jpg
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos PatchImage NotFound - Status 404", function () {
+            expect(res.getStatus()).to.equal(404);
+        });
+        test("Funkos PatchImage NotFound - Has message", function () {
+            expect(res.getBody().message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

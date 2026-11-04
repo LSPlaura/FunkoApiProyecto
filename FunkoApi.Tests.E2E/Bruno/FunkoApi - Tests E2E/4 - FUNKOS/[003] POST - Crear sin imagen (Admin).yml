@@ -1,0 +1,57 @@
+info:
+  name: "[003] POST - Crear sin imagen (Admin)"
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/funkos"
+  body:
+    type: multipart-form
+    data:
+      - name: nombre
+        type: text
+        value: "{{funkoSinImagenNombre}}"
+      - name: precio
+        type: text
+        value: "14.99"
+      - name: stock
+        type: text
+        value: "10"
+      - name: categoriaId
+        type: text
+        value: "{{funkoCategoriaId}}"
+      - name: proveedorId
+        type: text
+        value: "{{funkoProveedorId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("funkoSinImagenId", null);
+        test("Funkos Create NoImage - Status 201 Created", function () {
+            expect(res.getStatus()).to.equal(201);
+        });
+        test("Funkos Create NoImage - Returns funko", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.be.a("number");
+            expect(jsonData.nombre).to.equal(bru.getVar("funkoSinImagenNombre"));
+            expect(jsonData.precio).to.equal(14.99);
+            expect(jsonData.stock).to.equal(10);
+            expect(jsonData.imagen).to.not.be.empty;
+            expect(jsonData.categoria.id).to.equal(bru.getVar("funkoCategoriaId"));
+        });
+        if (res.getStatus() === 201) {
+            bru.setVar("funkoSinImagenId", res.getBody().id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

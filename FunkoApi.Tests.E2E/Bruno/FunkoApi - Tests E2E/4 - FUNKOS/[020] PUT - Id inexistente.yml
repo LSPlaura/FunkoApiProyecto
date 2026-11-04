@@ -1,0 +1,47 @@
+info:
+  name: "[020] PUT - Id inexistente"
+  type: http
+  seq: 20
+
+http:
+  method: PUT
+  url: "{{baseUrl}}/api/funkos/2147483647"
+  body:
+    type: multipart-form
+    data:
+      - name: nombre
+        type: text
+        value: "{{funkoNombre}} No Existe"
+      - name: precio
+        type: text
+        value: "19.99"
+      - name: stock
+        type: text
+        value: "5"
+      - name: categoriaId
+        type: text
+        value: "{{funkoCategoriaId}}"
+      - name: proveedorId
+        type: text
+        value: "{{funkoProveedorId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos Update NotFound - Status 404", function () {
+            expect(res.getStatus()).to.equal(404);
+        });
+        test("Funkos Update NotFound - Has message", function () {
+            expect(res.getBody().message).to.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,7 +1,7 @@
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Errors;
 
-namespace FunkoApi.Back.Services.Crud.Common;
+namespace FunkoApi.Back.Services.Common;
 
 /// <summary>
 ///     Interfaz genérica que define las operaciones CRUD de un servicio,

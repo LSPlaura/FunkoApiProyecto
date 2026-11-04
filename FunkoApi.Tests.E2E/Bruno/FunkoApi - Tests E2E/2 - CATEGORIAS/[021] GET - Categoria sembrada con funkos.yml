@@ -1,0 +1,44 @@
+info:
+  name: "[021] GET - Categoria sembrada con funkos"
+  type: http
+  seq: 11
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/categorias/nombre?name=Marvel"
+  params:
+    - name: name
+      value: Marvel
+      type: query
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("categoriaEnUsoId", null);
+
+        test("Categorias Seed - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Categorias Seed - Returns Marvel", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.be.a("string");
+            expect(jsonData.id).to.not.be.empty;
+            expect(jsonData.nombre).to.equal("Marvel");
+        });
+
+        if (res.getStatus() === 200) {
+            const jsonData = res.getBody();
+            bru.setVar("categoriaEnUsoId", jsonData.id);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

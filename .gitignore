@@ -10,3 +10,10 @@
 opencode*
 AGENTS.md
 AGENTS.local.md
+
+# Credenciales locales y resultados de Bruno (no publicar)
+.env
+.env.*
+!.env.example
+/FunkoApi.Tests.E2E/environments/cli.local.json
+/FunkoApi.Tests.E2E/reports/

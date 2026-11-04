@@ -1,0 +1,41 @@
+info:
+  name: "[033] POST - Sin auth"
+  type: http
+  seq: 33
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/funkos"
+  body:
+    type: multipart-form
+    data:
+      - name: nombre
+        type: text
+        value: "{{funkoNombre}} Sin Auth"
+      - name: precio
+        type: text
+        value: "19.99"
+      - name: stock
+        type: text
+        value: "5"
+      - name: categoriaId
+        type: text
+        value: "{{funkoCategoriaId}}"
+      - name: proveedorId
+        type: text
+        value: "{{funkoProveedorId}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos Create NoAuth - Status 401 Unauthorized", function () {
+            expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

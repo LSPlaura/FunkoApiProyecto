@@ -1,0 +1,33 @@
+info:
+  name: "[029] PATCH - Imagen rol USER"
+  type: http
+  seq: 29
+
+http:
+  method: PATCH
+  url: "{{baseUrl}}/api/funkos/{{funkoId}}/imagen"
+  body:
+    type: multipart-form
+    data:
+      - name: archivo
+        type: file
+        value:
+          - ../../../SeedImages/funkos/DefaultImage.jpg
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos PatchImage User - Status 403 Forbidden", function () {
+            expect(res.getStatus()).to.equal(403);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,34 @@
+info:
+  name: "[043] GET - Verificar actualizacion"
+  type: http
+  seq: 43
+
+http:
+  method: GET
+  url: "{{baseUrl}}/api/funkos/{{funkoId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos GetUpdated - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("Funkos GetUpdated - Returns updated funko", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.id).to.equal(bru.getVar("funkoId"));
+            expect(jsonData.nombre).to.equal(bru.getVar("funkoNombreActualizado"));
+            expect(jsonData.precio).to.equal(24.99);
+            expect(jsonData.stock).to.equal(7);
+            expect(jsonData.categoria.id).to.equal(bru.getVar("funkoCategoriaId"));
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

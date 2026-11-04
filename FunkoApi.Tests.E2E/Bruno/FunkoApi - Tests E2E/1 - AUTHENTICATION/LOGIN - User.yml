@@ -1,0 +1,47 @@
+info:
+  name: LOGIN - User
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/Auth/login"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "{{userEmail}}",
+        "password": "{{userPassword}}"
+      }
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("userToken", null);
+
+        test("Login User - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test("Login User - Has token", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.token).to.not.be.empty;
+        });
+
+        test("Login User - Role is USER", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.role).to.equal("USER");
+        });
+
+        if (res.getStatus() === 200) {
+            const jsonData = res.getBody();
+            bru.setVar("userToken", jsonData.token);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -1,0 +1,30 @@
+info:
+  name: "[013] POST - Rol USER"
+  type: http
+  seq: 13
+
+http:
+  method: POST
+  url: "{{baseUrl}}/api/proveedores"
+  body:
+    type: json
+    data: |-
+      { "nombre": "Proveedor Prohibido E2E" }
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Proveedores Create User - Status 403 Forbidden", function () {
+            expect(res.getStatus()).to.equal(403);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false
