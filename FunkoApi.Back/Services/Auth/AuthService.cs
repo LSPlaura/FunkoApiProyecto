@@ -24,29 +24,23 @@ public class AuthService(
     SignInManager<AppUser> signInManager,
     IOptions<JwtSettings> jwtSettings,
     ILogger<AuthService> logger
-) : IAuthService
-{
+) : IAuthService {
     //utiliza UserManager<AppUser> para operar con los datos de un usuario (contraseña, email, usuario, nombre, apellido...)
     //utiliza signInManager para gestionar la autenticación (verificar contraseña, tiempo de expiración...)
     /// <inheritdoc />
-    public async Task<Result<AuthResponseDto, DomainError>> LoginAsync(LoginDto dto)
-    {
+    public async Task<Result<AuthResponseDto, DomainError>> LoginAsync(LoginDto dto) {
         logger.LogInformation("Intento de login para {Email}", dto.Email);
 
         var user = await userManager.FindByEmailAsync(dto.Email);
-        if (user is null)
-        {
+        if (user is null) {
             logger.LogWarning("Login fallido: usuario {Email} no encontrado", dto.Email);
-            return Result.Failure<AuthResponseDto, DomainError>(
-                UnauthorizedError.InvalidCredentials());
+            return Result.Failure<AuthResponseDto, DomainError>(UnauthorizedError.InvalidCredentials());
         }
 
         var result = await signInManager.CheckPasswordSignInAsync(user, dto.Password, lockoutOnFailure: false);
-        if (!result.Succeeded)
-        {
+        if (!result.Succeeded) {
             logger.LogWarning("Login fallido: contraseña incorrecta para {Email}", dto.Email);
-            return Result.Failure<AuthResponseDto, DomainError>(
-                UnauthorizedError.InvalidCredentials());
+            return Result.Failure<AuthResponseDto, DomainError>(UnauthorizedError.InvalidCredentials());
         }
 
         var role = (await userManager.GetRolesAsync(user)).FirstOrDefault() ?? "USER";
@@ -57,20 +51,16 @@ public class AuthService(
     }
 
     /// <inheritdoc />
-    public async Task<Result<AuthResponseDto, DomainError>> SignupAsync(SignupDto dto)
-    {
+    public async Task<Result<AuthResponseDto, DomainError>> SignupAsync(SignupDto dto) {
         logger.LogInformation("Intento de registro para {Email}", dto.Email);
 
         var existingUser = await userManager.FindByEmailAsync(dto.Email);
-        if (existingUser is not null)
-        {
+        if (existingUser is not null) {
             logger.LogWarning("Registro fallido: {Email} ya existe", dto.Email);
-            return Result.Failure<AuthResponseDto, DomainError>(
-                ConflictError.Duplicate("usuario", dto.Email));
+            return Result.Failure<AuthResponseDto, DomainError>(ConflictError.Duplicate("usuario", dto.Email));
         }
 
-        var user = new AppUser
-        {
+        var user = new AppUser {
             UserName = dto.Email,
             Email = dto.Email,
             Nombre = dto.Nombre,
@@ -79,12 +69,10 @@ public class AuthService(
         };
 
         var result = await userManager.CreateAsync(user, dto.Password);
-        if (!result.Succeeded)
-        {
+        if (!result.Succeeded) {
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
             logger.LogWarning("Registro fallido para {Email}: {Errors}", dto.Email, errors);
-            return Result.Failure<AuthResponseDto, DomainError>(
-                new BusinessRuleError($"Error al crear el usuario: {errors}"));
+            return Result.Failure<AuthResponseDto, DomainError>(new BusinessRuleError($"Error al crear el usuario: {errors}"));
         }
         
         var role = "USER";
@@ -97,33 +85,27 @@ public class AuthService(
     }
 
     /// <inheritdoc />
-    public async Task<Result<UserDto, DomainError>> GetMeAsync(long userId)
-    {
+    public async Task<Result<UserDto, DomainError>> GetMeAsync(long userId) {
         logger.LogDebug("Consultando usuario {UserId}", userId);
 
         var user = await appDbContext.Users.FindAsync(userId);
-        if (user is null)
-        {
-            return Result.Failure<UserDto, DomainError>(
-                NotFoundError.FromId(userId, "Usuario"));
+        if (user is null) {
+            return Result.Failure<UserDto, DomainError>(NotFoundError.FromId(userId, "Usuario"));
         }
 
         var role = (await userManager.GetRolesAsync(user)).FirstOrDefault() ?? "USER";
 
-        return Result.Success<UserDto, DomainError>(
-            new UserDto(user.Id, user.Email ?? "", user.Nombre, user.Apellidos, role));
+        return Result.Success<UserDto, DomainError>(new UserDto(user.Id, user.Email ?? "", user.Nombre, user.Apellidos, role));
     }
 
     /// <summary>
     /// Genera un token JWT con los claims del usuario.
     /// </summary>
-    private AuthResponseDto GenerateJwtToken(AppUser user, string role)
-    {
+    private AuthResponseDto GenerateJwtToken(AppUser user, string role) {
         var settings = jwtSettings.Value;
         var expires = DateTime.UtcNow.AddMinutes(settings.ExpirationMinutes);
 
-        var claims = new List<Claim>
-        {
+        var claims = new List<Claim> {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Email, user.Email ?? ""),
             new(ClaimTypes.Role, role),

@@ -20,54 +20,39 @@ public class FunkoTransactionsService(
     IOptions<CacheOptions> cacheOptions,
     ICacheService cache,
     IStorageService storage,
-    ILogger<FunkoTransactionsService> logger)
-{
+    ILogger<FunkoTransactionsService> logger) {
     /// <summary>
     /// Elimina un Funko de la base de datos de forma transaccional junto con su archivo de imagen asociado.
     /// </summary>
     /// <param name="funko">Instancia del Funko a eliminar.</param>
     /// <returns>Un resultado que indica <c>true</c> si la operación fue exitosa, o un <see cref="DomainError"/> si falla.</returns>
-    public async Task<Result<bool, DomainError>> Delete(Models.Funko funko)
-    {
+    public async Task<Result<bool, DomainError>> Delete(Models.Funko funko) {
         logger.LogInformation("Iniciando proceso de borrado para el Funko con ID {Id}", funko.Id);
 
         var imagePath = funko.Imagen;
         
         await using var transaction = await context.Database.BeginTransactionAsync();
-        try
-        {
+        try {
             context.Funkos.Attach(funko);
             context.Funkos.Remove(funko);
             await context.SaveChangesAsync();
-            try
-            {
-                if (!string.IsNullOrEmpty(imagePath))
-                {
-                    await storage.DeleteFileAsync(imagePath);
-                }
-            }
-            catch (Exception fileEx)
-            {
-                logger.LogWarning(fileEx, "Fallo al borrar el archivo físico {ImagePath}. Ejecutando Rollback de BDD.",
-                    imagePath);
+            try {
+                if (!string.IsNullOrEmpty(imagePath)) await storage.DeleteFileAsync(imagePath);
+            } catch (Exception fileEx) {
+                logger.LogWarning(fileEx, "Fallo al borrar el archivo físico {ImagePath}. Ejecutando Rollback de BDD.", imagePath);
 
                 await transaction.RollbackAsync();
 
-                return Result.Failure<bool, DomainError>(
-                    new BusinessRuleError($"No se pudo eliminar el archivo asociado al Funko: {fileEx.Message}"));
+                return Result.Failure<bool, DomainError>(new BusinessRuleError($"No se pudo eliminar el archivo asociado al Funko: {fileEx.Message}"));
             }
             await transaction.CommitAsync();
 
             logger.LogInformation("Funko {Id} eliminado correctamente de la base de datos y almacenamiento", funko.Id);
-
             return true;
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             await transaction.RollbackAsync();
             logger.LogError(ex, "Error crítico al intentar eliminar el Funko {Id}", funko.Id);
-            return Result.Failure<bool, DomainError>(
-                new BusinessRuleError($"Error en el proceso de eliminación: {ex.Message}"));
+            return Result.Failure<bool, DomainError>(new BusinessRuleError($"Error en el proceso de eliminación: {ex.Message}"));
         }
     }
     
@@ -84,8 +69,7 @@ public class FunkoTransactionsService(
         string oldImage)
     {
         await using var transaction = await context.Database.BeginTransactionAsync();
-        try
-        {
+        try {
             context.Funkos.Update(funkoToUpdate);
             await context.SaveChangesAsync();
 
@@ -95,16 +79,12 @@ public class FunkoTransactionsService(
 
             logger.LogInformation("Funko {Id} actualizado correctamente en base de datos y almacenamiento", funkoToUpdate.Id);
             return funkoToUpdate;
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             await transaction.RollbackAsync();
-
             await storage.DeleteFileAsync(newImage);
 
             logger.LogError(ex, "Error crítico al intentar actualizar el Funko {Id}", funkoToUpdate.Id);
-            return Result.Failure<Models.Funko, DomainError>(
-                new BusinessRuleError($"Error en el proceso de actualización: {ex.Message}"));
+            return Result.Failure<Models.Funko, DomainError>(new BusinessRuleError($"Error en el proceso de actualización: {ex.Message}"));
         }
     }
 }
