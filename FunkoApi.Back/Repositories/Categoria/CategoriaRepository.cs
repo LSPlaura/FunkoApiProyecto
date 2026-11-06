@@ -15,7 +15,8 @@ internal class CategoriaRepository(
     /// <inheritdoc cref="ICategoriaRepository.GetAll" />
     public async Task<IEnumerable<Models.Categoria>> GetAll() {
         logger.LogDebug("Obteniendo todas las categorías");
-        return await context.Categorias.OrderBy(c => c.Nombre)
+        return await context.Categorias
+            .OrderBy(c => c.Nombre)
             .AsNoTracking()
             .ToListAsync();
     }

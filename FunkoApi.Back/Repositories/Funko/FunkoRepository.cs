@@ -26,7 +26,8 @@ public class FunkoRepository(
     /// <inheritdoc cref="IFunkoRepository.GetById" />
     public async Task<Models.Funko?> GetById(long key) {
         logger.LogDebug("Obteniendo Funko por ID: {Key}", key);
-        return await context.Funkos.AsNoTracking()
+        return await context.Funkos
+            .AsNoTracking()
             .Include(f => f.Categoria)
             .FirstOrDefaultAsync(f => f.Id == key && !f.IsDeleted);
     }
@@ -86,7 +87,8 @@ public class FunkoRepository(
     /// <inheritdoc cref="IFunkoRepository.GetByName" />
     public async Task<Models.Funko?> GetByName(string name) {
         logger.LogDebug("Obteniendo Funko por nombre: {Name}", name);
-        return await context.Funkos.AsNoTracking()
+        return await context.Funkos
+            .AsNoTracking()
             .Include(f => f.Categoria)
             .FirstOrDefaultAsync(f => f.Nombre == name && !f.IsDeleted);
     }
@@ -94,21 +96,22 @@ public class FunkoRepository(
     /// <inheritdoc cref="IFunkoRepository.ExitsName" />
     public async Task<bool> ExitsName(string name) {
         logger.LogDebug("Verificando existencia de Funko por nombre: {Name}", name);
-        return await context.Funkos.AsNoTracking()
+        return await context.Funkos
+            .AsNoTracking()
             .AnyAsync(f => f.Nombre == name);
     }
 
     /// <inheritdoc cref="IFunkoRepository.ExistAnyFunkoCategory" />
     public async Task<bool> ExistAnyFunkoCategory(string key) {
         logger.LogDebug("Verificando si existen Funkos con la categoría: {Key}", key);
-        if(await context.Funkos.AnyAsync(f => f.CategoriaId == key)) return true;
+        if(await context.Funkos.AsNoTracking().AnyAsync(f => f.CategoriaId == key)) return true;
         return false;
     }
 
     /// <inheritdoc cref="IFunkoRepository.ExistAnyFunkoProveedor" />
     public async Task<bool> ExistAnyFunkoProveedor(string key) {
         logger.LogDebug("Verificando si existen Funkos con el proveedor: {Key}", key);
-        if(await context.Funkos.AnyAsync(f => f.ProveedorId == ObjectId.Parse(key))) return true;
+        if(await context.Funkos.AsNoTracking().AnyAsync(f => f.ProveedorId == ObjectId.Parse(key))) return true;
         return false;
     }
 }

@@ -13,6 +13,5 @@ public class DbContextMongo(IMongoDatabase database)
     /// <summary>
     /// Obtiene la colección de documentos <see cref="Proveedor"/> mapeada a la colección de MongoDB llamada "proveedores".
     /// </summary>
-    public IMongoCollection<Proveedor> Proveedores =>
-        database.GetCollection<Proveedor>("proveedores");
+    public IMongoCollection<Proveedor> Proveedores => database.GetCollection<Proveedor>("proveedores");
 }

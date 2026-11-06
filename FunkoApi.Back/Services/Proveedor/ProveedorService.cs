@@ -22,8 +22,7 @@ public class ProveedorService(
     private readonly string _cacheKey = "proveedor:";
 
     /// <inheritdoc/>
-    public async Task<Result<ProveedorDto, DomainError>> Create(CreateProveedorDto item)
-    {
+    public async Task<Result<ProveedorDto, DomainError>> Create(CreateProveedorDto item) {
         logger.LogInformation("Creando proveedor con nombre {Nombre}...", item.Nombre);
 
         var model = new Models.Proveedor(ObjectId.GenerateNewId(), item.Nombre, false, DateTime.UtcNow, DateTime.UtcNow);
@@ -34,8 +33,7 @@ public class ProveedorService(
     }
 
     /// <inheritdoc/>
-    public async Task<Result<ProveedorDto, DomainError>> GetById(string key)
-    {
+    public async Task<Result<ProveedorDto, DomainError>> GetById(string key) {
         logger.LogInformation("Obteniendo proveedor con Id {Id}...", key);
 
         var cached = await cache.GetOrSetAsync<Models.Proveedor>(
@@ -43,8 +41,7 @@ public class ProveedorService(
             async () => await repository.GetById(key),
             _options.DefaultExpiration);
 
-        if (cached == null)
-        {
+        if (cached == null) {
             logger.LogWarning("Proveedor con Id {Id} no encontrado.", key);
             return ProveedorError.ProveedoraNotFound(key);
         }
@@ -54,10 +51,8 @@ public class ProveedorService(
     }
 
     /// <inheritdoc/>
-    public async Task<Result<bool, DomainError>> SoftDelete(string id)
-    {
-        if (await funkoRepository.ExistAnyFunkoProveedor(id))
-        {
+    public async Task<Result<bool, DomainError>> SoftDelete(string id) {
+        if (await funkoRepository.ExistAnyFunkoProveedor(id)) {
             logger.LogWarning("No se puede eliminar proveedor {Id} porque tiene funkos asociados.", id);
             return ConflictError.Dependency("proveedor", id);
         }
@@ -66,8 +61,7 @@ public class ProveedorService(
         await cache.RemoveAsync(_cacheKey + id);
 
         var funko = await repository.GetById(id);
-        if (funko == null)
-        {
+        if (funko == null) {
             logger.LogWarning("Proveedor con Id {Id} no encontrado para eliminación lógica.", id);
             return ProveedorError.ProveedoraNotFound(id);
         }
@@ -78,10 +72,8 @@ public class ProveedorService(
     }
 
     /// <inheritdoc/>
-    public async Task<Result<bool, DomainError>> HardDelete(string id)
-    {
-        if (await funkoRepository.ExistAnyFunkoProveedor(id))
-        {
+    public async Task<Result<bool, DomainError>> HardDelete(string id) {
+        if (await funkoRepository.ExistAnyFunkoProveedor(id)) {
             logger.LogWarning("No se puede eliminar físicamente proveedor {Id} porque tiene funkos asociados.", id);
             return ConflictError.Dependency("proveedor", id);
         }
@@ -90,8 +82,7 @@ public class ProveedorService(
         await cache.RemoveAsync(_cacheKey + id);
 
         var funko = await repository.GetById(id);
-        if (funko == null)
-        {
+        if (funko == null) {
             logger.LogWarning("Proveedor con Id {Id} no encontrado para eliminación física.", id);
             return ProveedorError.ProveedoraNotFound(id);
         }
@@ -102,24 +93,20 @@ public class ProveedorService(
     }
 
     /// <inheritdoc/>
-    public async Task<Result<ProveedorDto, DomainError>> Update(UpdateProveedorDto item, string key)
-    {
+    public async Task<Result<ProveedorDto, DomainError>> Update(UpdateProveedorDto item, string key) {
         logger.LogInformation("Actualizando proveedor con Id {Id}...", key);
 
         var oldFunko = await cache.GetAsync<Models.Proveedor>(_cacheKey + key);
-        if (oldFunko == null)
-        {
+        if (oldFunko == null) {
             logger.LogDebug("Proveedor {Id} no está en caché, consultando repositorio...", key);
             oldFunko = await repository.GetById(key);
-            if (oldFunko == null)
-            {
+            if (oldFunko == null) {
                 logger.LogWarning("Proveedor con Id {Id} no encontrado para actualización.", key);
                 return ProveedorError.ProveedoraNotFound(key);
             }
         }
 
-        var updating = oldFunko with
-        {
+        var updating = oldFunko with {
             Nombre = item.Nombre,
             UpdatedAt = DateTime.UtcNow
         };
@@ -127,8 +114,7 @@ public class ProveedorService(
         var updated = await repository.Update(updating);
         await cache.RemoveAsync(_cacheKey + key);
 
-        if (updated == null)
-        {
+        if (updated == null) {
             logger.LogWarning("Proveedor con Id {Id} no encontrado tras intento de actualización.", key);
             return ProveedorError.ProveedoraNotFound(key);
         }
@@ -138,8 +124,7 @@ public class ProveedorService(
     }
 
     /// <inheritdoc/>
-    public async Task<IEnumerable<ProveedorDto>> GetAll()
-    {
+    public async Task<IEnumerable<ProveedorDto>> GetAll() {
         logger.LogInformation("Obteniendo todos los proveedores...");
 
         var result = await repository.GetAll();

@@ -36,6 +36,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
                     id => id.ToString(),
                     valor => ObjectId.Parse(valor)
                 );
+            entity.HasIndex(p => p.ProveedorId);
 
             entity.HasOne(e => e.Categoria)
                 .WithMany()
