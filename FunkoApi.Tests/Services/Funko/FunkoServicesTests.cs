@@ -10,6 +10,7 @@ using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Repositories.Proveedor;
+using FunkoApi.Back.Services.Email;
 using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Services.Funko.Transactions;
 using FunkoApi.Back.Storage;
@@ -37,6 +38,7 @@ public class FunkoServicesTests
     private Mock<IClientProxy> _adminClientsMock = null!;
     private AppDbContext _context = null!;
     private FunkoServices _service = null!;
+    private EmailQueueService _emailQueue = null!;
     private const string CategoriaId = "categoria01";
     private const string ProveedorId = "000000000000000000000001";
 
@@ -64,8 +66,10 @@ public class FunkoServicesTests
         });
         var transactions = new FunkoTransactionsService(_context, "funko:", cacheOptions, _cacheMock.Object,
             _storageMock.Object, new Mock<ILogger<FunkoTransactionsService>>().Object);
+        _emailQueue = new EmailQueueService();
         _service = new FunkoServices(_repositoryMock.Object, _categoriaMock.Object, _proveedorMock.Object,
             _cacheMock.Object, cacheOptions, _storageMock.Object, storageOptions, transactions, _hubContextMock.Object,
+            _emailQueue,
             new Mock<ILogger<FunkoServices>>().Object);
         // Los caminos que ejecutan transacciones se prueban con PostgreSQL en Services/Transactions.
     }
@@ -101,6 +105,7 @@ public class FunkoServicesTests
         // Assert
         resultado.IsFailure.Should().BeTrue();
         resultado.Error.Should().Be(esperado);
+        _emailQueue.Count.Should().Be(0);
         _repositoryMock.Verify(r => r.ExitsName(dto.Nombre), Times.Once);
         _categoriaMock.Verify(r => r.ExistsById(CategoriaId), fallo == "duplicado" ? Times.Never() : Times.Once());
         _proveedorMock.Verify(r => r.ExistsById(ProveedorId), fallo is "duplicado" or "categoria" ? Times.Never() : Times.Once());
@@ -154,6 +159,18 @@ public class FunkoServicesTests
         _hubClientsMock.Verify(c => c.Group("admins"), fallaRepositorio ? Times.Never() : Times.Once());
         _adminClientsMock.Verify(c => c.SendCoreAsync("FunkoCreado", It.IsAny<object?[]>(),
             It.IsAny<CancellationToken>()), fallaRepositorio ? Times.Never() : Times.Once());
+        _emailQueue.Count.Should().Be(fallaRepositorio ? 0 : 1);
+        if (!fallaRepositorio)
+        {
+            using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var email = await _emailQueue.DequeueAsync(cancellation.Token);
+            email.Should().NotBeNull();
+            email!.To.Should().Be("funkopopapi@gmail.com");
+            email.Subject.Should().Be($"Nuevo Funko: {dto.Nombre}");
+            email.Body.Should().Be($"Se ha creado el Funko '{dto.Nombre}' con precio {dto.Precio} €.");
+            email.IsHtml.Should().BeFalse();
+            _emailQueue.Count.Should().Be(0);
+        }
     }
 
     [TestCase(false)]
@@ -188,6 +205,7 @@ public class FunkoServicesTests
         // Assert
         resultado.IsSuccess.Should().BeTrue();
         resultado.Value.Id.Should().Be(1);
+        _emailQueue.Count.Should().Be(1);
         _repositoryMock.Verify(r => r.Create(It.IsAny<Back.Models.Funko>()), Times.Once);
         _hubClientsMock.Verify(c => c.Group("admins"), Times.Once);
         _adminClientsMock.Verify(c => c.SendCoreAsync("FunkoCreado", It.IsAny<object?[]>(),
@@ -216,6 +234,7 @@ public class FunkoServicesTests
         // Assert
         resultado.IsFailure.Should().BeTrue();
         resultado.Error.Should().Be(StorageError.ErrorGuardando());
+        _emailQueue.Count.Should().Be(0);
         _storageMock.Verify(s => s.SaveFileAsync(archivo, "funkos"), Times.Once);
         _repositoryMock.Verify(r => r.Create(It.IsAny<Back.Models.Funko>()), Times.Never);
     }
@@ -273,6 +292,18 @@ public class FunkoServicesTests
         _repositoryMock.Verify(r => r.GetById(1), enCache ? Times.Never() : Times.Once());
         _repositoryMock.Verify(r => r.SoftDelete(1), encontrado ? Times.Once() : Times.Never());
         _cacheMock.Verify(c => c.RemoveAsync("funko:1", default), encontrado && borrado ? Times.Once() : Times.Never());
+        _emailQueue.Count.Should().Be(encontrado && borrado ? 1 : 0);
+        if (encontrado && borrado)
+        {
+            using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var email = await _emailQueue.DequeueAsync(cancellation.Token);
+            email.Should().NotBeNull();
+            email!.To.Should().Be("funkopopapi@gmail.com");
+            email.Subject.Should().Be($"Funko desactivado: {funko.Nombre}");
+            email.Body.Should().Be($"Se ha realizado el borrado lógico del Funko '{funko.Nombre}' con ID {funko.Id}.");
+            email.IsHtml.Should().BeFalse();
+            _emailQueue.Count.Should().Be(0);
+        }
     }
 
     [Test]
@@ -287,6 +318,7 @@ public class FunkoServicesTests
         // Assert
         resultado.IsFailure.Should().BeTrue();
         resultado.Error.Should().Be(FunkoError.FunkoNotFound(1));
+        _emailQueue.Count.Should().Be(0);
         _repositoryMock.Verify(r => r.GetById(1), Times.Once);
         _cacheMock.Verify(c => c.RemoveAsync(It.IsAny<string>(), default), Times.Never);
     }

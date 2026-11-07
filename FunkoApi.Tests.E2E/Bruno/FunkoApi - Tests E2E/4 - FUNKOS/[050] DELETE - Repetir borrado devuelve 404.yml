@@ -1,0 +1,29 @@
+info:
+  name: "[050] DELETE - Repetir borrado devuelve 404"
+  type: http
+  seq: 50
+
+http:
+  method: DELETE
+  url: "{{baseUrl}}/api/funkos/{{funkoId}}"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("Funkos Delete Repeated - Status 404 Not Found", function () {
+            expect(res.getStatus()).to.equal(404);
+        });
+        test("Funkos Delete Repeated - Has message", function () {
+            expect(res.getBody().message).to.be.a("string").and.not.be.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
+  forwardAuthorizationHeader: false

@@ -3,6 +3,7 @@ using FunkoApi.Back.Config;
 using FunkoApi.Back.Hub;
 using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Middleware;
+using FunkoApi.Back.Services.Email;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
@@ -33,6 +34,9 @@ try {
     // ── CONFIGURACIÓN TIPADA ─────────────────────────────────────────────────
     builder.Services.Configure<ApiConfig>(
         builder.Configuration.GetSection("Api"));
+
+    builder.Services.Configure<SmtpSettings>(
+        builder.Configuration.GetSection("Email"));
     
     // ── IDENTITY + JWT ─────────────────────────────────────────────────────
     builder.Services.AddIdentityConfiguration(builder.Configuration, builder.Environment);
@@ -79,6 +83,20 @@ try {
         .AddRepositories(builder.Configuration)
         .AddStorage(builder.Configuration)
         .AddServices();
+
+    // Permite probar SMTP en desarrollo sin cambiar el entorno de toda la API.
+    var useSmtp = builder.Configuration.GetValue<bool>(
+        "Email:UseSmtp", !builder.Environment.IsDevelopment());
+
+    if (!useSmtp) {
+        Log.Information("Email: modo simulado en memoria. No se enviarán correos reales.");
+        builder.Services.AddScoped<IEmailService, MemoryEmailService>();
+    } else {
+        Log.Information("Email: envío real con MailKit.");
+        builder.Services.AddScoped<IEmailService, MailKitEmailService>();
+    }
+    builder.Services.AddSingleton<EmailQueueService>();
+    builder.Services.AddHostedService<EmailBackgroundWorker>();
 
     // ── PIPELINE DE MIDDLEWARES ───────────────────────────────────────────────
     var app = builder.Build();
