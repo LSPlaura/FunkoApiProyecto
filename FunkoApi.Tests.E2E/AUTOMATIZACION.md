@@ -44,6 +44,14 @@ Una unica ejecucion recorre, en este orden:
 2. CATEGORIAS.
 3. PROVEEDORES.
 4. FUNKOS.
+5. SIGNALR HTTP: negociacion sin token (401), con USER (403) y con ADMIN (200).
+
+Estas comprobaciones usan HTTP; no abren una conexion SignalR ni verifican la
+recepcion del evento FunkoCreado. Bruno CLI no soporta WebSocket (apartado
+18.12 de los apuntes). La recepcion debe comprobarse con el cliente SignalR:
+dos conexiones ADMIN abiertas, crear un funko y verificar el aviso en ambas.
+El cliente se sirve desde http://127.0.0.1:3000, permitido por ClienteSignalR.
+No se ha dado por pasada esta ampliacion E2E sin ejecutarla contra una API de pruebas.
 
 No lanzar carpetas en procesos separados: los tokens, IDs y nombres son
 variables del recorrido. No se usa paralelismo. Se mantienen `info.seq`,

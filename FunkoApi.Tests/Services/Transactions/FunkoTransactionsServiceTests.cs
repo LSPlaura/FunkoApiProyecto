@@ -5,6 +5,7 @@ using FunkoApi.Back.Config;
 using FunkoApi.Back.Data;
 using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Errors;
+using FunkoApi.Back.Hub;
 using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
@@ -13,6 +14,7 @@ using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Services.Funko.Transactions;
 using FunkoApi.Back.Storage;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -186,6 +188,7 @@ public class FunkoTransactionsServiceTests
         var service = new FunkoServices(repositoryMock.Object, new Mock<ICategoriaRepository>().Object,
             new Mock<IProveedorRepository>().Object, _cacheMock.Object, Options.Create(new CacheOptions()),
             _storageMock.Object, Options.Create(new StorageSettings()), _transactions,
+            new Mock<IHubContext<FunkoHub>>().Object,
             new Mock<ILogger<FunkoServices>>().Object);
 
         // Act
@@ -225,6 +228,7 @@ public class FunkoTransactionsServiceTests
         var storageOptions = Options.Create(new StorageSettings { Folders = new Dictionary<string, string> { ["Funkos"] = "funkos" } });
         var service = new FunkoServices(repositoryMock.Object, categoriaMock.Object, proveedorMock.Object,
             _cacheMock.Object, Options.Create(new CacheOptions()), _storageMock.Object, storageOptions, _transactions,
+            new Mock<IHubContext<FunkoHub>>().Object,
             new Mock<ILogger<FunkoServices>>().Object);
         var dto = new UpdateFunkoDto { Nombre = falla ? new string('A', 101) : funko.Nombre, Precio = 20m,
             Stock = 5, Categoria = categoria.Id, Proveedor = proveedorId.ToString(), Imagen = archivo };

@@ -1,0 +1,24 @@
+info:
+  name: "[002] POST - Negotiate User"
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/hubs/funkos/negotiate?negotiateVersion=1"
+  auth:
+    type: bearer
+    token: "{{userToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("SignalR rol USER - Status 403", function () {
+            expect(res.getStatus()).to.equal(403);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false

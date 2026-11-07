@@ -5,6 +5,7 @@ using FunkoApi.Back.Config;
 using FunkoApi.Back.Data;
 using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Errors;
+using FunkoApi.Back.Hub;
 using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
@@ -13,6 +14,7 @@ using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Services.Funko.Transactions;
 using FunkoApi.Back.Storage;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -30,6 +32,9 @@ public class FunkoServicesTests
     private Mock<IProveedorRepository> _proveedorMock = null!;
     private Mock<ICacheService> _cacheMock = null!;
     private Mock<IStorageService> _storageMock = null!;
+    private Mock<IHubContext<FunkoHub>> _hubContextMock = null!;
+    private Mock<IHubClients> _hubClientsMock = null!;
+    private Mock<IClientProxy> _adminClientsMock = null!;
     private AppDbContext _context = null!;
     private FunkoServices _service = null!;
     private const string CategoriaId = "categoria01";
@@ -43,6 +48,13 @@ public class FunkoServicesTests
         _proveedorMock = new Mock<IProveedorRepository>();
         _cacheMock = new Mock<ICacheService>();
         _storageMock = new Mock<IStorageService>();
+        _hubContextMock = new Mock<IHubContext<FunkoHub>>();
+        _hubClientsMock = new Mock<IHubClients>();
+        _adminClientsMock = new Mock<IClientProxy>();
+        _hubContextMock.Setup(h => h.Clients).Returns(_hubClientsMock.Object);
+        _hubClientsMock.Setup(c => c.Group("admins")).Returns(_adminClientsMock.Object);
+        _adminClientsMock.Setup(c => c.SendCoreAsync(It.IsAny<string>(), It.IsAny<object?[]>(),
+            It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
         _storageMock.Setup(s => s.IsEmpty(It.IsAny<IFormFile?>())).Returns((IFormFile? f) => f is null || f.Length == 0);
         _context = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>().UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         var cacheOptions = Options.Create(new CacheOptions());
@@ -53,7 +65,7 @@ public class FunkoServicesTests
         var transactions = new FunkoTransactionsService(_context, "funko:", cacheOptions, _cacheMock.Object,
             _storageMock.Object, new Mock<ILogger<FunkoTransactionsService>>().Object);
         _service = new FunkoServices(_repositoryMock.Object, _categoriaMock.Object, _proveedorMock.Object,
-            _cacheMock.Object, cacheOptions, _storageMock.Object, storageOptions, transactions,
+            _cacheMock.Object, cacheOptions, _storageMock.Object, storageOptions, transactions, _hubContextMock.Object,
             new Mock<ILogger<FunkoServices>>().Object);
         // Los caminos que ejecutan transacciones se prueban con PostgreSQL en Services/Transactions.
     }
@@ -94,6 +106,7 @@ public class FunkoServicesTests
         _proveedorMock.Verify(r => r.ExistsById(ProveedorId), fallo is "duplicado" or "categoria" ? Times.Never() : Times.Once());
         _repositoryMock.Verify(r => r.Create(It.IsAny<Back.Models.Funko>()), Times.Never);
         _storageMock.Verify(s => s.SaveFileAsync(It.IsAny<IFormFile>(), It.IsAny<string>()), Times.Never);
+        _hubClientsMock.Verify(c => c.Group(It.IsAny<string>()), Times.Never);
     }
 
     [TestCase(false, false)]
@@ -138,6 +151,50 @@ public class FunkoServicesTests
         _storageMock.Verify(s => s.IsEmpty(archivo), Times.Once);
         _storageMock.Verify(s => s.SaveFileAsync(It.IsAny<IFormFile>(), "funkos"), conImagen ? Times.Once() : Times.Never());
         _storageMock.Verify(s => s.DeleteFileAsync("nueva.png"), conImagen && fallaRepositorio ? Times.Once() : Times.Never());
+        _hubClientsMock.Verify(c => c.Group("admins"), fallaRepositorio ? Times.Never() : Times.Once());
+        _adminClientsMock.Verify(c => c.SendCoreAsync("FunkoCreado", It.IsAny<object?[]>(),
+            It.IsAny<CancellationToken>()), fallaRepositorio ? Times.Never() : Times.Once());
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public async Task Create_ErrorNotificando_ConservaExitoYNoBorraImagen(bool conImagen)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, CategoriaId);
+        var archivoMock = new Mock<IFormFile>();
+        archivoMock.Setup(f => f.Length).Returns(1);
+        var dto = new CreateFunkoDto
+        {
+            Nombre = "Iron Man", Precio = 15m, Stock = 1,
+            Categoria = CategoriaId, Proveedor = ProveedorId,
+            Imagen = conImagen ? archivoMock.Object : null
+        };
+        _categoriaMock.Setup(r => r.ExistsById(CategoriaId)).ReturnsAsync(true);
+        _categoriaMock.Setup(r => r.GetById(CategoriaId)).ReturnsAsync(categoria);
+        _proveedorMock.Setup(r => r.ExistsById(ProveedorId)).ReturnsAsync(true);
+        _storageMock.Setup(s => s.GetRelativePath("default.png", "funkos")).Returns("default.png");
+        _storageMock.Setup(s => s.SaveFileAsync(It.IsAny<IFormFile>(), "funkos"))
+            .ReturnsAsync(Result.Success<string, DomainError>("nueva.png"));
+        _repositoryMock.Setup(r => r.Create(It.IsAny<Back.Models.Funko>()))
+            .ReturnsAsync((Back.Models.Funko f) => f with { Id = 1 });
+        _adminClientsMock.Setup(c => c.SendCoreAsync("FunkoCreado", It.IsAny<object?[]>(),
+            It.IsAny<CancellationToken>())).ThrowsAsync(new InvalidOperationException("Error de SignalR"));
+
+        // Act
+        var resultado = await _service.Create(dto);
+
+        // Assert
+        resultado.IsSuccess.Should().BeTrue();
+        resultado.Value.Id.Should().Be(1);
+        _repositoryMock.Verify(r => r.Create(It.IsAny<Back.Models.Funko>()), Times.Once);
+        _hubClientsMock.Verify(c => c.Group("admins"), Times.Once);
+        _adminClientsMock.Verify(c => c.SendCoreAsync("FunkoCreado", It.IsAny<object?[]>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+        _storageMock.Verify(s => s.DeleteFileAsync(It.IsAny<string>()), Times.Never);
+        _storageMock.Verify(s => s.SaveFileAsync(It.IsAny<IFormFile>(), "funkos"),
+            conImagen ? Times.Once() : Times.Never());
     }
 
     [Test]

@@ -1,0 +1,21 @@
+info:
+  name: "[001] POST - Negotiate sin auth"
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/hubs/funkos/negotiate?negotiateVersion=1"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("SignalR sin token - Status 401", function () {
+            expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false

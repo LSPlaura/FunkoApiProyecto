@@ -13,8 +13,7 @@ namespace FunkoApi.Back.Infrastructure;
 /// <summary>
 /// Configuracion de Identity + JWT + Authorization.
 /// </summary>
-public static class IdentityConfig
-{
+public static class IdentityConfig {
     /// <summary>
     /// Registra Identity, JWT Bearer y políticas de autorización.
     /// </summary>
@@ -25,8 +24,7 @@ public static class IdentityConfig
     public static IServiceCollection AddIdentityConfiguration(
         this IServiceCollection services,
         IConfiguration configuration,
-        IWebHostEnvironment environment)
-    {
+        IWebHostEnvironment environment) {
         Log.Information("Configurando Identity y JWT...");
 
         // ── JWT Settings ─────────────────────────────────────────────────────
@@ -44,8 +42,7 @@ public static class IdentityConfig
         //y se añade además: los roles, el servicio propio para registrarse (Sing in)
         //conecta el sistema de Identity con tu base de datos utilizando Entity Framework Core
         //registra los proveedores estándar encargados de generar tokens de un solo uso (OTP)
-        services.AddIdentityCore<AppUser>(options =>
-        {
+        services.AddIdentityCore<AppUser>(options => {
             // Password
             options.Password.RequiredLength = 8;
             options.Password.RequireDigit = true;
@@ -68,17 +65,14 @@ public static class IdentityConfig
         // ── JWT Authentication ───────────────────────────────────────────────
         //Se fuerza todos los esquemas a Bearer para que Identity sepa que es una API de manera que,
         //en vez de redigir mande el código de response adecuado (401 o 403) mediante un json
-        services.AddAuthentication(options =>
-        {
+        services.AddAuthentication(options => {
             options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             options.DefaultForbidScheme = JwtBearerDefaults.AuthenticationScheme;
         })
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
+        .AddJwtBearer(options => {
+            options.TokenValidationParameters = new TokenValidationParameters {
                 ValidateIssuer = true,
                 ValidateAudience = true,
                 ValidateLifetime = true,
@@ -89,14 +83,24 @@ public static class IdentityConfig
                     Encoding.UTF8.GetBytes(jwtSettings.Key)),
                 ClockSkew = TimeSpan.Zero
             };
+            options.Events = new JwtBearerEvents {
+                OnMessageReceived = context => {
+                    var accessToken = context.Request.Query["access_token"];
+                    var path = context.HttpContext.Request.Path;
+
+                    if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/hubs/funkos")) {
+                        context.Token = accessToken;
+                    }
+
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         // ── Authorization Policies ───────────────────────────────────────────
         services.AddAuthorizationBuilder()
-            .AddPolicy("RequireAdmin", policy =>
-                policy.RequireRole("ADMIN"))
-            .AddPolicy("RequireUser", policy =>
-                policy.RequireRole("USER", "ADMIN"));
+            .AddPolicy("RequireAdmin", policy => policy.RequireRole("ADMIN"))
+            .AddPolicy("RequireUser", policy => policy.RequireRole("USER", "ADMIN"));
 
         Log.Information("Identity y JWT configurados correctamente.");
         return services;

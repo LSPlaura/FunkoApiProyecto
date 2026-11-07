@@ -1,0 +1,30 @@
+info:
+  name: "[003] POST - Negotiate Admin"
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/hubs/funkos/negotiate?negotiateVersion=1"
+  auth:
+    type: bearer
+    token: "{{adminToken}}"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("SignalR rol ADMIN - Status 200", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("SignalR - Devuelve datos de negociacion", function () {
+            const data = res.getBody();
+            expect(data.connectionId).to.be.a("string").and.not.empty;
+            expect(data.connectionToken).to.be.a("string").and.not.empty;
+            expect(data.availableTransports).to.be.an("array").and.not.empty;
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false
