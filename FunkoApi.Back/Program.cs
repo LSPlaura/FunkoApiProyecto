@@ -60,6 +60,7 @@ try {
 
     // Registrar SignalR para las conexiones del hub de Funkos.
     builder.Services.AddSignalR();
+    // Permitir el cliente del editor en los dos orígenes locales utilizados, con credenciales.
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("ClienteSignalR", policy =>
@@ -85,6 +86,7 @@ try {
     app.UseSerilogRequestLogging();
 
     app.UseGlobalExceptionHandler();
+    // Aplicar la política antes de comprobar autenticación y permisos.
     app.UseCors("ClienteSignalR");
     
     app.UseAuthentication();
@@ -96,6 +98,7 @@ try {
     }
 
     app.MapControllers();
+    // Publicar el hub; su atributo Authorize limita la conexión al rol ADMIN.
     app.MapHub<FunkoHub>("/hubs/funkos");
     
     app.InitializeStorage(app.Configuration);

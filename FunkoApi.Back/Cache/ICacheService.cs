@@ -4,8 +4,7 @@ namespace FunkoApi.Back.Cache;
 /// Define contratos para operaciones de caché distribuida, soportando serialización JSON,
 /// tiempos de expiración configurables y control de concurrencia para evitar el problema de cache stampede.
 /// </summary>
-public interface ICacheService
-{
+public interface ICacheService {
     /// <summary>
     /// Obtiene y deserializa un objeto almacenado en caché a partir de su clave.
     /// </summary>
@@ -60,6 +59,5 @@ public interface ICacheService
     /// <returns>
     /// Una tarea que representa la operación asíncrona, devolviendo el objeto recuperado de la caché o generado por la fábrica.
     /// </returns>
-    Task<T?> GetOrSetAsync<T>(string key, Func<Task<T?>> factory, TimeSpan? expiration = null,
-        CancellationToken ct = default);
+    Task<T?> GetOrSetAsync<T>(string key, Func<Task<T?>> factory, TimeSpan? expiration = null, CancellationToken ct = default);
 }

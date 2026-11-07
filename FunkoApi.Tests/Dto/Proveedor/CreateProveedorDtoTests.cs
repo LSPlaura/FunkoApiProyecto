@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using FluentAssertions;
+using FunkoApi.Back.Dto.Proveedor;
 using FunkoApi.Back.Dtos.Proveedor;
 using NUnit.Framework;
 

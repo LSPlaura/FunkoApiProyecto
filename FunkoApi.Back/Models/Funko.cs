@@ -21,8 +21,8 @@ public record Funko(
 ) {
     /// <summary>
     /// Constructor reservado para que Entity Framework Core materialice la entidad.
-    /// EF Core asigna posteriormente las propiedades persistidas, incluidas las
-    /// navegaciones <see cref="Categoria" /> y <see cref="Proveedor" />.
+    /// EF Core asigna posteriormente las propiedades persistidas, incluida
+    /// la navegación <see cref="Categoria" />. El proveedor se conserva como identificador.
     /// El constructor posicional público es el que debe utilizar el código de aplicación.
     /// </summary>
     public Funko() : this(0, string.Empty, 0m, 0, string.Empty, string.Empty, null, ObjectId.Empty, false, default, default) { }

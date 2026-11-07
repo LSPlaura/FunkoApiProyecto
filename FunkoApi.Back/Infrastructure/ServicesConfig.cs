@@ -5,7 +5,6 @@ using FunkoApi.Back.Services.Auth.Common;
 using FunkoApi.Back.Services.Categoria;
 using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Services.Funko.Transactions;
-using FunkoApi.Back.Services.Get.Categoria;
 using FunkoApi.Back.Services.Proveedor;
 using FunkoApi.Back.Storage;
 using Microsoft.Extensions.Options;
@@ -14,17 +13,15 @@ using Serilog;
 namespace FunkoApi.Back.Infrastructure;
 
 /// <summary>
-///     Configuración de servicios de negocio.
+/// Configuración de servicios de negocio.
 /// </summary>
-public static class ServicesConfig
-{
+public static class ServicesConfig {
     /// <summary>
-    ///     Registra todos los servicios de negocio en el contenedor de dependencias.
+    /// Registra todos los servicios de negocio en el contenedor de dependencias.
     /// </summary>
     /// <param name="services">Colección de servicios.</param>
     /// <returns>IServiceCollection para encadenar.</returns>
-    public static IServiceCollection AddServices(this IServiceCollection services)
-    {
+    public static IServiceCollection AddServices(this IServiceCollection services) {
         Log.Information("Registrando servicios...");
 
         services.AddScoped<IAuthService, AuthService>();

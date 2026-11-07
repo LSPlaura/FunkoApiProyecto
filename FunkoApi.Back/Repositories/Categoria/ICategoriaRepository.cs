@@ -3,11 +3,10 @@ using FunkoApi.Back.Repositories.Crud.Common;
 namespace FunkoApi.Back.Repositories.Categoria;
 
 /// <summary>
-///     Interfaz que define las operaciones de consulta del repositorio de categorías.
-///     Hereda las operaciones de IGet y añade consultas por nombre.
+/// Interfaz que define las operaciones de consulta del repositorio de categorías.
+/// Hereda las operaciones de IGet y añade consultas por nombre.
 /// </summary>
-public interface ICategoriaRepository : ICrud<Models.Categoria, string>
-{
+public interface ICategoriaRepository : ICrud<Models.Categoria, string> {
     /// <summary>
     ///     Obtiene una categoría mediante su nombre.
     /// </summary>

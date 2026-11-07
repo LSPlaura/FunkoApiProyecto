@@ -9,6 +9,4 @@
 /// Puede ser utilizado posteriormente por validadores personalizados, mapeadores o serializadores.
 /// </remarks>
 [AttributeUsage(AttributeTargets.Property)]
-public class YouTubeIdAttribute : Attribute
-{
-}
+public class YouTubeIdAttribute : Attribute { }

@@ -3,7 +3,7 @@ using FluentAssertions;
 using FunkoApi.Back.Controllers;
 using FunkoApi.Back.Dto.Categoria;
 using FunkoApi.Back.Errors;
-using FunkoApi.Back.Services.Get.Categoria;
+using FunkoApi.Back.Services.Categoria;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 using NUnit.Framework;

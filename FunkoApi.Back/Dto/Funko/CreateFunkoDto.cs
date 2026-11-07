@@ -7,22 +7,29 @@ namespace FunkoApi.Back.Dto.Funko;
 /// Incluye las validaciones de los campos mediante Data Annotations.
 /// </summary>
 public record CreateFunkoDto {
+    
+    /// <summary>Nombre con el que se registrará el nuevo funko.</summary>
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [MaxLength(100, ErrorMessage = "El nombre no puede tener más de 100 caracteres")]
     public string Nombre { get; init; } = string.Empty;
 
+    /// <summary>Precio de venta, dentro del intervalo admitido por la validación.</summary>
     [Required(ErrorMessage = "El precio es obligatorio")]
     [Range(0.01, 999999.99, ErrorMessage = "El precio debe estar entre 0.01 y 999999.99")]
     public decimal Precio { get; init; }
 
+    /// <summary>Número de unidades disponibles al crear el funko.</summary>
     [Range(1, int.MaxValue, ErrorMessage = "El stock debe ser mayor a 0")]
     public int Stock { get; init; }
     
+    /// <summary>Archivo de imagen opcional; si no se aporta, el servicio utiliza la imagen predeterminada.</summary>
     public IFormFile? Imagen { get; init; }
 
+    /// <summary>Identificador de la categoría que se asociará al funko.</summary>
     [Required(ErrorMessage = "La categoría es obligatoria")]
     public string Categoria { get; init; } = string.Empty;
 
+    /// <summary>Identificador textual del proveedor almacenado en MongoDB.</summary>
     [Required(ErrorMessage = "El proveedor es obligatorio")]
     public string Proveedor { get; init; } = string.Empty;
 }

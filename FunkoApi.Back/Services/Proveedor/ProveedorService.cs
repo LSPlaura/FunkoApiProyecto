@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Cache;
 using FunkoApi.Back.Config;
+using FunkoApi.Back.Dto.Proveedor;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Mappers;
@@ -11,6 +12,10 @@ using MongoDB.Bson;
 
 namespace FunkoApi.Back.Services.Proveedor;
 
+/// <summary>
+/// Gestiona las operaciones de proveedores y su caché, comprobando las asociaciones
+/// con funkos antes de permitir un borrado.
+/// </summary>
 public class ProveedorService(
     IProveedorRepository repository,
     ICacheService cache,
@@ -21,7 +26,7 @@ public class ProveedorService(
     private readonly CacheOptions _options = options.Value;
     private readonly string _cacheKey = "proveedor:";
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorService.Create"/>
     public async Task<Result<ProveedorDto, DomainError>> Create(CreateProveedorDto item) {
         logger.LogInformation("Creando proveedor con nombre {Nombre}...", item.Nombre);
 
@@ -32,7 +37,7 @@ public class ProveedorService(
         return result.ToDto();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorService.GetById"/>
     public async Task<Result<ProveedorDto, DomainError>> GetById(string key) {
         logger.LogInformation("Obteniendo proveedor con Id {Id}...", key);
 
@@ -50,7 +55,7 @@ public class ProveedorService(
         return cached.ToDto();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorService.SoftDelete"/>
     public async Task<Result<bool, DomainError>> SoftDelete(string id) {
         if (await funkoRepository.ExistAnyFunkoProveedor(id)) {
             logger.LogWarning("No se puede eliminar proveedor {Id} porque tiene funkos asociados.", id);
@@ -71,7 +76,7 @@ public class ProveedorService(
         return deleted;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorService.HardDelete"/>
     public async Task<Result<bool, DomainError>> HardDelete(string id) {
         if (await funkoRepository.ExistAnyFunkoProveedor(id)) {
             logger.LogWarning("No se puede eliminar físicamente proveedor {Id} porque tiene funkos asociados.", id);
@@ -92,7 +97,7 @@ public class ProveedorService(
         return deleted;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorService.Update"/>
     public async Task<Result<ProveedorDto, DomainError>> Update(UpdateProveedorDto item, string key) {
         logger.LogInformation("Actualizando proveedor con Id {Id}...", key);
 
@@ -123,7 +128,7 @@ public class ProveedorService(
         return updated.ToDto();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorService.GetAll"/>
     public async Task<IEnumerable<ProveedorDto>> GetAll() {
         logger.LogInformation("Obteniendo todos los proveedores...");
 

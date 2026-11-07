@@ -3,8 +3,8 @@ using FunkoApi.Back.Repositories.Crud.Common;
 namespace FunkoApi.Back.Repositories.Funko;
 
 /// <summary>
-///     Interfaz que define las operaciones del repositorio de Funkos.
-///     Hereda las operaciones CRUD y añade consultas por nombre.
+/// Interfaz que define las operaciones del repositorio de Funkos.
+/// Hereda las operaciones CRUD y añade consultas por nombre.
 /// </summary>
 public interface IFunkoRepository : ICrud<Models.Funko, long> {
     /// <summary>

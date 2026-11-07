@@ -9,9 +9,7 @@ namespace FunkoApi.Back.Repositories.Funko;
 /// Repositorio de Funkos que implementa las operaciones CRUD
 /// utilizando Entity Framework Core.
 /// </summary>
-public class FunkoRepository(
-    AppDbContext context,
-    ILogger<FunkoRepository> logger) : IFunkoRepository {
+public class FunkoRepository(AppDbContext context, ILogger<FunkoRepository> logger) : IFunkoRepository {
     
     /// <inheritdoc cref="IFunkoRepository.Create" />
     public async Task<Models.Funko> Create(Models.Funko item) {

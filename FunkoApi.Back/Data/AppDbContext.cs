@@ -12,13 +12,15 @@ namespace FunkoApi.Back.Data;
 /// Gestiona las entidades de Funkos, categorías y proveedores.
 /// </summary>
 public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbContext<AppUser, IdentityRole<long>, long>(options) {
+    /// <summary>Conjunto de funkos almacenados en la base de datos relacional.</summary>
     public DbSet<Funko> Funkos => Set<Funko>();
+    /// <summary>Conjunto de categorías asociables a los funkos.</summary>
     public DbSet<Categoria> Categorias => Set<Categoria>();
 
     /// <summary>
     /// Configura el modelo de datos y sus mapeos mediante Fluent API.
-    /// Define restricciones de columna y conversiones personalizadas de tipos complejos (Address, Company)
-    /// a cadenas JSON para compatibilidad con SQLite.
+    /// Establece índices, restricciones y la relación con categorías en PostgreSQL.
+    /// Convierte el ObjectId del proveedor a una cadena para persistir su referencia.
     /// </summary>
     /// <param name="modelBuilder">El constructor de modelos utilizado para configurar las entidades de la base de datos.</param>
     protected override void OnModelCreating(ModelBuilder modelBuilder) {

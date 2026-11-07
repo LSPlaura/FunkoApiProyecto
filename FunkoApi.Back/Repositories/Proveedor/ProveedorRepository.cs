@@ -5,23 +5,20 @@ using MongoDB.Driver;
 namespace FunkoApi.Back.Repositories.Proveedor;
 
 /// <summary>
-///     Repositorio de proveedores que implementa las operaciones de acceso a datos
-///     utilizando el driver oficial de MongoDB para .NET.
+/// Repositorio de proveedores que implementa las operaciones de acceso a datos
+/// utilizando el driver oficial de MongoDB para .NET.
 /// </summary>
-public class ProveedorMongoRepository(
-    IMongoDatabase database,
-    ILogger<ProveedorMongoRepository> logger) : IProveedorRepository
-{
+public class ProveedorMongoRepository(IMongoDatabase database, ILogger<ProveedorMongoRepository> logger) : IProveedorRepository {
     private readonly IMongoCollection<Models.Proveedor> _collection = database.GetCollection<Models.Proveedor>("proveedores");
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorRepository.Create"/>
     public async Task<Models.Proveedor> Create(Models.Proveedor item) {
         logger.LogInformation("Creando proveedor: {Nombre}", item.Nombre);
         await _collection.InsertOneAsync(item);
         return item;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorRepository.SoftDelete"/>
     public async Task<bool> SoftDelete(string id) {
         logger.LogInformation("Realizando borrado lógico de proveedor ID: {Id}", id);
         var objectId = ObjectId.Parse(id);
@@ -31,14 +28,14 @@ public class ProveedorMongoRepository(
         return resultado.ModifiedCount > 0;
     }
     
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorRepository.HardDelete"/>
     public async Task<bool> HardDelete(Models.Proveedor item) {
         logger.LogWarning("Realizando borrado físico de proveedor ID: {Id}", item.Id);
         var resultado = await _collection.DeleteOneAsync(c => c.Id == item.Id);
         return resultado.DeletedCount > 0;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorRepository.Update"/>
     public async Task<Models.Proveedor?> Update(Models.Proveedor item) {
         logger.LogInformation("Actualizando proveedor ID: {Id}", item.Id);
         var result = await _collection.ReplaceOneAsync(
@@ -47,7 +44,7 @@ public class ProveedorMongoRepository(
         return result.IsAcknowledged ? item : null;
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorRepository.GetAll"/>
     public async Task<IEnumerable<Models.Proveedor>> GetAll() {
         logger.LogDebug("Obteniendo todos los proveedores");
         return await _collection
@@ -56,7 +53,7 @@ public class ProveedorMongoRepository(
             .ToListAsync();
     }
     
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorRepository.GetById"/>
     public async Task<Models.Proveedor?> GetById(string key) {
         logger.LogDebug("Obteniendo proveedor por ID: {Key}", key);
         var objectId = ObjectId.Parse(key);
@@ -65,7 +62,7 @@ public class ProveedorMongoRepository(
             .FirstOrDefaultAsync();
     }
 
-    /// <inheritdoc/>
+    /// <inheritdoc cref="IProveedorRepository.ExistsById"/>
     public async Task<bool> ExistsById(string key) {
         logger.LogDebug("Verificando existencia de proveedor por ID: {Key}", key);
         var objectId = ObjectId.Parse(key);

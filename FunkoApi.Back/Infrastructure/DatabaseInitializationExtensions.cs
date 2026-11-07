@@ -1,4 +1,3 @@
-using FunkoApi.Back.Config;
 using FunkoApi.Back.Data;
 using FunkoApi.Back.Data.Seed.Efc;
 using FunkoApi.Back.Data.Seed.Identity;
@@ -8,11 +7,17 @@ using Serilog;
 
 namespace FunkoApi.Back.Infrastructure;
 
-public static class DatabaseInitializationExtensions
-{
-    public static async Task InitializeDatabaseAsync(
-        this WebApplication app)
-    {
+/// <summary>
+/// Reúne la preparación de las bases de datos y sus datos iniciales al arrancar la API.
+/// </summary>
+public static class DatabaseInitializationExtensions {
+    /// <summary>
+    /// Elimina la base de datos de MongoDB y recrea la de PostgreSQL antes de sembrar
+    /// proveedores, categorías, funkos y usuarios con sus roles.
+    /// </summary>
+    /// <param name="app">Aplicación de la que se resuelven los contextos y seeders.</param>
+    /// <returns>Una tarea que finaliza cuando termina la inicialización.</returns>
+    public static async Task InitializeDatabaseAsync(this WebApplication app) {
         using var scope = app.Services.CreateScope();
         
         // ---------- MongoDB (driver nativo) ----------

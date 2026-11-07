@@ -4,8 +4,7 @@ namespace FunkoApi.Back.Dto;
 /// Representa una respuesta paginada genérica para los endpoints de la API.
 /// </summary>
 /// <typeparam name="T">Tipo de los elementos contenidos en la página.</typeparam>
-public sealed record PagedResponse<T>
-{
+public sealed record PagedResponse<T> {
     /// <summary>
     /// Obtiene o inicializa la colección de elementos pertenecientes a la página actual.
     /// </summary>

@@ -304,6 +304,15 @@ public class FunkoServices(
         return lista.Select(f => f.ToDto());
     }
     
+    /// <summary>
+    /// Comunica la creación de un funko a los administradores conectados mediante el evento FunkoCreado.
+    /// </summary>
+    /// <remarks>
+    /// Se invoca después de guardar la entidad. Si falla el aviso, registra el error
+    /// sin convertir en fallida la creación que ya se ha realizado.
+    /// </remarks>
+    /// <param name="funko">Entidad guardada cuyos datos se incluirán en el aviso.</param>
+    /// <returns>Una tarea que representa el intento de enviar la notificación.</returns>
     private async Task NotifyFunkoCreadoAsync(Models.Funko funko) {
         try {
             var notificacion = new {

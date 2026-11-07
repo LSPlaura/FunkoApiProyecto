@@ -8,13 +8,11 @@ namespace FunkoApi.Back.Data.Seed.Mongo;
 /// Clase encargada de sembrar los datos iniciales de proveedores
 /// en MongoDB utilizando el repositorio con driver nativo.
 /// </summary>
-public class MongoSeeder
-{
+public class MongoSeeder {
     private readonly IProveedorRepository _repositorio;
     private readonly ILogger<MongoSeeder> _logger;
 
-    public MongoSeeder(IProveedorRepository repositorio, ILogger<MongoSeeder> logger)
-    {
+    public MongoSeeder(IProveedorRepository repositorio, ILogger<MongoSeeder> logger) {
         _repositorio = repositorio;
         _logger = logger;
     }
@@ -23,21 +21,17 @@ public class MongoSeeder
     /// Inserta proveedores iniciales si la colección todavía
     /// no contiene ninguno.
     /// </summary>
-    public async Task SeedAsync()
-    {
-        try
-        {
+    public async Task SeedAsync() {
+        try {
             _logger.LogInformation("Sembrando datos iniciales de proveedores en MongoDB...");
 
             var yaExisten = await _repositorio.GetAll().ContinueWith(t => t.Result.Any());
-            if (yaExisten)
-            {
+            if (yaExisten) {
                 _logger.LogInformation("Ya existen proveedores en MongoDB. Sembrado omitido.");
                 return;
             }
 
-            var proveedores = new[]
-            {
+            var proveedores = new[] {
                 new Proveedor(
                     ObjectId.GenerateNewId(),
                     "Funko Corp",
@@ -60,15 +54,12 @@ public class MongoSeeder
                     DateTime.UtcNow)
             };
 
-            foreach (var proveedor in proveedores)
-            {
+            foreach (var proveedor in proveedores) {
                 await _repositorio.Create(proveedor);
             }
 
             _logger.LogInformation("Insertados {Count} proveedores de ejemplo en MongoDB.", proveedores.Length);
-        }
-        catch (Exception ex)
-        {
+        } catch (Exception ex) {
             _logger.LogWarning(ex, "Error al sembrar proveedores en MongoDB");
             throw;
         }

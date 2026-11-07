@@ -27,7 +27,7 @@ public class AuthService(
 ) : IAuthService {
     //utiliza UserManager<AppUser> para operar con los datos de un usuario (contraseña, email, usuario, nombre, apellido...)
     //utiliza signInManager para gestionar la autenticación (verificar contraseña, tiempo de expiración...)
-    /// <inheritdoc />
+    /// <inheritdoc cref="IAuthService.LoginAsync" />
     public async Task<Result<AuthResponseDto, DomainError>> LoginAsync(LoginDto dto) {
         logger.LogInformation("Intento de login para {Email}", dto.Email);
 
@@ -50,7 +50,7 @@ public class AuthService(
         return Result.Success<AuthResponseDto, DomainError>(token);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IAuthService.SignupAsync" />
     public async Task<Result<AuthResponseDto, DomainError>> SignupAsync(SignupDto dto) {
         logger.LogInformation("Intento de registro para {Email}", dto.Email);
 
@@ -84,7 +84,7 @@ public class AuthService(
         return Result.Success<AuthResponseDto, DomainError>(token);
     }
 
-    /// <inheritdoc />
+    /// <inheritdoc cref="IAuthService.GetMeAsync" />
     public async Task<Result<UserDto, DomainError>> GetMeAsync(long userId) {
         logger.LogDebug("Consultando usuario {UserId}", userId);
 

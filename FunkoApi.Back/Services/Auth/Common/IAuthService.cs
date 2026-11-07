@@ -7,8 +7,7 @@ namespace FunkoApi.Back.Services.Auth.Common;
 /// <summary>
 /// Servicio de autenticación: login, signup y consulta de usuario.
 /// </summary>
-public interface IAuthService
-{
+public interface IAuthService {
     /// <summary>
     /// Inicia sesión con email y contraseña.
     /// </summary>

@@ -1,4 +1,5 @@
 using CSharpFunctionalExtensions;
+using FunkoApi.Back.Dto.Proveedor;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Extensions;
 using FunkoApi.Back.Services.Proveedor;
@@ -14,17 +15,15 @@ namespace FunkoApi.Back.Controllers;
 /// <param name="service">Servicio encargado de gestionar las operaciones de los Proveedores.</param>
 [ApiController]
 [Route("api/[controller]")]
-public class ProveedoresController(IProveedorService service) : ControllerBase
-{
+public class ProveedoresController(IProveedorService service) : ControllerBase {
     /// <summary>
-    ///     Crea un nuevo Proveedor a partir de los datos proporcionados.
+    /// Crea un nuevo Proveedor a partir de los datos proporcionados.
     /// </summary>
     /// <param name="dto">DTO con los datos necesarios para crear el Proveedor.</param>
     /// <returns>Respuesta HTTP con el Proveedor creado o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpPost]
-    public async Task<ActionResult<ProveedorDto>> Create([FromBody] CreateProveedorDto dto)
-    {
+    public async Task<ActionResult<ProveedorDto>> Create([FromBody] CreateProveedorDto dto) {
         var result = await service.Create(dto);
 
         return result.Match(
@@ -34,14 +33,13 @@ public class ProveedoresController(IProveedorService service) : ControllerBase
     }
 
     /// <summary>
-    ///     Elimina lógicamente un Proveedor mediante su identificador.
+    /// Elimina lógicamente un Proveedor mediante su identificador.
     /// </summary>
     /// <param name="id">Identificador del Proveedor que se desea eliminar.</param>
     /// <returns>Respuesta HTTP con el resultado de la eliminación o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(string id)
-    {
+    public async Task<ActionResult> Delete(string id) {
         return await service.SoftDelete(id).Match(
             response => Ok(response),
             error => error.ToHttpResult()
@@ -49,15 +47,14 @@ public class ProveedoresController(IProveedorService service) : ControllerBase
     }
 
     /// <summary>
-    ///     Actualiza los datos de un Proveedor existente.
+    /// Actualiza los datos de un Proveedor existente.
     /// </summary>
     /// <param name="dto">DTO con los nuevos datos del Proveedor.</param>
     /// <param name="id">Identificador del Proveedor que se desea actualizar.</param>
     /// <returns>Respuesta HTTP con el Proveedor actualizado o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpPut("{id}")]
-    public async Task<ActionResult<ProveedorDto>> Update([FromBody] UpdateProveedorDto dto, string id)
-    {
+    public async Task<ActionResult<ProveedorDto>> Update([FromBody] UpdateProveedorDto dto, string id) {
         return await service.Update(dto, id).Match(
             response => Ok(response),
             error => error.ToHttpResult<ProveedorDto>()
@@ -65,25 +62,23 @@ public class ProveedoresController(IProveedorService service) : ControllerBase
     }
 
     /// <summary>
-    ///     Obtiene todos los Proveedores disponibles.
+    /// Obtiene todos los Proveedores disponibles.
     /// </summary>
     /// <returns>Respuesta HTTP con la colección de Proveedores.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ProveedorDto>>> GetAll()
-    {
+    public async Task<ActionResult<IEnumerable<ProveedorDto>>> GetAll() {
         return Ok(await service.GetAll());
     }
 
     /// <summary>
-    ///     Obtiene un Proveedor mediante su identificador.
+    /// Obtiene un Proveedor mediante su identificador.
     /// </summary>
     /// <param name="id">Identificador del Proveedor que se desea consultar.</param>
     /// <returns>Respuesta HTTP con el Proveedor encontrado o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpGet("{id}")]
-    public async Task<ActionResult<ProveedorDto>> GetById(string id)
-    {
+    public async Task<ActionResult<ProveedorDto>> GetById(string id) {
         return await service.GetById(id).Match(
             response => Ok(response),
             error => error.ToHttpResult<ProveedorDto>()

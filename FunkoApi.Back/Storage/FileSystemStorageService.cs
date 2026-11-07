@@ -40,12 +40,7 @@ public class FileSystemStorageService : IStorageService {
         _logger.LogInformation("Storage service inicializado en: {Path}", _rootPath);
     }
 
-    /// <summary>
-    /// Valida el archivo y lo escribe en la carpeta indicada con un nombre generado.
-    /// </summary>
-    /// <param name="file">Archivo recibido que se quiere guardar.</param>
-    /// <param name="folder">Subcarpeta de destino dentro del almacenamiento.</param>
-    /// <returns>Un resultado con la referencia relativa al archivo o con el error de validación o guardado.</returns>
+    /// <inheritdoc cref="IStorageService.SaveFileAsync"/>
     public Task<Result<string, DomainError>> SaveFileAsync(IFormFile file, string folder) {
         var validation = ValidateFile(file);
         if (validation.IsFailure) return Task.FromResult(Result.Failure<string, DomainError>(validation.Error));
@@ -69,12 +64,7 @@ public class FileSystemStorageService : IStorageService {
         }
     }
 
-    /// <summary>
-    /// Intenta borrar el archivo indicado. Si no existe o no se proporciona una ruta,
-    /// considera la operación completada sin error.
-    /// </summary>
-    /// <param name="filename">Nombre o ruta del archivo que se quiere eliminar.</param>
-    /// <returns>Un resultado con true si no se produce una excepción, o con el error de borrado.</returns>
+    /// <inheritdoc cref="IStorageService.DeleteFileAsync"/>
     public Task<Result<bool, DomainError>> DeleteFileAsync(string filename) {
         if (string.IsNullOrEmpty(filename)) return Task.FromResult(Result.Success<bool, DomainError>(true));
         
@@ -91,22 +81,17 @@ public class FileSystemStorageService : IStorageService {
         }
     }
 
-    /// <summary>
-    /// Consulta si hay un archivo en la ubicación resuelta por GetFullPath.
-    /// </summary>
-    /// <param name="filename">Nombre o ruta que identifica el archivo.</param>
-    /// <returns>True si existe; false si no se encuentra o el argumento es nulo o vacío.</returns>
+    /// <inheritdoc cref="IStorageService.FileExists"/>
     public bool FileExists(string filename) {
         if (string.IsNullOrEmpty(filename)) return false;
         return File.Exists(GetFullPath(filename));
     }
 
-    /// <summary>
+    /// <inheritdoc cref="IStorageService.GetFullPath"/>
+    /// <remarks>
     /// Devuelve sin cambios las rutas que Path.IsPathRooted reconoce como enraizadas.
     /// Para las demás, retira el prefijo de uploads si aparece y las combina con la raíz del almacenamiento.
-    /// </summary>
-    /// <param name="filename">Nombre o ruta que se quiere resolver.</param>
-    /// <returns>La ruta recibida si está enraizada, o la ruta combinada con el almacenamiento.</returns>
+    /// </remarks>
     public string GetFullPath(string filename) {
         if (Path.IsPathRooted(filename)) return filename;
         var prefix = $"/{_uploadPath}/";
@@ -115,17 +100,12 @@ public class FileSystemStorageService : IStorageService {
         return Path.Combine(_rootPath, filename);
     }
 
-    /// <summary>
-    /// Construye una referencia al archivo sin incluir la ubicación física del proyecto.
-    /// </summary>
-    /// <param name="filename">Nombre del archivo que aparecerá en la referencia.</param>
-    /// <param name="folder">Subcarpeta del archivo; se utiliza funkos si no se indica otra.</param>
-    /// <returns>Una ruta con el formato /{carpeta de subidas}/{subcarpeta}/{archivo}.</returns>
+    /// <inheritdoc cref="IStorageService.GetRelativePath"/>
     public string GetRelativePath(string filename, string folder = "funkos") {
         return $"/{_uploadPath}/{folder}/{filename}";
     }
 
-   ///<inheritdoc/>
+    /// <inheritdoc cref="IStorageService.IsEmpty"/>
     public bool IsEmpty(IFormFile? file)
     {
         return file is null or { Length: 0 };
