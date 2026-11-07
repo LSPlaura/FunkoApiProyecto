@@ -3,12 +3,14 @@ using FunkoApi.Back.Cache;
 using FunkoApi.Back.Config;
 using FunkoApi.Back.Dto.Funko;
 using FunkoApi.Back.Errors;
+using FunkoApi.Back.Hub;
 using FunkoApi.Back.Mappers;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Repositories.Proveedor;
 using FunkoApi.Back.Services.Funko.Transactions;
 using FunkoApi.Back.Storage;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
@@ -29,9 +31,10 @@ public class FunkoServices(
     IStorageService storage,
     IOptions<StorageSettings> storageOptions,
     FunkoTransactionsService transactionsService,
+    IHubContext<FunkoHub> hubContext,
     ILogger<FunkoServices> logger
-    ) : IFunkoService
-{
+    ) : IFunkoService {
+    
     private readonly CacheOptions _cacheOptions = cacheOptions.Value;
     private readonly StorageSettings _storageOptions = storageOptions.Value;
     
@@ -91,6 +94,9 @@ public class FunkoServices(
         try {
             var result = await funkoRepository.Create(model);
             logger.LogInformation("Funko '{Nombre}' creado exitosamente sin imagen con ID {Id}", item.Nombre, result.Id);
+            
+            await NotifyFunkoCreadoAsync(result);
+            
             return result.ToDto();
         } catch (Exception ex) {
             logger.LogError(ex, "Error al crear el Funko sin imagen '{Nombre}' en la base de datos", item.Nombre);
@@ -126,6 +132,9 @@ public class FunkoServices(
         try {
             var result = await funkoRepository.Create(model);
             logger.LogInformation("Funko '{Nombre}' creado exitosamente con imagen con ID {Id}", item.Nombre, result.Id);
+            
+            await NotifyFunkoCreadoAsync(result);
+            
             return result.ToDto();
         } catch (Exception ex) {
             logger.LogError(ex, "Error al crear el Funko con imagen '{Nombre}', ejecutando limpieza de archivo guardado", item.Nombre);
@@ -293,5 +302,23 @@ public class FunkoServices(
         logger.LogDebug("Obteniendo todos los Funkos registrados");
         var lista = await funkoRepository.GetAll();
         return lista.Select(f => f.ToDto());
+    }
+    
+    private async Task NotifyFunkoCreadoAsync(Models.Funko funko) {
+        try {
+            var notificacion = new {
+                FunkoId = funko.Id,
+                Nombre = funko.Nombre,
+                Precio = funko.Precio,
+                Mensaje = $"Nuevo funko creado: {funko.Nombre}"
+            };
+
+            await hubContext.Clients
+                .Group("admins")
+                .SendAsync("FunkoCreado", notificacion);
+            
+        } catch (Exception ex) {
+            logger.LogWarning(ex, "Error al enviar notificación de funko creado");
+        }
     }
 }

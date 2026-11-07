@@ -16,6 +16,7 @@ services:
       - "2 - CATEGORIAS"
       - "3 - PROVEEDORES"
       - "4 - FUNKOS"
+      - "5 - SIGNALR HTTP"
       - --env-file
       - /run/bruno/environment.json
       - --delay

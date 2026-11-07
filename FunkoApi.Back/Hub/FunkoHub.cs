@@ -4,12 +4,12 @@ using Microsoft.AspNetCore.SignalR;
 
 namespace FunkoApi.Back.Hub;
 
-[Authorize]
+[Authorize(Roles = "ADMIN")]
 public class FunkoHub : Microsoft.AspNetCore.SignalR.Hub {
     
     public override async Task OnConnectedAsync() {
         var userId = Context.User?.FindFirstValue(ClaimTypes.NameIdentifier);
-        var isAdmin = Context.User?.IsInRole("Admin") ?? false;
+        var isAdmin = Context.User?.IsInRole("ADMIN") ?? false;
 
         if (userId is not null) await Groups.AddToGroupAsync(Context.ConnectionId, $"user-{userId}");
         if (isAdmin) await Groups.AddToGroupAsync(Context.ConnectionId, "admins");

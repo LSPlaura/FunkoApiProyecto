@@ -39,7 +39,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         [FromForm] int stock, 
         [FromForm] string categoriaId, 
         [FromForm] string proveedorId, 
-        [FromForm] IFormFile? archivo)
+        IFormFile? archivo)
     {
         var dto = new CreateFunkoDto { Nombre = nombre, Precio = precio, Stock =  stock, Categoria = categoriaId, Proveedor = proveedorId, Imagen = archivo };
         var result = await service.Create(dto);
@@ -82,7 +82,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         [FromForm] int stock, 
         [FromForm] string categoriaId, 
         [FromForm] string proveedorId, 
-        [FromForm] IFormFile? archivo, 
+        IFormFile? archivo, 
         int id)
     {
         var dto = new UpdateFunkoDto() { Nombre = nombre, Precio = precio, Stock =  stock, Categoria = categoriaId, Proveedor = proveedorId, Imagen = archivo };

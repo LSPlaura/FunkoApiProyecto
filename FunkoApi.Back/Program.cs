@@ -1,5 +1,6 @@
 using System.Text;
 using FunkoApi.Back.Config;
+using FunkoApi.Back.Hub;
 using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Middleware;
 using Microsoft.Extensions.Options;
@@ -26,8 +27,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddSerilog(Log.Logger);
 builder.Host.UseSerilog(Log.Logger);
 
-try
-{
+try {
     Log.Information("Iniciando la aplicación...");
 
     // ── CONFIGURACIÓN TIPADA ─────────────────────────────────────────────────
@@ -58,6 +58,19 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
+    // Registrar SignalR para las conexiones del hub de Funkos.
+    builder.Services.AddSignalR();
+    builder.Services.AddCors(options =>
+    {
+        options.AddPolicy("ClienteSignalR", policy =>
+            policy.WithOrigins(
+                    "http://127.0.0.1:3000",
+                    "http://127.0.0.1:5500")
+                .AllowAnyHeader()
+                .AllowAnyMethod()
+                .AllowCredentials());
+    });
+
     builder.Services
         .AddCache(builder.Configuration)
         .AddDatabases(builder.Configuration)
@@ -72,17 +85,18 @@ try
     app.UseSerilogRequestLogging();
 
     app.UseGlobalExceptionHandler();
+    app.UseCors("ClienteSignalR");
     
     app.UseAuthentication();
     app.UseAuthorization();
 
-    if (app.Environment.IsDevelopment())
-    {
+    if (app.Environment.IsDevelopment()) {
         app.UseSwagger();
         app.UseSwaggerUI();
     }
 
     app.MapControllers();
+    app.MapHub<FunkoHub>("/hubs/funkos");
     
     app.InitializeStorage(app.Configuration);
     await app.InitializeDatabaseAsync();
@@ -102,12 +116,8 @@ try
     Console.WriteLine("========================================");
 
     await app.RunAsync();
-}
-catch (Exception ex)
-{
+} catch (Exception ex) {
     Log.Fatal(ex, "La aplicación terminó de forma inesperada");
-}
-finally
-{
+} finally {
     await Log.CloseAndFlushAsync();
 }
