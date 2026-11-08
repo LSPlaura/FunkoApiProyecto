@@ -251,7 +251,7 @@ public class FunkoServices(
         }
         
         if (!await proveedorRepository.ExistsById(item.Proveedor)) {
-            logger.LogWarning("Actualización fallida: Proveedor con ID '{ProveedorId}' no válido", item.Proveedor);
+            logger.LogWarning("Actualización fallida: ProveedorType con ID '{ProveedorId}' no válido", item.Proveedor);
             return ProveedorError.ProveedorBadRequest(item.Proveedor);
         }
 

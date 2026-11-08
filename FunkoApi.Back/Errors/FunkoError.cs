@@ -63,6 +63,6 @@ public static class FunkoError
     /// <returns>Error de tipo BadRequestError.</returns>
     public static BadRequestError FunkoBadRequestProveedor(string name)
     {
-        return new BadRequestError($"Proveedor no encontrado para el Funko '{name}'");
+        return new BadRequestError($"ProveedorType no encontrado para el Funko '{name}'");
     }
 }
