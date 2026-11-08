@@ -16,13 +16,12 @@ public class FunkoType : ObjectType<Funko>
         descriptor.Field(f => f.Stock).Type<NonNullType<IntType>>();
         descriptor.Field(f => f.Imagen).Type<StringType>();
         
-        descriptor.Field("EstaDisponible")
-            .Type<NonNullType<BooleanType>>()
-            .Description("Indica si el funko está disponible (stock > 0)")
-            .Resolve(context => context.Parent<Funko>().Stock > 0);
-        
         descriptor.Field(f => f.Categoria)
             .Type<NonNullType<CategoriaType>>()
             .Description("Categoría del funko");
+        
+        descriptor.Field(f => f.ProveedorId)
+            .Type<NonNullType<ProveedorType>>()
+            .Description("Proveedor del funko");
     }
 }
