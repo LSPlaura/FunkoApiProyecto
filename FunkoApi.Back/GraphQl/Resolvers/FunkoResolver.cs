@@ -8,10 +8,15 @@ namespace FunkoApi.Back.GraphQl.Resolvers;
 public class FunkoResolver
 {
     /// <summary>
-    /// Campo calculado: disponible si hay stock mayor a 0.
+    /// Indica si el funko Funko está disponible para la venta basándose en si no ha sido eliminado.
     /// </summary>
-    public bool GetEstaDisponible([Parent] Funko producto)
+    /// <param name="funko">El objeto <see cref="Funko"/> padre al que pertenece este campo calculado.</param>
+    /// <returns>
+    /// <see langword="true"/> si el funko no está eliminado (<c>IsDeleted</c> es falso); 
+    /// de lo contrario, <see langword="false"/>.
+    /// </returns>
+    public bool GetEstaDisponible([Parent] Funko funko)
     {
-        return !producto.IsDeleted;
+        return !funko.IsDeleted;
     }
 }
