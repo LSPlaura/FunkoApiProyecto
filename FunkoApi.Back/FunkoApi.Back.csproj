@@ -10,7 +10,10 @@
 
     <ItemGroup>
         <PackageReference Include="CSharpFunctionalExtensions" Version="3.7.0" />
+        <PackageReference Include="GreenDonut" Version="16.7.3" />
         <PackageReference Include="HotChocolate" Version="16.7.3" />
+        <PackageReference Include="HotChocolate.AspNetCore.Authorization" Version="16.7.3" />
+        <PackageReference Include="HotChocolate.Data" Version="16.7.3" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="10.0.14" />
         <PackageReference Include="Microsoft.AspNetCore.Authorization" Version="10.0.14" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.14" />
