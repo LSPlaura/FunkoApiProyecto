@@ -1,0 +1,33 @@
+info:
+  name: "[005] OPTIONS - CORS origen permitido"
+  type: http
+  seq: 5
+
+http:
+  method: OPTIONS
+  url: "{{baseUrl}}/hubs/funkos/negotiate?negotiateVersion=1"
+  headers:
+    - name: Origin
+      value: http://127.0.0.1:3000
+    - name: Access-Control-Request-Method
+      value: POST
+    - name: Access-Control-Request-Headers
+      value: authorization,content-type
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("SignalR CORS permitido - Preflight 204", function () {
+            expect(res.getStatus()).to.equal(204);
+        });
+        test("SignalR CORS permitido - Origen exacto y credenciales", function () {
+            expect(res.getHeader("access-control-allow-origin")).to.equal("http://127.0.0.1:3000");
+            expect(res.getHeader("access-control-allow-credentials")).to.equal("true");
+            expect(res.getHeader("access-control-allow-methods")).to.include("POST");
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false

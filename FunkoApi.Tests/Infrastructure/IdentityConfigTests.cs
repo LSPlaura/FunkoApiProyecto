@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
@@ -63,5 +64,37 @@ public class IdentityConfigTests
             .Single().AllowedRoles.Should().Equal("ADMIN");
         authorization.GetPolicy("RequireUser")!.Requirements.OfType<RolesAuthorizationRequirement>()
             .Single().AllowedRoles.Should().BeEquivalentTo("USER", "ADMIN");
+    }
+
+    [TestCase("/hubs/funkos", "token-de-prueba", true)]
+    [TestCase("/hubs/funkos/negotiate", "token-de-prueba", true)]
+    [TestCase("/hubs/funkos", "", false)]
+    [TestCase("/hubs/funkos", null, false)]
+    [TestCase("/api/funkos", "token-de-prueba", false)]
+    [TestCase("/hubs/otro", "token-de-prueba", false)]
+    [TestCase("/hubs/funkos-otro", "token-de-prueba", false)]
+    public async Task OnMessageReceived_TokenEnQuery_SoloLoLeeEnRutaDelHub(string ruta, string? token, bool esperado)
+    {
+        // Arrange: se prueba la extraccion, no se usa ni valida un JWT real.
+        var configuration = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Jwt:Key"] = new string('t', 64), ["Jwt:Issuer"] = "tests", ["Jwt:Audience"] = "tests"
+        }).Build();
+        var services = new ServiceCollection();
+        services.AddLogging();
+        services.AddIdentityConfiguration(configuration, new Mock<IWebHostEnvironment>().Object);
+        using var provider = services.BuildServiceProvider();
+        var options = provider.GetRequiredService<IOptionsMonitor<JwtBearerOptions>>().Get("Bearer");
+        var httpContext = new DefaultHttpContext();
+        httpContext.Request.Path = ruta;
+        if (token is not null) httpContext.Request.QueryString = QueryString.Create("access_token", token);
+        var context = new MessageReceivedContext(httpContext,
+            new AuthenticationScheme("Bearer", null, typeof(JwtBearerHandler)), options);
+
+        // Act
+        await options.Events.MessageReceived(context);
+
+        // Assert
+        context.Token.Should().Be(esperado ? token : null);
     }
 }

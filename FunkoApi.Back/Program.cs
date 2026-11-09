@@ -108,7 +108,7 @@ try {
     }
 
     app.MapControllers();
-    app.MapHub<FunkoHub>("/hunks/funkos"); // <-- OJO: Verifica la ruta, antes estaba "/hubs/funkos"
+    app.MapHub<FunkoHub>("/hubs/funkos");
     
     app.InitializeStorage(app.Configuration);
     await app.InitializeDatabaseAsync();

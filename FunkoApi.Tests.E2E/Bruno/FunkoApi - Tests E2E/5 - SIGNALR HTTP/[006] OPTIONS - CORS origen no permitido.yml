@@ -1,0 +1,28 @@
+info:
+  name: "[006] OPTIONS - CORS origen no permitido"
+  type: http
+  seq: 6
+
+http:
+  method: OPTIONS
+  url: "{{baseUrl}}/hubs/funkos/negotiate?negotiateVersion=1"
+  headers:
+    - name: Origin
+      value: https://origen-no-permitido.example
+    - name: Access-Control-Request-Method
+      value: POST
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("SignalR CORS rechazado - Sin permiso para el navegador", function () {
+            expect(res.getStatus()).to.equal(204);
+            expect(res.getHeader("access-control-allow-origin")).to.equal(undefined);
+            expect(res.getHeader("access-control-allow-credentials")).to.equal(undefined);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false

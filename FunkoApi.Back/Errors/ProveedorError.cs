@@ -14,7 +14,7 @@ public static class ProveedorError
     /// <returns>Una instancia de <see cref="NotFoundError"/> configurada para el recurso proveedor.</returns>
     public static NotFoundError ProveedoraNotFound(string id)
     {
-        return NotFoundError.FromObjectId(id, "ProveedorType");
+        return NotFoundError.FromObjectId(id, "Proveedor");
     }
 
     /// <summary>
@@ -25,6 +25,6 @@ public static class ProveedorError
     /// <returns>Una instancia de <see cref="BadRequestError"/> con un mensaje descriptivo del fallo.</returns>
     public static BadRequestError ProveedorBadRequest(string id)
     {
-        return new BadRequestError($"ProveedorType con el ID {id} no encontrada");
+        return new BadRequestError($"Proveedor con el ID {id} no encontrada");
     }
 }
