@@ -3,6 +3,8 @@ using FunkoApi.Back.Config;
 using FunkoApi.Back.Hub;
 using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Middleware;
+using OpenApiSecurityScheme = Microsoft.OpenApi.OpenApiSecurityScheme;
+using OpenApiSecurityRequirement = Microsoft.OpenApi.OpenApiSecurityRequirement;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
@@ -46,7 +48,27 @@ try {
     .AddXmlDataContractSerializerFormatters();
 
     builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+    builder.Services.AddSwaggerGen(options =>
+    {
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+        {
+            Name = "Authorization",
+            Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = Microsoft.OpenApi.ParameterLocation.Header,
+            Description = "Introduce el token JWT"
+        });
+        
+        options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", document),
+                new List<string>()
+            }
+        });
+    });
+
 
     // ── SERVICIOS ADICIONALES ───────────────────────────────────────────────
     builder.Services.AddSignalR();
