@@ -17,8 +17,7 @@ public static class StorageConfig {
     public static IServiceCollection AddStorage(this IServiceCollection services, IConfiguration configuration) {
         Log.Information("Registrando servicio de almacenamiento de imagenes..");
         
-        services.Configure<StorageSettings>(
-            configuration.GetSection(StorageSettings.SectionName));
+        services.Configure<StorageSettings>(configuration.GetSection(StorageSettings.SectionName));
         
         return services.AddScoped<IStorageService, FileSystemStorageService>();
     }

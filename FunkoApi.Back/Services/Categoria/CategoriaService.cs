@@ -5,7 +5,6 @@ using FunkoApi.Back.Errors;
 using FunkoApi.Back.Mappers;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
-using FunkoApi.Back.Services.Get.Categoria;
 using Serilog;
 
 namespace FunkoApi.Back.Services.Categoria;

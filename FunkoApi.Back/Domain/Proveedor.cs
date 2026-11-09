@@ -4,7 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 namespace FunkoApi.Back.Models;
 
 /// <summary>
-///     Modelo que representa un proveedor de Funkos en la base de datos.
+/// Modelo que representa un proveedor de Funkos en la base de datos.
 /// </summary>
 public record Proveedor(
     [property: BsonId]

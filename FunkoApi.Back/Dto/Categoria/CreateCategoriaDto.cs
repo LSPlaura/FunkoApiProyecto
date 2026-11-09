@@ -5,8 +5,8 @@ namespace FunkoApi.Back.Dto.Categoria;
 /// <summary>
 /// Representa los datos necesarios para crear una nueva categoría en el sistema.
 /// </summary>
-public record CreateCategoriaDto
-{
+public record CreateCategoriaDto {
+    
     /// <summary>
     /// Obtiene o establece el nombre de la nueva categoría.
     /// </summary>

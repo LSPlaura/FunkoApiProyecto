@@ -8,20 +8,16 @@ using StackExchange.Redis;
 namespace FunkoApi.Back.Infrastructure;
 
 /// <summary>
-///     Configuración de caché.
+/// Configuración de caché.
 /// </summary>
-public static class CacheConfig
-{
+public static class CacheConfig {
     /// <summary>
-    ///     Registra el servicio de caché
+    /// Registra el servicio de caché
     /// </summary>
     /// <param name="services">Colección de servicios.</param>
     /// <param name="configuration">Configuración de la app.</param>
     /// <returns>IServiceCollection para encadenar.</returns>
-    public static IServiceCollection AddCache(
-        this IServiceCollection services,
-        IConfiguration configuration)
-    {
+    public static IServiceCollection AddCache(this IServiceCollection services, IConfiguration configuration) {
         // Registrar opciones de caché desde appsettings.json
         services.Configure<CacheOptions>(
             configuration.GetSection(CacheOptions.SectionName));
@@ -37,15 +33,13 @@ public static class CacheConfig
         Log.Information("💾 Configurando caché Redis en {Host}:{Port}...", redisHost, redisPort);
 
         // IDistributedCache (caché simple: Get/Set/Remove)
-        services.AddStackExchangeRedisCache(options =>
-        {
+        services.AddStackExchangeRedisCache(options => {
             options.Configuration = ConnectionStringGenerator.BuildRedis(redisHost, redisPort, redisPassword);
             options.InstanceName = configuration["Redis:RedisInstanceName"] ?? "funkoapi:";
         });
 
         // IConnectionMultiplexer (operaciones avanzadas: pub/sub, locks, etc.)
-        services.AddSingleton<IConnectionMultiplexer>(sp =>
-        {
+        services.AddSingleton<IConnectionMultiplexer>(sp => {
             Log.Information("🔗 Creando ConnectionMultiplexer de Redis...");
             return ConnectionMultiplexer.Connect(ConnectionStringGenerator.BuildRedis(redisHost, redisPort));
         });

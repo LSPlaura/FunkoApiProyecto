@@ -175,13 +175,9 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         var (items, totalPages, totalItems) = await service.GetPaged(page, pageSize);
         var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
         var linkHeader = PaginationHelper.CreateLinkHeader(page, totalPages, pageSize, baseUrl);
-        if (!string.IsNullOrEmpty(linkHeader))
-        {
-            Response.Headers["Link"] = linkHeader;
-        }
+        if (!string.IsNullOrEmpty(linkHeader)) Response.Headers["Link"] = linkHeader;
         
-        return Ok(new PagedResponse<FunkoDto>
-        {
+        return Ok(new PagedResponse<FunkoDto> {
             Data = items.ToList(),
             Pagination = new PageMetadata(page, pageSize, totalPages, totalItems)
         });

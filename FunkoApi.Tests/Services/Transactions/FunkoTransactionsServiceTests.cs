@@ -10,6 +10,7 @@ using FunkoApi.Back.Models;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Repositories.Proveedor;
+using FunkoApi.Back.Services.Email;
 using FunkoApi.Back.Services.Funko;
 using FunkoApi.Back.Services.Funko.Transactions;
 using FunkoApi.Back.Storage;
@@ -185,10 +186,12 @@ public class FunkoTransactionsServiceTests
         repositoryMock.Setup(r => r.GetById(1)).ReturnsAsync(funko);
         _cacheMock.Setup(c => c.GetAsync<FunkoModel>("funko:1", default)).ReturnsAsync(enCache ? funko : null);
         if (!exito) _storageMock.Setup(s => s.DeleteFileAsync(funko.Imagen)).ThrowsAsync(new IOException("Bloqueado"));
+        var emailQueue = new EmailQueueService();
         var service = new FunkoServices(repositoryMock.Object, new Mock<ICategoriaRepository>().Object,
             new Mock<IProveedorRepository>().Object, _cacheMock.Object, Options.Create(new CacheOptions()),
             _storageMock.Object, Options.Create(new StorageSettings()), _transactions,
             new Mock<IHubContext<FunkoHub>>().Object,
+            emailQueue,
             new Mock<ILogger<FunkoServices>>().Object);
 
         // Act
@@ -200,6 +203,19 @@ public class FunkoTransactionsServiceTests
         repositoryMock.Verify(r => r.GetById(1), enCache ? Times.Never() : Times.Once());
         _cacheMock.Verify(c => c.RemoveAsync("funko:1", default), exito ? Times.Once() : Times.Never());
         _storageMock.Verify(s => s.DeleteFileAsync(funko.Imagen), Times.Once);
+        emailQueue.Count.Should().Be(exito ? 1 : 0);
+        if (exito)
+        {
+            resultado.Value.Should().BeTrue();
+            using var cancellation = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+            var email = await emailQueue.DequeueAsync(cancellation.Token);
+            email.Should().NotBeNull();
+            email!.To.Should().Be("funkopopapi@gmail.com");
+            email.Subject.Should().Be($"Funko eliminado definitivamente: {funko.Nombre}");
+            email.Body.Should().Be($"Se ha realizado el borrado físico del Funko '{funko.Nombre}' con ID {funko.Id}.");
+            email.IsHtml.Should().BeFalse();
+            emailQueue.Count.Should().Be(0);
+        }
     }
 
     [TestCase(false, false)]
@@ -229,6 +245,7 @@ public class FunkoTransactionsServiceTests
         var service = new FunkoServices(repositoryMock.Object, categoriaMock.Object, proveedorMock.Object,
             _cacheMock.Object, Options.Create(new CacheOptions()), _storageMock.Object, storageOptions, _transactions,
             new Mock<IHubContext<FunkoHub>>().Object,
+            new EmailQueueService(),
             new Mock<ILogger<FunkoServices>>().Object);
         var dto = new UpdateFunkoDto { Nombre = falla ? new string('A', 101) : funko.Nombre, Precio = 20m,
             Stock = 5, Categoria = categoria.Id, Proveedor = proveedorId.ToString(), Imagen = archivo };

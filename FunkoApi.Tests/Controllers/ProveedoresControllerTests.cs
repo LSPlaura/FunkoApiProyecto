@@ -1,6 +1,7 @@
 using CSharpFunctionalExtensions;
 using FluentAssertions;
 using FunkoApi.Back.Controllers;
+using FunkoApi.Back.Dto.Proveedor;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Services.Proveedor;

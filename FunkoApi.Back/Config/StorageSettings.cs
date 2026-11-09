@@ -4,8 +4,7 @@ namespace FunkoApi.Back.Config;
 /// Representa la configuración para la gestión y almacenamiento de archivos y ficheros subidos al servidor.
 /// Se mapea automáticamente desde la sección correspondiente en el archivo de configuración (<c>appsettings.json</c>).
 /// </summary>
-public class StorageSettings
-{
+public class StorageSettings {
     /// <summary>
     /// Nombre de la sección en el archivo de configuración (por defecto: "Storage").
     /// </summary>

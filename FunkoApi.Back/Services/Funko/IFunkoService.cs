@@ -6,8 +6,8 @@ using FunkoApi.Back.Services.Common;
 namespace FunkoApi.Back.Services.Funko;
 
 /// <summary>
-///     Interfaz que define las operaciones del servicio de Funkos.
-///     Hereda las operaciones CRUD y añade la búsqueda por nombre.
+/// Interfaz que define las operaciones del servicio de Funkos.
+/// Hereda las operaciones CRUD y añade la búsqueda por nombre.
 /// </summary>
 public interface IFunkoService : ICrudService<CreateFunkoDto, UpdateFunkoDto, FunkoDto, long> {
     /// <summary>

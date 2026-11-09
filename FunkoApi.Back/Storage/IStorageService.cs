@@ -20,7 +20,7 @@ public interface IStorageService {
     /// Borra del almacenamiento el archivo identificado por su ruta relativa.
     /// </summary>
     /// <param name="filename">Ruta relativa que permite localizar el archivo que se quiere borrar.</param>
-    /// <returns>Un resultado con true si se borra, false si no se encuentra, o un error si falla la operación.</returns>
+    /// <returns>Éxito con true si no hay excepciones, incluso si el archivo ya no existe; error si falla el borrado.</returns>
     Task<Result<bool, DomainError>> DeleteFileAsync(string filename);
     
     /// <summary>

@@ -8,6 +8,7 @@ using FunkoApi.Back.Mappers;
 using FunkoApi.Back.Repositories.Categoria;
 using FunkoApi.Back.Repositories.Funko;
 using FunkoApi.Back.Repositories.Proveedor;
+using FunkoApi.Back.Services.Email;
 using FunkoApi.Back.Services.Funko.Transactions;
 using FunkoApi.Back.Storage;
 using Microsoft.AspNetCore.SignalR;
@@ -32,6 +33,7 @@ public class FunkoServices(
     IOptions<StorageSettings> storageOptions,
     FunkoTransactionsService transactionsService,
     IHubContext<FunkoHub> hubContext,
+    EmailQueueService emailQueue,
     ILogger<FunkoServices> logger
     ) : IFunkoService {
     
@@ -96,6 +98,13 @@ public class FunkoServices(
             logger.LogInformation("Funko '{Nombre}' creado exitosamente sin imagen con ID {Id}", item.Nombre, result.Id);
             
             await NotifyFunkoCreadoAsync(result);
+            emailQueue.Enqueue(new EmailMessage {
+                To = "funkopopapi@gmail.com",
+                Subject = $"Nuevo Funko: {result.Nombre}",
+                Body = $"Se ha creado el Funko '{result.Nombre}' con precio {result.Precio} €.",
+                IsHtml = false
+            });
+            logger.LogInformation("Email de notificación encolado para Funko {FunkoId}", result.Id);
             
             return result.ToDto();
         } catch (Exception ex) {
@@ -134,6 +143,13 @@ public class FunkoServices(
             logger.LogInformation("Funko '{Nombre}' creado exitosamente con imagen con ID {Id}", item.Nombre, result.Id);
             
             await NotifyFunkoCreadoAsync(result);
+            emailQueue.Enqueue(new EmailMessage {
+                To = "funkopopapi@gmail.com",
+                Subject = $"Nuevo Funko: {result.Nombre}",
+                Body = $"Se ha creado el Funko '{result.Nombre}' con precio {result.Precio} €.",
+                IsHtml = false
+            });
+            logger.LogInformation("Email de notificación encolado para Funko {FunkoId}", result.Id);
             
             return result.ToDto();
         } catch (Exception ex) {
@@ -210,6 +226,14 @@ public class FunkoServices(
         if (result) {
             logger.LogInformation("Borrado lógico exitoso para Funko ID {Id}, eliminando de caché", id);
             await cache.RemoveAsync(_funkoKey + id);
+            
+            emailQueue.Enqueue(new EmailMessage {
+                To = "funkopopapi@gmail.com",
+                Subject = $"Funko desactivado: {funko.Nombre}",
+                Body = $"Se ha realizado el borrado lógico del Funko '{funko.Nombre}' con ID {id}.",
+                IsHtml = false
+            });
+            logger.LogInformation("Email de borrado lógico encolado para Funko {FunkoId}", id);
         }
 
         return result;
@@ -232,6 +256,14 @@ public class FunkoServices(
         if (result.IsSuccess) {
             logger.LogInformation("Borrado físico exitoso para Funko ID {Id}, eliminando de caché", id);
             await cache.RemoveAsync(_funkoKey + id);
+            
+            emailQueue.Enqueue(new EmailMessage {
+                To = "funkopopapi@gmail.com",
+                Subject = $"Funko eliminado definitivamente: {funko.Nombre}",
+                Body = $"Se ha realizado el borrado físico del Funko '{funko.Nombre}' con ID {id}.",
+                IsHtml = false
+            });
+            logger.LogInformation("Email de borrado físico encolado para Funko {FunkoId}", id);
         }
 
         return result;
@@ -304,6 +336,15 @@ public class FunkoServices(
         return lista.Select(f => f.ToDto());
     }
     
+    /// <summary>
+    /// Comunica la creación de un funko a los administradores conectados mediante el evento FunkoCreado.
+    /// </summary>
+    /// <remarks>
+    /// Se invoca después de guardar la entidad. Si falla el aviso, registra el error
+    /// sin convertir en fallida la creación que ya se ha realizado.
+    /// </remarks>
+    /// <param name="funko">Entidad guardada cuyos datos se incluirán en el aviso.</param>
+    /// <returns>Una tarea que representa el intento de enviar la notificación.</returns>
     private async Task NotifyFunkoCreadoAsync(Models.Funko funko) {
         try {
             var notificacion = new {

@@ -6,6 +6,8 @@ no se han convertido ni renombrado archivos a `.bru`.
 Carpetas activas: `1 - AUTHENTICATION`, `2 - CATEGORIAS`,
 `3 - PROVEEDORES` y `4 - FUNKOS`, en ese orden.
 Ejecucion automatica con Docker e informes: [AUTOMATIZACION.md](AUTOMATIZACION.md).
+Revision de cobertura de email y limites de Bruno:
+[EMAIL-PRUEBAS.md](EMAIL-PRUEBAS.md).
 Las siguientes secciones detallan categorias. Para las nuevas carpetas,
 consultar [proveedores y funkos: orden, resultados y limites](PROVEEDORES-Y-FUNKOS.md).
 Hay 7 peticiones de regresion de Funkos fuera de la coleccion activa, en

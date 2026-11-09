@@ -1,0 +1,24 @@
+info:
+  name: "[004] POST - Negotiate token invalido"
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{baseUrl}}/hubs/funkos/negotiate?negotiateVersion=1"
+  auth:
+    type: bearer
+    token: "token-deliberadamente-invalido"
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("SignalR token invalido - Status 401", function () {
+            expect(res.getStatus()).to.equal(401);
+        });
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: false

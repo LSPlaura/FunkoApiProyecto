@@ -12,14 +12,12 @@ namespace FunkoApi.Back.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(IAuthService authService) : ControllerBase
-{
+public class AuthController(IAuthService authService) : ControllerBase {
     /// <summary>
     /// Inicia sesión con email y contraseña.
     /// </summary>
     [HttpPost("login")]
-    public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto)
-    {
+    public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto) {
         var result = await authService.LoginAsync(dto);
         return result.IsSuccess ? Ok(result.Value) : result.Error.ToHttpResult<AuthResponseDto>();
     }
@@ -28,8 +26,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// Registra un nuevo usuario.
     /// </summary>
     [HttpPost("signup")]
-    public async Task<ActionResult<AuthResponseDto>> Signup([FromBody] SignupDto dto)
-    {
+    public async Task<ActionResult<AuthResponseDto>> Signup([FromBody] SignupDto dto) {
         var result = await authService.SignupAsync(dto);
         return result.IsSuccess ? Ok(result.Value) : result.Error.ToHttpResult<AuthResponseDto>();
     }
@@ -39,8 +36,7 @@ public class AuthController(IAuthService authService) : ControllerBase
     /// </summary>
     [Authorize]
     [HttpGet("me")]
-    public async Task<ActionResult<UserDto>> GetMe()
-    {
+    public async Task<ActionResult<UserDto>> GetMe() {
         var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
         var result = await authService.GetMeAsync(userId);
         return result.IsSuccess ? Ok(result.Value) : result.Error.ToHttpResult<UserDto>();

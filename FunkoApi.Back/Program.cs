@@ -3,6 +3,7 @@ using FunkoApi.Back.Config;
 using FunkoApi.Back.Hub;
 using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Middleware;
+using FunkoApi.Back.Services.Email;
 using OpenApiSecurityScheme = Microsoft.OpenApi.OpenApiSecurityScheme;
 using OpenApiSecurityRequirement = Microsoft.OpenApi.OpenApiSecurityRequirement;
 using Microsoft.Extensions.Options;
@@ -35,19 +36,23 @@ try {
     // ── CONFIGURACIÓN TIPADA ─────────────────────────────────────────────────
     builder.Services.Configure<ApiConfig>(
         builder.Configuration.GetSection("Api"));
+
+    builder.Services.Configure<SmtpSettings>(
+        builder.Configuration.GetSection("Email"));
     
     // ── IDENTITY + JWT ─────────────────────────────────────────────────────
     builder.Services.AddIdentityConfiguration(builder.Configuration, builder.Environment);
 
-    // ── CONTROLADORES────────────────────────────────────────
+    // ── SERVICIOS ─────────────────────────────────────────────────────────────
     builder.Services.AddControllers(options =>
-    {
-        options.RespectBrowserAcceptHeader = true;
-        options.ReturnHttpNotAcceptable = true;
-    })
-    .AddXmlDataContractSerializerFormatters();
+        {
+            options.RespectBrowserAcceptHeader = true;
+            options.ReturnHttpNotAcceptable = true;
+        })
+        .AddXmlDataContractSerializerFormatters();
 
     builder.Services.AddEndpointsApiExplorer();
+    
     builder.Services.AddSwaggerGen(options =>
     {
         options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -59,7 +64,7 @@ try {
             In = Microsoft.OpenApi.ParameterLocation.Header,
             Description = "Introduce el token JWT"
         });
-        
+
         options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
         {
             {
@@ -69,9 +74,9 @@ try {
         });
     });
 
-
-    // ── SERVICIOS ADICIONALES ───────────────────────────────────────────────
+    // Registrar SignalR para las conexiones del hub de Funkos.
     builder.Services.AddSignalR();
+    // Permitir el cliente del editor en los dos orígenes locales utilizados, con credenciales.
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("ClienteSignalR", policy =>
@@ -93,12 +98,29 @@ try {
 
     builder.Services.AddGraphQlConfig(builder.Environment);
 
+    // Permite probar SMTP en desarrollo sin cambiar el entorno de toda la API.
+    var useSmtp = builder.Configuration.GetValue<bool>(
+        "Email:UseSmtp", !builder.Environment.IsDevelopment());
+
+    if (!useSmtp) {
+        Log.Information("Email: modo simulado en memoria. No se enviarán correos reales.");
+        builder.Services.AddScoped<IEmailService, MemoryEmailService>();
+    } else {
+        Log.Information("Email: envío real con MailKit.");
+        builder.Services.AddScoped<IEmailService, MailKitEmailService>();
+    }
+    builder.Services.AddSingleton<EmailQueueService>();
+    builder.Services.AddHostedService<EmailBackgroundWorker>();
+
     // ── PIPELINE DE MIDDLEWARES ───────────────────────────────────────────────
     var app = builder.Build();
 
     app.UseSerilogRequestLogging();
+
     app.UseGlobalExceptionHandler();
+    // Aplicar la política antes de comprobar autenticación y permisos.
     app.UseCors("ClienteSignalR");
+    
     app.UseAuthentication();
     app.UseAuthorization();
 
@@ -108,12 +130,13 @@ try {
     }
 
     app.MapControllers();
-    app.MapHub<FunkoHub>("/hunks/funkos"); // <-- OJO: Verifica la ruta, antes estaba "/hubs/funkos"
+    // Publicar el hub; su atributo Authorize limita la conexión al rol ADMIN.
+    app.MapHub<FunkoHub>("/hubs/funkos");
     
     app.InitializeStorage(app.Configuration);
     await app.InitializeDatabaseAsync();
 
-    // ── CONFIGURACIÓN TIPADA ────────────────────────────────────────────────
+    // ── CONFIGURACIÓN TIPADA: se lee y se muestra al arrancar ────────────────
     var apiConfig = app.Services.GetRequiredService<IOptions<ApiConfig>>().Value;
 
     Log.Information("API {Nombre}: {Mensaje}", apiConfig.Nombre, apiConfig.Mensaje);
@@ -128,12 +151,8 @@ try {
     Console.WriteLine("========================================");
 
     await app.RunAsync();
-}
-catch (Exception ex)
-{
+} catch (Exception ex) {
     Log.Fatal(ex, "La aplicación terminó de forma inesperada");
-}
-finally
-{
+} finally {
     await Log.CloseAndFlushAsync();
 }

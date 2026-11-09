@@ -5,8 +5,8 @@ namespace FunkoApi.Back.Dto.Categoria;
 /// <summary>
 /// Representa los datos necesarios para actualizar una categoría existente en el sistema.
 /// </summary>
-public record UpdateCategoriaDto
-{
+public record UpdateCategoriaDto {
+    
     /// <summary>
     /// Obtiene o establece el nuevo nombre para la categoría.
     /// </summary>

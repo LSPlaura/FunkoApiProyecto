@@ -2,7 +2,7 @@
 
 ## Estado y uso
 
-Se han escrito 23 peticiones en `3 - PROVEEDORES` y 49 en `4 - FUNKOS`.
+Se han escrito 23 peticiones en `3 - PROVEEDORES` y 50 en `4 - FUNKOS`.
 Hay otras 7 peticiones fuera de la coleccion activa, en `Pendientes/Funkos`.
 Son resultados **esperados segun el codigo revisado**, no una ejecucion
 confirmada. Se han revisado estaticamente los archivos, roles y orden.
@@ -161,6 +161,9 @@ logicamente al finalizar sus recorridos.
 | [047] Consultar Funko sin imagen borrado | 404 |
 | [048] Paginar Admin, pagina 1 tamano 2 | 200, `data` y `pagination` |
 | [049] Paginar User, pagina 1 tamano 2 | 200, `data` y `pagination` |
+| [050] Repetir borrado del Funko principal | 404, mensaje; pendiente de ejecucion |
+
+La revision de cobertura de email se detalla en [EMAIL-PRUEBAS.md](EMAIL-PRUEBAS.md).
 
 El ID inexistente es `2147483647`, dentro del rango `int` que recibe la
 accion aunque su restriccion de ruta sea `long`. Debe estar libre en la BD

@@ -1,6 +1,7 @@
 using FluentAssertions;
 using FunkoApi.Back.Cache;
 using FunkoApi.Back.Config;
+using FunkoApi.Back.Dto.Proveedor;
 using FunkoApi.Back.Dtos.Proveedor;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Mappers;

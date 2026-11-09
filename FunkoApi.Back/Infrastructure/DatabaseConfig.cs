@@ -9,15 +9,13 @@ using Serilog;
 namespace FunkoApi.Back.Infrastructure;
 
 /// <summary>
-///     Configuración de la base de datos.
+/// Configuración de la base de datos.
 /// </summary>
-public static class DatabaseConfig
-{
+public static class DatabaseConfig {
     /// <summary>
-    ///     Configura el proveedor de base de datos según las variables de entorno.
+    /// Configura el proveedor de base de datos según las variables de entorno.
     /// </summary>
-    public static IServiceCollection AddDatabases(this IServiceCollection services, IConfiguration configuration)
-    {
+    public static IServiceCollection AddDatabases(this IServiceCollection services, IConfiguration configuration) {
         // ==========================================
         // ---------- MongoDB (driver nativo) -------
         // ==========================================
@@ -31,30 +29,22 @@ public static class DatabaseConfig
         var mongoPortStr = configuration["MongoDb:Port"];
         int mongoPort = int.TryParse(mongoPortStr, out var parsedPort) ? parsedPort : 27017;
 
-        if (string.IsNullOrEmpty(mongoPortStr))
-        {
-            Log.Warning("No se encontró 'MongoDb:Port' en la configuración. Se utilizará el puerto por defecto: {DefaultPort}", 27017);
-        }
+        if (string.IsNullOrEmpty(mongoPortStr)) Log.Warning("No se encontró 'MongoDb:Port' en la configuración. Se utilizará el puerto por defecto: {DefaultPort}", 27017);
 
-        var connectionString = ConnectionStringGenerator.BuildMongoDb(
-            mongoHost, mongoPort, mongoDatabaseName, mongoUser, mongoPassword
-        );
+        var connectionString = ConnectionStringGenerator.BuildMongoDb(mongoHost, mongoPort, mongoDatabaseName, mongoUser, mongoPassword);
 
-        services.AddSingleton<IMongoClient>(_ =>
-        {
+        services.AddSingleton<IMongoClient>(_ => {
             Log.Information("Instanciando MongoClient para el host: {Host}:{Port}", mongoHost, mongoPort);
             return new MongoClient(connectionString);
         });
 
-        services.AddSingleton<IMongoDatabase>(sp =>
-        {
+        services.AddSingleton<IMongoDatabase>(sp => {
             Log.Information("Obteniendo la base de datos de MongoDB: {DatabaseName}", mongoDatabaseName);
             var client = sp.GetRequiredService<IMongoClient>();
             return client.GetDatabase(mongoDatabaseName);
         });
 
-        services.AddSingleton<DbContextMongo>(sp => 
-        {
+        services.AddSingleton<DbContextMongo>(sp => {
             Log.Information("Registrando DbContextMongo en el contenedor DI...");
             return new DbContextMongo(sp.GetRequiredService<IMongoDatabase>());
         });
@@ -73,16 +63,12 @@ public static class DatabaseConfig
         var pgUser = configuration["PostgresDb:User"] ?? "";
         var pgPassword = configuration["PostgresDb:Password"] ?? "";
 
-        if (string.IsNullOrEmpty(pgPortStr))
-        {
-            Log.Warning("No se encontró 'PostgresDb:Port' en la configuración. Se utilizará el puerto por defecto: {DefaultPort}", 5432);
-        }
+        if (string.IsNullOrEmpty(pgPortStr)) Log.Warning("No se encontró 'PostgresDb:Port' en la configuración. Se utilizará el puerto por defecto: {DefaultPort}", 5432);
 
         // Construir la cadena de conexión directamente (o usar un generador si lo tienes disponible)
         var pgConnectionString = $"Host={pgHost};Port={pgPort};Database={pgDatabase};Username={pgUser};Password={pgPassword}";
 
-        services.AddDbContext<AppDbContext>(options =>
-        {
+        services.AddDbContext<AppDbContext>(options => {
             Log.Information("Configurando el DbContext de PostgreSQL para el host: {Host}:{Port}", pgHost, pgPort);
             options.UseNpgsql(pgConnectionString);
         });

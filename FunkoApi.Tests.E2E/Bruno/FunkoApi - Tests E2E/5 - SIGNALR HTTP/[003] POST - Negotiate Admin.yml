@@ -19,9 +19,18 @@ runtime:
         });
         test("SignalR - Devuelve datos de negociacion", function () {
             const data = res.getBody();
+            expect(data.negotiateVersion).to.equal(1);
             expect(data.connectionId).to.be.a("string").and.not.empty;
             expect(data.connectionToken).to.be.a("string").and.not.empty;
             expect(data.availableTransports).to.be.an("array").and.not.empty;
+        });
+        test("SignalR - Anuncia transporte WebSockets", function () {
+            const transports = res.getBody().availableTransports;
+            const websocket = transports.find(function (item) {
+                return item.transport === "WebSockets";
+            });
+            expect(websocket).to.be.an("object");
+            expect(websocket.transferFormats).to.be.an("array").and.include("Text");
         });
 
 settings:
