@@ -37,28 +37,18 @@ try {
     // ── IDENTITY + JWT ─────────────────────────────────────────────────────
     builder.Services.AddIdentityConfiguration(builder.Configuration, builder.Environment);
 
-    // ── SERVICIOS ─────────────────────────────────────────────────────────────
+    // ── CONTROLADORES────────────────────────────────────────
     builder.Services.AddControllers(options =>
-        {
-            options.RespectBrowserAcceptHeader = true;
-            options.ReturnHttpNotAcceptable = true;
-        })
-        .AddXmlDataContractSerializerFormatters();
-
-    builder.Services.AddEndpointsApiExplorer();
-    
-    // ── SERVICIOS ─────────────────────────────────────────────────────────────
-    builder.Services.AddControllers(options =>
-        {
-            options.RespectBrowserAcceptHeader = true;
-            options.ReturnHttpNotAcceptable = true;
-        })
-        .AddXmlDataContractSerializerFormatters();
+    {
+        options.RespectBrowserAcceptHeader = true;
+        options.ReturnHttpNotAcceptable = true;
+    })
+    .AddXmlDataContractSerializerFormatters();
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-    // Registrar SignalR para las conexiones del hub de Funkos.
+    // ── SERVICIOS ADICIONALES ───────────────────────────────────────────────
     builder.Services.AddSignalR();
     builder.Services.AddCors(options =>
     {
@@ -79,14 +69,14 @@ try {
         .AddStorage(builder.Configuration)
         .AddServices();
 
+    builder.Services.AddGraphQlConfig(builder.Environment);
+
     // ── PIPELINE DE MIDDLEWARES ───────────────────────────────────────────────
     var app = builder.Build();
 
     app.UseSerilogRequestLogging();
-
     app.UseGlobalExceptionHandler();
     app.UseCors("ClienteSignalR");
-    
     app.UseAuthentication();
     app.UseAuthorization();
 
@@ -96,12 +86,12 @@ try {
     }
 
     app.MapControllers();
-    app.MapHub<FunkoHub>("/hubs/funkos");
+    app.MapHub<FunkoHub>("/hunks/funkos"); // <-- OJO: Verifica la ruta, antes estaba "/hubs/funkos"
     
     app.InitializeStorage(app.Configuration);
     await app.InitializeDatabaseAsync();
 
-    // ── CONFIGURACIÓN TIPADA: se lee y se muestra al arrancar ────────────────
+    // ── CONFIGURACIÓN TIPADA ────────────────────────────────────────────────
     var apiConfig = app.Services.GetRequiredService<IOptions<ApiConfig>>().Value;
 
     Log.Information("API {Nombre}: {Mensaje}", apiConfig.Nombre, apiConfig.Mensaje);
@@ -116,8 +106,12 @@ try {
     Console.WriteLine("========================================");
 
     await app.RunAsync();
-} catch (Exception ex) {
+}
+catch (Exception ex)
+{
     Log.Fatal(ex, "La aplicación terminó de forma inesperada");
-} finally {
+}
+finally
+{
     await Log.CloseAndFlushAsync();
 }
