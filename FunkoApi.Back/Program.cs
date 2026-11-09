@@ -4,6 +4,8 @@ using FunkoApi.Back.Hub;
 using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Middleware;
 using FunkoApi.Back.Services.Email;
+using OpenApiSecurityScheme = Microsoft.OpenApi.OpenApiSecurityScheme;
+using OpenApiSecurityRequirement = Microsoft.OpenApi.OpenApiSecurityRequirement;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
@@ -51,16 +53,26 @@ try {
 
     builder.Services.AddEndpointsApiExplorer();
     
-    // ── SERVICIOS ─────────────────────────────────────────────────────────────
-    builder.Services.AddControllers(options =>
+    builder.Services.AddSwaggerGen(options =>
+    {
+        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
         {
-            options.RespectBrowserAcceptHeader = true;
-            options.ReturnHttpNotAcceptable = true;
-        })
-        .AddXmlDataContractSerializerFormatters();
+            Name = "Authorization",
+            Type = Microsoft.OpenApi.SecuritySchemeType.Http,
+            Scheme = "bearer",
+            BearerFormat = "JWT",
+            In = Microsoft.OpenApi.ParameterLocation.Header,
+            Description = "Introduce el token JWT"
+        });
 
-    builder.Services.AddEndpointsApiExplorer();
-    builder.Services.AddSwaggerGen();
+        options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
+        {
+            {
+                new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", document),
+                new List<string>()
+            }
+        });
+    });
 
     // Registrar SignalR para las conexiones del hub de Funkos.
     builder.Services.AddSignalR();
@@ -83,6 +95,8 @@ try {
         .AddRepositories(builder.Configuration)
         .AddStorage(builder.Configuration)
         .AddServices();
+
+    builder.Services.AddGraphQlConfig(builder.Environment);
 
     // Permite probar SMTP en desarrollo sin cambiar el entorno de toda la API.
     var useSmtp = builder.Configuration.GetValue<bool>(
