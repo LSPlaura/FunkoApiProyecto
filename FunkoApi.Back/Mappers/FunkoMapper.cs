@@ -42,7 +42,7 @@ public static class FunkoMapper {
     //         dto.Precio,
     //         dto.Stock,
     //         dto.Categoria.ToModel(),
-    //         dto.Proveedor.ToModel(),
+    //         dto.ProveedorType.ToModel(),
     //         dto.IsDeleted,
     //         dto.CreatedAt,
     //         dto.UpdatedAt

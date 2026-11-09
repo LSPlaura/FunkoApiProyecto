@@ -19,36 +19,47 @@ public static class DatabaseInitializationExtensions {
     /// <returns>Una tarea que finaliza cuando termina la inicialización.</returns>
     public static async Task InitializeDatabaseAsync(this WebApplication app) {
         using var scope = app.Services.CreateScope();
+        var env = app.Services.GetRequiredService<IWebHostEnvironment>();
         
-        // ---------- MongoDB (driver nativo) ----------
-        Log.Information("Configurando MongoDB con driver nativo...");
+        if (env.IsDevelopment())
+        {
+            Log.Information("Entorno Development detectado - Ejecutando seeders...");
 
-        var mongoDatabase = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
-        
-        await mongoDatabase.Client.DropDatabaseAsync(mongoDatabase.DatabaseNamespace.DatabaseName);
-        Log.Information("[MongoDB] Base de datos eliminada y lista para resembrar.");
-        var mongoSeeder = scope.ServiceProvider.GetRequiredService<MongoSeeder>();
-        
-        await mongoSeeder.SeedAsync();
+            // ---------- MongoDB (driver nativo) ----------
+            Log.Information("Configurando MongoDB con driver nativo...");
+            
+            var mongoDatabase = scope.ServiceProvider.GetRequiredService<IMongoDatabase>();
+            
+            await mongoDatabase.Client.DropDatabaseAsync(mongoDatabase.DatabaseNamespace.DatabaseName);
+            Log.Information("[MongoDB] Base de datos eliminada y lista para resembrar.");
+            var mongoSeeder = scope.ServiceProvider.GetRequiredService<MongoSeeder>();
+            
+            await mongoSeeder.SeedAsync();
+            
+            Log.Information("[MongoDB] Sembrado de datos realizado");
 
-        Log.Information("[MongoDB] Sembrado de datos realizado");
+            // ---------- PostgreSQL (EF Core) ----------    
+            Log.Information("Configurando PostgreSQL con EF Core...");
 
-        // ---------- PostgreSQL (EF Core) ----------
-        Log.Information("Configurando PostgreSQL con EF Core...");
+            var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
-        var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            Log.Information("[EF Core] Eliminando y recreando la base de datos...");
+            await context.Database.EnsureDeletedAsync();
+            await context.Database.EnsureCreatedAsync();
 
-        Log.Information("[EF Core] Eliminando y recreando la base de datos...");
-        await context.Database.EnsureDeletedAsync();
-        await context.Database.EnsureCreatedAsync();
+            var efSeeder = scope.ServiceProvider.GetRequiredService<EfcSeeder>();
+            await efSeeder.SeedAsync();
 
-        var efSeeder = scope.ServiceProvider.GetRequiredService<EfcSeeder>();
-        await efSeeder.SeedAsync();
-
-        Log.Information("[EF Core] Base de datos recreada con sembrado de datos");
+            Log.Information("[EF Core] Base de datos recreada con sembrado de datos");
+        }
+        else
+        {
+            Log.Information("⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.");
+        }
         
         // ── Identity Seeder (después de recrear BD) ──────────────────────────
         await IdentitySeeder.SeedAsync(scope.ServiceProvider);
         Log.Information("[Identity] Sembrado de datos realizado");
+        
     }
 }
