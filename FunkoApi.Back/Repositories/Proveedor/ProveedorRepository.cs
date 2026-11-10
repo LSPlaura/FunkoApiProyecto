@@ -38,8 +38,10 @@ public class ProveedorMongoRepository : IProveedorRepository {
     public async Task<bool> SoftDelete(string id) {
         logger.LogInformation("Realizando borrado lógico de proveedor ID: {Id}", id);
         var objectId = ObjectId.Parse(id);
-        var resultado = await _collection.UpdateOneAsync(c => c.Id == objectId,
-            Builders<Models.Proveedor>.Update.Set(c => c.IsDeleted, true));
+        var resultado = await _collection.UpdateOneAsync(c => c.Id == objectId && !c.IsDeleted,
+            Builders<Models.Proveedor>.Update
+                .Set(c => c.IsDeleted, true)
+                .Set(c => c.UpdatedAt, DateTime.UtcNow));
 
         return resultado.ModifiedCount > 0;
     }
@@ -64,7 +66,7 @@ public class ProveedorMongoRepository : IProveedorRepository {
     public async Task<IEnumerable<Models.Proveedor>> GetAll() {
         logger.LogDebug("Obteniendo todos los proveedores");
         return await _collection
-            .Find(_ => true)
+            .Find(p => !p.IsDeleted)
             .SortBy(c => c.Nombre)
             .ToListAsync();
     }
@@ -72,8 +74,8 @@ public class ProveedorMongoRepository : IProveedorRepository {
     /// <summary>Recupera una página de proveedores y el total de documentos.</summary>
     public async Task<(IEnumerable<Models.Proveedor> Items, int TotalItems)> GetPaged(int page, int pageSize) {
         logger.LogDebug("Obteniendo página {Page} de proveedores con tamaño {PageSize}", page, pageSize);
-        var total = await _collection.CountDocumentsAsync(_ => true);
-        var items = await _collection.Find(_ => true)
+        var total = await _collection.CountDocumentsAsync(p => !p.IsDeleted);
+        var items = await _collection.Find(p => !p.IsDeleted)
             .SortBy(p => p.Nombre)
             .Skip((page - 1) * pageSize)
             .Limit(pageSize)
@@ -87,7 +89,7 @@ public class ProveedorMongoRepository : IProveedorRepository {
         logger.LogDebug("Obteniendo proveedor por ID: {Key}", key);
         var objectId = ObjectId.Parse(key);
         return await _collection
-            .Find(c => c.Id == objectId)
+            .Find(c => c.Id == objectId && !c.IsDeleted)
             .FirstOrDefaultAsync();
     }
 
@@ -96,7 +98,7 @@ public class ProveedorMongoRepository : IProveedorRepository {
         logger.LogDebug("Verificando existencia de proveedor por ID: {Key}", key);
         var objectId = ObjectId.Parse(key);
         return await _collection
-            .Find(c => c.Id == objectId)
+            .Find(c => c.Id == objectId && !c.IsDeleted)
             .AnyAsync();
     }
 }

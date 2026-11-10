@@ -28,9 +28,9 @@ Sin parámetros se utiliza página 1 y tamaño 10. Una página posterior a la
   En proveedores no se establece un orden adicional para nombres repetidos.
 
 Se mantienen los GET completos anteriores por compatibilidad. Para aprovechar
-esta optimización, los clientes deben utilizar las rutas `/paged`. No se ha
-cambiado GraphQL, el borrado lógico, los índices ni la caché. Estos listados
-siguen incluyendo los eliminados, como antes de este cambio.
+esta optimización, los clientes deben utilizar las rutas `/paged`.
+Tras la unificación del borrado lógico, los tres listados y sus totales
+excluyen eliminados. Véase [Borrado-Logico.md](Borrado-Logico.md).
 
 Esta ampliación añade dos operaciones: el backend pasa de 22 a 24 operaciones
 REST. La auditoría anterior de endpoints describe el alcance previo.

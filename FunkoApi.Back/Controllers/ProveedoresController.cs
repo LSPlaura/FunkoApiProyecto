@@ -85,7 +85,7 @@ public class ProveedoresController(IProveedorService service) : ControllerBase {
     [Authorize(Roles = "ADMIN")]
     [HttpGet]
     [SwaggerOperation(OperationId = "Proveedores_GetAll")]
-    [SwaggerResponse(200, "Lista sin paginar, ordenada por nombre; incluye los eliminados lógicamente.", typeof(IEnumerable<ProveedorDto>))]
+    [SwaggerResponse(200, "Lista sin paginar, ordenada por nombre; excluye los eliminados lógicamente.", typeof(IEnumerable<ProveedorDto>))]
     public async Task<ActionResult<IEnumerable<ProveedorDto>>> GetAll() {
         return Ok(await service.GetAll());
     }
@@ -97,7 +97,7 @@ public class ProveedoresController(IProveedorService service) : ControllerBase {
     [Authorize(Roles = "ADMIN")]
     [HttpGet("paged")]
     [SwaggerOperation(OperationId = "Proveedores_GetPaged")]
-    [SwaggerResponse(200, "Objeto data/pagination. Incluye eliminados lógicamente.", typeof(PagedResponse<ProveedorDto>))]
+    [SwaggerResponse(200, "Objeto data/pagination de proveedores activos.", typeof(PagedResponse<ProveedorDto>))]
     [SwaggerResponse(400, "page o pageSize no son enteros válidos.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult<PagedResponse<ProveedorDto>>> GetPaged(
         [FromQuery] int page = 1,
@@ -120,7 +120,7 @@ public class ProveedoresController(IProveedorService service) : ControllerBase {
     /// Obtiene un Proveedor mediante su identificador.
     /// </summary>
     /// <param name="id">ObjectId del proveedor: cadena de 24 dígitos hexadecimales.</param>
-    /// <remarks>Un ObjectId mal formado puede producir 500. La consulta no filtra IsDeleted.</remarks>
+    /// <remarks>Un ObjectId mal formado puede producir 500. La consulta excluye eliminados lógicamente.</remarks>
     /// <returns>Respuesta HTTP con el Proveedor encontrado o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpGet("{id}")]

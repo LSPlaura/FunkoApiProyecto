@@ -355,6 +355,7 @@ public class FunkoServicesTests
         _repositoryMock.Verify(r => r.GetById(1), enCache ? Times.Never() : Times.Once());
         _repositoryMock.Verify(r => r.SoftDelete(1), encontrado ? Times.Once() : Times.Never());
         _cacheMock.Verify(c => c.RemoveAsync("funko:1", default), encontrado && borrado ? Times.Once() : Times.Never());
+        _cacheMock.Verify(c => c.RemoveAsync("funko:Iron Man", default), encontrado && borrado ? Times.Once() : Times.Never());
         _emailQueue.Count.Should().Be(encontrado && borrado ? 1 : 0);
         if (encontrado && borrado)
         {

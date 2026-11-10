@@ -222,6 +222,7 @@ public class FunkoServices(
         if (result) {
             logger.LogInformation("Borrado lógico exitoso para Funko ID {Id}, eliminando de caché", id);
             await cache.RemoveAsync(_funkoKey + id);
+            await cache.RemoveAsync(_funkoKey + funko.Nombre);
             
             emailQueue.Enqueue(new EmailMessage {
                 To = "funkopopapi@gmail.com",
@@ -252,6 +253,7 @@ public class FunkoServices(
         if (result.IsSuccess) {
             logger.LogInformation("Borrado físico exitoso para Funko ID {Id}, eliminando de caché", id);
             await cache.RemoveAsync(_funkoKey + id);
+            await cache.RemoveAsync(_funkoKey + funko.Nombre);
             
             emailQueue.Enqueue(new EmailMessage {
                 To = "funkopopapi@gmail.com",

@@ -69,13 +69,13 @@ public class ProveedorMongoRepositoryTests
         var proveedores = nombres.Select((nombre, i) => new Back.Models.Proveedor(
             ObjectId.Parse($"{i + 1:000000000000000000000000}"), nombre, i == 3, fecha, fecha));
         await _database.GetCollection<Back.Models.Proveedor>("proveedores").InsertManyAsync(proveedores);
-        var esperados = nombres.OrderBy(n => n).Skip((page - 1) * size).Take(size).ToArray();
+        var esperados = nombres.Where(n => n != "Beta").OrderBy(n => n).Skip((page - 1) * size).Take(size).ToArray();
 
         // Act
         var resultado = await _repository.GetPaged(page, size);
 
         // Assert
-        resultado.TotalItems.Should().Be(5);
+        resultado.TotalItems.Should().Be(4);
         resultado.Items.Select(p => p.Nombre).Should().Equal(esperados);
     }
 
@@ -194,7 +194,13 @@ public class ProveedorMongoRepositoryTests
 
         // Assert
         resultado.Should().Be(existe);
-        if (existe) (await _repository.GetById(Id))!.IsDeleted.Should().BeTrue();
+        if (existe) {
+            var persistido = await _database.GetCollection<Back.Models.Proveedor>("proveedores")
+                .Find(p => p.Id == ObjectId.Parse(Id)).SingleAsync();
+            persistido.IsDeleted.Should().BeTrue();
+            persistido.UpdatedAt.Should().BeOnOrAfter(fecha);
+        }
+        (await _repository.GetById(Id)).Should().BeNull();
     }
 
     [Test]
@@ -210,6 +216,29 @@ public class ProveedorMongoRepositoryTests
 
         // Assert
         resultado.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task Consultas_ProveedorEliminado_LoOcultanSinBorrarloFisicamente() {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko", true, fecha, fecha);
+        await _repository.Create(proveedor);
+
+        // Act
+        var listado = await _repository.GetAll();
+        var pagina = await _repository.GetPaged(1, 10);
+        var porId = await _repository.GetById(Id);
+        var existe = await _repository.ExistsById(Id);
+
+        // Assert
+        listado.Should().BeEmpty();
+        pagina.Items.Should().BeEmpty();
+        pagina.TotalItems.Should().Be(0);
+        porId.Should().BeNull();
+        existe.Should().BeFalse();
+        (await _database.GetCollection<Back.Models.Proveedor>("proveedores")
+            .CountDocumentsAsync(p => p.Id == proveedor.Id)).Should().Be(1);
     }
 
     [TestCase(true)]
@@ -274,7 +303,10 @@ public class ProveedorMongoRepositoryTests
         await _repository.Update(proveedor with { Nombre = "Nuevo" });
 
         // Assert
-        (await _repository.GetById(Id)).Should().Be(proveedor);
+        var persistido = await _database.GetCollection<Back.Models.Proveedor>("proveedores")
+            .Find(p => p.Id == ObjectId.Parse(Id)).SingleAsync();
+        persistido.Should().Be(proveedor);
+        (await _repository.GetById(Id)).Should().BeNull();
     }
 
     [TestCase("", "GetById")]

@@ -26,7 +26,7 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     [Authorize(Roles = "ADMIN,USER")]
     [HttpGet]
     [SwaggerOperation(OperationId = "Categorias_GetAll")]
-    [SwaggerResponse(200, "Colección sin paginar. El repositorio actual incluye categorías eliminadas lógicamente.", typeof(IEnumerable<CategoriaDto>))]
+    [SwaggerResponse(200, "Colección sin paginar. Excluye categorías eliminadas lógicamente.", typeof(IEnumerable<CategoriaDto>))]
     public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetAll() {
         return Ok(await service.GetAll());
     }
@@ -38,7 +38,7 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     [Authorize(Roles = "ADMIN,USER")]
     [HttpGet("paged")]
     [SwaggerOperation(OperationId = "Categorias_GetPaged")]
-    [SwaggerResponse(200, "Objeto data/pagination. Incluye eliminados lógicamente.", typeof(PagedResponse<CategoriaDto>))]
+    [SwaggerResponse(200, "Objeto data/pagination de categorías activas.", typeof(PagedResponse<CategoriaDto>))]
     [SwaggerResponse(400, "page o pageSize no son enteros válidos.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult<PagedResponse<CategoriaDto>>> GetPaged(
         [FromQuery] int page = 1,

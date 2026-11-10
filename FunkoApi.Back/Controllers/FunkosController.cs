@@ -129,7 +129,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     [Authorize(Roles = "ADMIN,USER")]
     [HttpGet]
     [SwaggerOperation(OperationId = "Funkos_GetAll")]
-    [SwaggerResponse(200, "Lista sin paginar, ordenada por nombre. Actualmente incluye eliminados lógicamente.", typeof(IEnumerable<FunkoDto>))]
+    [SwaggerResponse(200, "Lista sin paginar, ordenada por nombre. Excluye eliminados lógicamente.", typeof(IEnumerable<FunkoDto>))]
     public async Task<ActionResult<IEnumerable<FunkoDto>>> GetAll() {
         return Ok(await service.GetAll());
     }
@@ -222,7 +222,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     [Authorize(Roles = "ADMIN,USER")]
     [HttpGet("paged")]
     [SwaggerOperation(OperationId = "Funkos_GetPaged")]
-    [SwaggerResponse(200, "Objeto data/pagination, con cabecera Link cuando procede. Incluye eliminados lógicamente.", typeof(PagedResponse<FunkoDto>))]
+    [SwaggerResponse(200, "Objeto data/pagination de Funkos activos, con cabecera Link cuando procede.", typeof(PagedResponse<FunkoDto>))]
     [SwaggerResponse(400, "page o pageSize no son enteros válidos. Los valores numéricos fuera de límites se ajustan, no se rechazan.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult<PagedResponse<FunkoDto>>> GetPaged(
         [FromQuery] int page = 1, 

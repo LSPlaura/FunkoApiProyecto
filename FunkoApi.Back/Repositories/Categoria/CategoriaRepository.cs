@@ -84,7 +84,7 @@ internal class CategoriaRepository(
     /// <inheritdoc cref="ICategoriaRepository.HardDelete" />
     public async Task<bool> HardDelete(Models.Categoria item) {
         logger.LogWarning("Realizando borrado físico de categoría ID: {Id}", item.Id);
-        if(await context.Categorias.FindAsync(item.Id) == null) return false;
+        if(await context.Categorias.IgnoreQueryFilters().AnyAsync(c => c.Id == item.Id) == false) return false;
         
         context.Categorias.Remove(item);
         await context.SaveChangesAsync();
@@ -94,7 +94,8 @@ internal class CategoriaRepository(
     /// <inheritdoc cref="ICategoriaRepository.ExistsByName" />
     public async Task<bool> ExistsByName(string name) {
         logger.LogDebug("Verificando existencia de categoría por nombre: {Name}", name);
-        return await context.Categorias.AsNoTracking().AnyAsync(c => c.Nombre == name);
+        // El índice único reserva también los nombres de las eliminadas.
+        return await context.Categorias.IgnoreQueryFilters().AsNoTracking().AnyAsync(c => c.Nombre == name);
     }
     
     /// <inheritdoc cref="ICategoriaRepository.ExistsById" />

@@ -84,13 +84,13 @@ public class CategoriaRepositoryTests
             new Categoria(nombre, i == 3, fecha, fecha, $"cat{i:00000000}")));
         await _context.SaveChangesAsync();
         _context.ChangeTracker.Clear();
-        var esperados = nombres.OrderBy(n => n).Skip((page - 1) * size).Take(size).ToArray();
+        var esperados = nombres.Where(n => n != "Beta").OrderBy(n => n).Skip((page - 1) * size).Take(size).ToArray();
 
         // Act
         var resultado = await _repository.GetPaged(page, size);
 
         // Assert
-        resultado.TotalItems.Should().Be(5);
+        resultado.TotalItems.Should().Be(4);
         resultado.Items.Select(c => c.Nombre).Should().Equal(esperados);
         _context.ChangeTracker.Entries().Should().BeEmpty();
     }
@@ -236,12 +236,13 @@ public class CategoriaRepositoryTests
 
         // Assert
         resultado.Should().Be(existe);
-        if (existe) (await _repository.GetById(Id))!.IsDeleted.Should().BeTrue();
-        else (await _repository.GetAll()).Should().BeEmpty();
+        if (existe) (await _context.Categorias.IgnoreQueryFilters().AsNoTracking().SingleAsync()).IsDeleted.Should().BeTrue();
+        (await _repository.GetById(Id)).Should().BeNull();
+        (await _repository.GetAll()).Should().BeEmpty();
     }
 
     [Test]
-    public async Task SoftDelete_YaEliminada_ConservaRegistroYActualizaFecha()
+    public async Task SoftDelete_YaEliminada_RetornaFalseYConservaFecha()
     {
         // Arrange
         var fecha = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
@@ -251,10 +252,54 @@ public class CategoriaRepositoryTests
         var resultado = await _repository.SoftDelete(Id);
 
         // Assert
-        resultado.Should().BeTrue();
-        var persistida = await _context.Categorias.AsNoTracking().SingleAsync();
+        resultado.Should().BeFalse();
+        var persistida = await _context.Categorias.IgnoreQueryFilters().AsNoTracking().SingleAsync();
         persistida.IsDeleted.Should().BeTrue();
-        persistida.UpdatedAt.Should().BeAfter(fecha);
+        persistida.UpdatedAt.Should().Be(fecha);
+    }
+
+    [Test]
+    public async Task Consultas_CategoriaEliminada_LaOcultanPeroReservanNombre() {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", true, fecha, fecha, Id);
+        await _repository.Create(categoria);
+        _context.ChangeTracker.Clear();
+
+        // Act
+        var listado = await _repository.GetAll();
+        var pagina = await _repository.GetPaged(1, 10);
+        var porId = await _repository.GetById(Id);
+        var porNombre = await _repository.GetByName(categoria.Nombre);
+        var existe = await _repository.ExistsById(Id);
+        var nombreReservado = await _repository.ExistsByName(categoria.Nombre);
+        var actualizada = await _repository.Update(categoria with { Nombre = "Nuevo" });
+
+        // Assert
+        listado.Should().BeEmpty();
+        pagina.Items.Should().BeEmpty();
+        pagina.TotalItems.Should().Be(0);
+        porId.Should().BeNull();
+        porNombre.Should().BeNull();
+        existe.Should().BeFalse();
+        nombreReservado.Should().BeTrue();
+        actualizada.Should().BeNull();
+        (await _context.Categorias.IgnoreQueryFilters().AsNoTracking().SingleAsync()).Nombre.Should().Be("Marvel");
+    }
+
+    [Test]
+    public async Task HardDelete_EliminadaSinTracking_EliminaRegistroFisico() {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = await _repository.Create(new Categoria("Marvel", true, fecha, fecha, Id));
+        _context.ChangeTracker.Clear();
+
+        // Act
+        var resultado = await _repository.HardDelete(categoria);
+
+        // Assert
+        resultado.Should().BeTrue();
+        (await _context.Categorias.IgnoreQueryFilters().CountAsync()).Should().Be(0);
     }
 
     [TestCase(true)]

@@ -80,6 +80,24 @@ public class CategoriaByIdDataLoaderTests
         _factoryMock.Verify(f => f.CreateDbContextAsync(CancellationToken.None), Times.Once);
     }
 
+    [Test]
+    public async Task LoadBatchAsync_CategoriaEliminada_NoLaDevuelve() {
+        // Arrange
+        await using (var context = new AppDbContext(_options)) {
+            var categoria = await context.Categorias.AsNoTracking().SingleAsync(c => c.Id == "marvel00001");
+            context.Categorias.Update(categoria with { IsDeleted = true });
+            await context.SaveChangesAsync();
+        }
+        var loader = CrearLoader();
+
+        // Act
+        var resultado = await loader.RunBatchAsync(new[] { "marvel00001", "anime000001" }, CancellationToken.None);
+
+        // Assert
+        resultado.Keys.Should().Equal("anime000001");
+        _factoryMock.Verify(f => f.CreateDbContextAsync(CancellationToken.None), Times.Once);
+    }
+
     [TestCase(true)]
     [TestCase(false)]
     public async Task Resolver_GetCategoria_DevuelveCategoriaOValorPorDefecto(bool existe)
