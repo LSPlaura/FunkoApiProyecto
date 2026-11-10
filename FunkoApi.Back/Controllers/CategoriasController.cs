@@ -1,5 +1,9 @@
 using CSharpFunctionalExtensions;
+using FunkoApi.Back.Dto;
+using FunkoApi.Back.Helpers;
 using FunkoApi.Back.Dto.Categoria;
+using FunkoApi.Back.Dto.Documentation;
+using Swashbuckle.AspNetCore.Annotations;
 using FunkoApi.Back.Extensions;
 using FunkoApi.Back.Services.Categoria;
 using Microsoft.AspNetCore.Authorization;
@@ -21,8 +25,36 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// <returns>Respuesta HTTP con la colección de categorías.</returns>
     [Authorize(Roles = "ADMIN,USER")]
     [HttpGet]
+    [SwaggerOperation(OperationId = "Categorias_GetAll")]
+    [SwaggerResponse(200, "Colección sin paginar. Excluye categorías eliminadas lógicamente.", typeof(IEnumerable<CategoriaDto>))]
     public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetAll() {
         return Ok(await service.GetAll());
+    }
+
+    /// <summary>Obtiene una página de categorías consultada en la base de datos.</summary>
+    /// <param name="page">Número de página, por defecto 1.</param>
+    /// <param name="pageSize">Tamaño de página, por defecto 10 y ajustado entre 1 y 100.</param>
+    /// <returns>Datos, metadatos y cabecera Link cuando procede.</returns>
+    [Authorize(Roles = "ADMIN,USER")]
+    [HttpGet("paged")]
+    [SwaggerOperation(OperationId = "Categorias_GetPaged")]
+    [SwaggerResponse(200, "Objeto data/pagination de categorías activas.", typeof(PagedResponse<CategoriaDto>))]
+    [SwaggerResponse(400, "page o pageSize no son enteros válidos.", typeof(ValidationProblemDetails))]
+    public async Task<ActionResult<PagedResponse<CategoriaDto>>> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10) {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var (items, totalPages, totalItems) = await service.GetPaged(page, pageSize);
+        var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
+        var linkHeader = PaginationHelper.CreateLinkHeader(page, totalPages, pageSize, baseUrl);
+        if (!string.IsNullOrEmpty(linkHeader)) Response.Headers["Link"] = linkHeader;
+
+        return Ok(new PagedResponse<CategoriaDto> {
+            Data = items.ToList(),
+            Pagination = new PageMetadata(page, pageSize, totalPages, totalItems)
+        });
     }
 
     /// <summary>
@@ -32,6 +64,9 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// <returns>Respuesta HTTP con la categoría encontrada o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN,USER")]
     [HttpGet("{id}")]
+    [SwaggerOperation(OperationId = "Categorias_GetById")]
+    [SwaggerResponse(200, "Categoría encontrada, con estado y fechas.", typeof(CategoriaDto))]
+    [SwaggerResponse(404, "No existe una categoría con ese identificador.", typeof(MessageErrorResponse))]
     public async Task<ActionResult<CategoriaDto>> GetById(string id) {
         return await service.GetById(id).Match(
             response => Ok(response),
@@ -46,6 +81,10 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// <returns>Respuesta HTTP con la categoria creado o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpPost]
+    [SwaggerOperation(OperationId = "Categorias_Create")]
+    [SwaggerResponse(201, "Categoría creada; cabecera Location con su URL.", typeof(CategoriaDto))]
+    [SwaggerResponse(400, "Nombre obligatorio, no vacío y de hasta 100 caracteres; JSON válido.", typeof(ValidationProblemDetails))]
+    [SwaggerResponse(409, "Nombre de categoría duplicado.", typeof(MessageErrorResponse))]
     public async Task<ActionResult<CategoriaDto>> Post(CreateCategoriaDto categoriaDto) {
         var res = await service.Create(categoriaDto);
         return res.Match(
@@ -61,6 +100,10 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// <returns>Respuesta HTTP con el resultado de la eliminación o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpDelete("{id}")]
+    [SwaggerOperation(OperationId = "Categorias_Delete")]
+    [SwaggerResponse(200, "Borrado lógico realizado. Cuerpo booleano true, no 204.", typeof(bool))]
+    [SwaggerResponse(400, "La categoría está asociada a Funkos o no se pudo efectuar el borrado.", typeof(MessageErrorResponse))]
+    [SwaggerResponse(404, "Categoría inexistente.", typeof(MessageErrorResponse))]
     public async Task<ActionResult> Delete(string id) {
         return await service.SoftDelete(id).Match(
             response => Ok(response),
@@ -76,6 +119,11 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// <returns>Respuesta HTTP con la categoria actualizada o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpPut("{id}")]
+    [SwaggerOperation(OperationId = "Categorias_Update")]
+    [SwaggerResponse(200, "Categoría actualizada.", typeof(CategoriaDto))]
+    [SwaggerResponse(400, "Nombre obligatorio y de hasta 100 caracteres; JSON válido.", typeof(ValidationProblemDetails))]
+    [SwaggerResponse(404, "Categoría inexistente o no encontrada al actualizar.", typeof(MessageErrorResponse))]
+    [SwaggerResponse(409, "El nuevo nombre pertenece a otra categoría.", typeof(MessageErrorResponse))]
     public async Task<ActionResult<CategoriaDto>> Update([FromBody] UpdateCategoriaDto dto, string id) {
         return await service.Update(dto, id).Match(
             response => Ok(response),
@@ -90,6 +138,10 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     /// <returns>Respuesta HTTP con la categoría encontrada o el error correspondiente.</returns>
     [Authorize(Roles = "ADMIN,USER")]
     [HttpGet("nombre")]
+    [SwaggerOperation(OperationId = "Categorias_GetByName")]
+    [SwaggerResponse(200, "Categoría con el nombre exacto indicado en name.", typeof(CategoriaDto))]
+    [SwaggerResponse(400, "Falta el parámetro obligatorio name.", typeof(ValidationProblemDetails))]
+    [SwaggerResponse(404, "No existe una categoría con ese nombre.", typeof(MessageErrorResponse))]
     public async Task<ActionResult<CategoriaDto>> GetByName([FromQuery] string name) {
         return await service.GetByName(name).Match(
             response => Ok(response),

@@ -198,13 +198,9 @@ public class FunkoServices(
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
         
-        var all = await funkoRepository.GetAll();
-        var list = all.ToList();
-        var totalItems = list.Count;
+        var (items, totalItems) = await funkoRepository.GetPaged(page, pageSize);
         
         var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-        
-        var items = list.Skip((page - 1) * pageSize).Take(pageSize);
         
         return (items.Select(p => p.ToDto()), totalPages, totalItems);
     }
@@ -226,6 +222,7 @@ public class FunkoServices(
         if (result) {
             logger.LogInformation("Borrado lógico exitoso para Funko ID {Id}, eliminando de caché", id);
             await cache.RemoveAsync(_funkoKey + id);
+            await cache.RemoveAsync(_funkoKey + funko.Nombre);
             
             emailQueue.Enqueue(new EmailMessage {
                 To = "funkopopapi@gmail.com",
@@ -256,6 +253,7 @@ public class FunkoServices(
         if (result.IsSuccess) {
             logger.LogInformation("Borrado físico exitoso para Funko ID {Id}, eliminando de caché", id);
             await cache.RemoveAsync(_funkoKey + id);
+            await cache.RemoveAsync(_funkoKey + funko.Nombre);
             
             emailQueue.Enqueue(new EmailMessage {
                 To = "funkopopapi@gmail.com",

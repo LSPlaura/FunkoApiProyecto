@@ -94,11 +94,15 @@ public class AuthServiceTests
         (await _context.Users.CountAsync(u => u.Email == dto.Email)).Should().Be(1);
     }
 
-    [Test]
-    public async Task SignupAsync_PasswordInvalida_RetornaBusinessRuleErrorSinCrearUsuario()
+    [TestCase("x")]
+    [TestCase("prueba123!")]
+    [TestCase("PRUEBA123!")]
+    [TestCase("PruebaSinNumero!")]
+    [TestCase("Prueba123SinSimbolo")]
+    public async Task SignupAsync_PasswordInvalida_RetornaBusinessRuleErrorSinCrearUsuario(string password)
     {
         // Arrange
-        var dto = new SignupDto("invalida@example.test", "x", "Lucia", "Pruebas");
+        var dto = new SignupDto("invalida@example.test", password, "Lucia", "Pruebas");
 
         // Act
         var resultado = await _service.SignupAsync(dto);
@@ -144,6 +148,23 @@ public class AuthServiceTests
         resultado.Value.Role.Should().Be(esperado);
         resultado.Value.Token.Should().NotBeNullOrWhiteSpace();
         resultado.Value.Email.Should().Be(user.Email);
+    }
+
+    [Test]
+    public async Task GetMeAsync_UsuarioSinEmail_RetornaCadenaVaciaEnPerfil()
+    {
+        // Arrange
+        // Dato existente sin email: no se crea mediante signup ni se alteran sus validaciones.
+        var user = new AppUser { UserName = "sin-email", Email = null, Nombre = "Lucia", Apellidos = "Pruebas" };
+        _context.Users.Add(user);
+        await _context.SaveChangesAsync();
+
+        // Act
+        var resultado = await _service.GetMeAsync(user.Id);
+
+        // Assert
+        resultado.IsSuccess.Should().BeTrue();
+        resultado.Value.Should().BeEquivalentTo(new UserDto(user.Id, "", user.Nombre, user.Apellidos, "USER"));
     }
 
     [Test]

@@ -1,5 +1,16 @@
 # FunkoApi.Back 🛍️
 
+## Documentación de endpoints (Swagger/OpenAPI)
+
+La auditoría de los 4 controladores y sus 22 operaciones está en
+[Doc/Auditoria-Endpoints-OpenAPI.md](Doc/Auditoria-Endpoints-OpenAPI.md).
+Con la API actualizada en Development: `/swagger/index.html` (interfaz) y
+`/swagger/v1/swagger.json` (documento OpenAPI). Incluye entradas, salidas, roles,
+errores reales y limitaciones detectadas; no implica que todos los fallos de negocio estén corregidos.
+
+Paginación en base de datos para Funkos, Categorías y Proveedores:
+[endpoints `/paged` y funcionamiento](Doc/Paginacion-BD.md).
+
 [![.NET](https://img.shields.io/badge/.NET-10-blue)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-10-blue)](https://dotnet.microsoft.com/en-us/apps/aspnet)
 [![C#](https://img.shields.io/badge/C%23-14-blue)](https://docs.microsoft.com/en-us/dotnet/csharp/)
@@ -145,6 +156,8 @@ Se sigue la pirámide de pruebas: **unitarios como base**, integración con cont
 
 ### Frameworks
 
+Resultados y límites de la ampliación de pruebas: [Doc/Pruebas-y-Cobertura.md](Doc/Pruebas-y-Cobertura.md).
+
 - **NUnit 4** + **Moq 4** + **FluentAssertions 8** (unitarios)
 - **Testcontainers 4** (PostgreSQL y MongoDB efímeros para integración)
 - **Bruno** (colección `FunkoApi - Tests E2E`)
@@ -152,14 +165,14 @@ Se sigue la pirámide de pruebas: **unitarios como base**, integración con cont
 ### Ejecución
 
 ```bash
-# Solo tests unitarios (rápidos, sin Docker)
-dotnet test --filter "FullyQualifiedName~Unit"
+# Tests sin integración (no requieren Docker)
+dotnet test --filter "TestCategory!=Integration"
 
 # Tests de integración (requiere Docker en ejecución)
-dotnet test --filter "FullyQualifiedName~Integration"
+dotnet test --filter "TestCategory=Integration"
 
-# Todo sin integración
-SKIP_INTEGRATION_TESTS=true dotnet test
+# Suite completa (incluye Testcontainers; requiere Docker)
+dotnet test
 ```
 
 ### Pruebas E2E con Bruno
@@ -203,6 +216,20 @@ Infrastructure (EF Core, MongoDB, Redis, Storage, Identity)
 
 ## 🔐 Seguridad (JWT y roles)
 
+### CORS por entorno
+
+`Program.cs` lee `Cors:AllowedOrigins` de la configuración. En Development
+se conservan `http://127.0.0.1:3000` y `http://127.0.0.1:5500`.
+En Production la lista queda vacía: configura el origen real del cliente
+en `appsettings.Production.json` o mediante `Cors__AllowedOrigins__0`
+(y `Cors__AllowedOrigins__1` para otro origen). Usa el origen completo,
+incluido esquema y puerto si corresponde, sin ruta ni barra final.
+Se mantienen las credenciales para SignalR y CORS antes de autenticación.
+
+Referencia: [UD02, configuración por entorno (25.2)](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/25-perfiles.md)
+y [CorsConfig del profesor](https://github.com/joseluisgs/TiendaDawApi-NetCore/blob/main/TiendaApi.Api/Infrastructures/CorsConfig.cs).
+Se adapta la lectura de orígenes, sin abrir todos los orígenes en desarrollo.
+
 - **Autenticación**: JWT simétrico con `HMAC-SHA256`. La clave proviene de variable de entorno `Jwt__Key`.
 - **Identity**: `AppUser : IdentityUser<long>` con email único, roles en tabla de unión `AspNetUserRoles` (no como propiedad de la entidad).
 - **Login**: `FindByEmailAsync` → `CheckPasswordSignInAsync(..., lockoutOnFailure: false)` → `GetRolesAsync` → generación de token.
@@ -227,8 +254,8 @@ Infrastructure (EF Core, MongoDB, Redis, Storage, Identity)
 | `CategoriasController` | `/api/categorias/{id}` | DELETE | ADMIN |
 | `FunkosController` | `/api/funkos` | GET | ADMIN, USER |
 | `FunkosController` | `/api/funkos/{id:long}` | GET | ADMIN |
-| `FunkosController` | `/api/funkos/{nombre}` | GET | ADMIN |
-| `FunkosController` | `/api/funkos/paged` | GET | Público |
+| `FunkosController` | `/api/funkos/nombre/{nombre}` | GET | ADMIN |
+| `FunkosController` | `/api/funkos/paged` | GET | ADMIN, USER |
 | `FunkosController` | `/api/funkos` | POST | ADMIN |
 | `FunkosController` | `/api/funkos/{id:long}` | PUT | ADMIN |
 | `FunkosController` | `/api/funkos/{id:long}` | DELETE | ADMIN |

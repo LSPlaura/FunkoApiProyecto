@@ -153,6 +153,58 @@ public class EfcSeederTests
     }
 
     [Test]
+    public async Task SeedAsync_TrasSembrar_PermiteCrearFunkoSinColisionDeId()
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var proveedores = new[]
+        {
+            new Proveedor(ObjectId.GenerateNewId(), "Funko Corp", false, fecha, fecha),
+            new Proveedor(ObjectId.GenerateNewId(), "Toy Master", false, fecha, fecha),
+            new Proveedor(ObjectId.GenerateNewId(), "Geek Toys", false, fecha, fecha)
+        };
+        _proveedorRepositoryMock.Setup(r => r.GetAll()).ReturnsAsync(proveedores);
+        await _seeder.SeedAsync();
+        _context.ChangeTracker.Clear();
+        var categoria = await _context.Categorias.SingleAsync(c => c.Nombre == "Marvel");
+        var nuevo = new Back.Models.Funko(0, "Nuevo Funko", 20m, 2, "nueva.png", categoria.Id,
+            categoria, proveedores[0].Id, false, fecha, fecha);
+
+        // Act
+        _context.Funkos.Add(nuevo);
+        await _context.SaveChangesAsync();
+
+        // Assert
+        nuevo.Id.Should().BeGreaterThan(3);
+        (await _context.Funkos.CountAsync()).Should().Be(4);
+        (await _context.Funkos.AsNoTracking().SingleAsync(f => f.Id == nuevo.Id)).Nombre.Should().Be("Nuevo Funko");
+        _proveedorRepositoryMock.Verify(r => r.GetAll(), Times.Once);
+    }
+
+    [TestCase("Marvel")]
+    [TestCase("Star Wars")]
+    [TestCase("Anime")]
+    public async Task SeedAsync_CategoriaExistenteEliminada_NoLaDuplicaNiCreaFunkos(string nombre)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria(nombre, true, fecha, fecha, "categoria01");
+        _context.Categorias.Add(categoria);
+        await _context.SaveChangesAsync();
+
+        // Act
+        await _seeder.SeedAsync();
+
+        // Assert
+        var persistida = await _context.Categorias.AsNoTracking().SingleAsync(c => c.Nombre == nombre);
+        persistida.Id.Should().Be(categoria.Id);
+        persistida.IsDeleted.Should().BeTrue();
+        (await _context.Categorias.CountAsync()).Should().Be(3);
+        (await _context.Funkos.CountAsync()).Should().Be(0);
+        _proveedorRepositoryMock.Verify(r => r.GetAll(), Times.Never);
+    }
+
+    [Test]
     public async Task SeedAsync_ErrorEnRepositorio_NoPropagaError()
     {
         // Arrange

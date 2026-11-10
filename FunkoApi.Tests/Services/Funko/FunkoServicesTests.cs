@@ -267,6 +267,69 @@ public class FunkoServicesTests
         _repositoryMock.Verify(r => r.GetByName(funko.Nombre), porId ? Times.Never() : Times.Once());
     }
 
+    [TestCase(true)]
+    [TestCase(false)]
+    public async Task GetByIdOGetByName_EncontradoEnCache_NoConsultaRepositorio(bool porId)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, CategoriaId);
+        var funko = new Back.Models.Funko(1, "Iron Man", 15m, 1, "imagen.png", CategoriaId,
+            categoria, ObjectId.Parse(ProveedorId), false, fecha, fecha);
+        var key = porId ? "funko:1" : "funko:Iron Man";
+        _cacheMock.Setup(c => c.GetOrSetAsync(key, It.IsAny<Func<Task<Back.Models.Funko?>>>(),
+            TimeSpan.FromMinutes(30), default)).ReturnsAsync(funko);
+
+        // Act
+        var resultado = porId ? await _service.GetById(1) : await _service.GetByName(funko.Nombre);
+
+        // Assert
+        resultado.IsSuccess.Should().BeTrue();
+        resultado.Value.Id.Should().Be(funko.Id);
+        resultado.Value.Categoria.Id.Should().Be(CategoriaId);
+        _cacheMock.Verify(c => c.GetOrSetAsync(key, It.IsAny<Func<Task<Back.Models.Funko?>>>(),
+            TimeSpan.FromMinutes(30), default), Times.Once);
+        _repositoryMock.Verify(r => r.GetById(It.IsAny<long>()), Times.Never);
+        _repositoryMock.Verify(r => r.GetByName(It.IsAny<string>()), Times.Never);
+    }
+
+    [Test]
+    public async Task Create_ArchivoVacio_UtilizaImagenPredeterminadaSinGuardarArchivo()
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, CategoriaId);
+        var archivoMock = new Mock<IFormFile>();
+        archivoMock.Setup(f => f.Length).Returns(0);
+        var dto = new CreateFunkoDto { Nombre = "Iron Man", Precio = 15m, Stock = 1,
+            Categoria = CategoriaId, Proveedor = ProveedorId, Imagen = archivoMock.Object };
+        _categoriaMock.Setup(r => r.ExistsById(CategoriaId)).ReturnsAsync(true);
+        _categoriaMock.Setup(r => r.GetById(CategoriaId)).ReturnsAsync(categoria);
+        _proveedorMock.Setup(r => r.ExistsById(ProveedorId)).ReturnsAsync(true);
+        _storageMock.Setup(s => s.GetRelativePath("default.png", "funkos")).Returns("/uploads/funkos/default.png");
+        _repositoryMock.Setup(r => r.Create(It.IsAny<Back.Models.Funko>()))
+            .ReturnsAsync((Back.Models.Funko f) => f with { Id = 1 });
+
+        // Act
+        var resultado = await _service.Create(dto);
+
+        // Assert
+        resultado.IsSuccess.Should().BeTrue();
+        resultado.Value.Imagen.Should().Be("/uploads/funkos/default.png");
+        _repositoryMock.Verify(r => r.ExitsName(dto.Nombre), Times.Once);
+        _categoriaMock.Verify(r => r.ExistsById(CategoriaId), Times.Once);
+        _categoriaMock.Verify(r => r.GetById(CategoriaId), Times.Once);
+        _proveedorMock.Verify(r => r.ExistsById(ProveedorId), Times.Once);
+        _repositoryMock.Verify(r => r.Create(It.Is<Back.Models.Funko>(f => f.Imagen == resultado.Value.Imagen)), Times.Once);
+        _storageMock.Verify(s => s.IsEmpty(archivoMock.Object), Times.Once);
+        _storageMock.Verify(s => s.GetRelativePath("default.png", "funkos"), Times.Once);
+        _storageMock.Verify(s => s.SaveFileAsync(It.IsAny<IFormFile>(), It.IsAny<string>()), Times.Never);
+        _storageMock.Verify(s => s.DeleteFileAsync(It.IsAny<string>()), Times.Never);
+        _adminClientsMock.Verify(c => c.SendCoreAsync("FunkoCreado", It.IsAny<object?[]>(),
+            It.IsAny<CancellationToken>()), Times.Once);
+        _emailQueue.Count.Should().Be(1);
+    }
+
     [TestCase(true, true, true)]
     [TestCase(true, false, true)]
     [TestCase(false, true, true)]
@@ -292,6 +355,7 @@ public class FunkoServicesTests
         _repositoryMock.Verify(r => r.GetById(1), enCache ? Times.Never() : Times.Once());
         _repositoryMock.Verify(r => r.SoftDelete(1), encontrado ? Times.Once() : Times.Never());
         _cacheMock.Verify(c => c.RemoveAsync("funko:1", default), encontrado && borrado ? Times.Once() : Times.Never());
+        _cacheMock.Verify(c => c.RemoveAsync("funko:Iron Man", default), encontrado && borrado ? Times.Once() : Times.Never());
         _emailQueue.Count.Should().Be(encontrado && borrado ? 1 : 0);
         if (encontrado && borrado)
         {
@@ -363,6 +427,43 @@ public class FunkoServicesTests
         _cacheMock.Verify(c => c.RemoveAsync(It.IsAny<string>(), default), Times.Never);
     }
 
+    [TestCase(false, false)]
+    [TestCase(false, true)]
+    [TestCase(true, false)]
+    [TestCase(true, true)]
+    public async Task Update_MismoNombreEImagenAusente_NoCompruebaDuplicadoNiGuardaArchivo(bool enCache, bool archivoVacio)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var funko = new Back.Models.Funko(1, "Iron Man", 15m, 1, "anterior.png", CategoriaId,
+            null, ObjectId.Parse(ProveedorId), false, fecha, fecha);
+        var archivoMock = new Mock<IFormFile>();
+        archivoMock.Setup(f => f.Length).Returns(0);
+        var dto = new UpdateFunkoDto { Nombre = funko.Nombre, Categoria = CategoriaId, Proveedor = ProveedorId,
+            Imagen = archivoVacio ? archivoMock.Object : null };
+        _cacheMock.Setup(c => c.GetAsync<Back.Models.Funko>("funko:1", default)).ReturnsAsync(enCache ? funko : null);
+        _repositoryMock.Setup(r => r.GetById(1)).ReturnsAsync(funko);
+        _proveedorMock.Setup(r => r.ExistsById(ProveedorId)).ReturnsAsync(true);
+        _categoriaMock.Setup(r => r.ExistsById(CategoriaId)).ReturnsAsync(true);
+
+        // Act
+        var resultado = await _service.Update(dto, 1);
+
+        // Assert
+        resultado.IsFailure.Should().BeTrue();
+        resultado.Error.Should().Be(new BadRequestError("No se ha mandado la imagen"));
+        _cacheMock.Verify(c => c.GetAsync<Back.Models.Funko>("funko:1", default), Times.Once);
+        _repositoryMock.Verify(r => r.GetById(1), enCache ? Times.Never() : Times.Once());
+        _proveedorMock.Verify(r => r.ExistsById(ProveedorId), Times.Once);
+        _categoriaMock.Verify(r => r.ExistsById(CategoriaId), Times.Once);
+        _repositoryMock.Verify(r => r.ExitsName(It.IsAny<string>()), Times.Never);
+        _storageMock.Verify(s => s.IsEmpty(dto.Imagen), Times.Once);
+        _storageMock.Verify(s => s.SaveFileAsync(It.IsAny<IFormFile>(), It.IsAny<string>()), Times.Never);
+        _storageMock.Verify(s => s.DeleteFileAsync(It.IsAny<string>()), Times.Never);
+        _cacheMock.Verify(c => c.RemoveAsync(It.IsAny<string>(), default), Times.Never);
+        _emailQueue.Count.Should().Be(0);
+    }
+
     [TestCase(1, 2, 4, 2)]
     [TestCase(2, 2, 4, 2)]
     [TestCase(0, 0, 4, 1)]
@@ -376,7 +477,10 @@ public class FunkoServicesTests
         var categoria = new Categoria("Marvel", false, fecha, fecha, CategoriaId);
         var funkos = Enumerable.Range(1, cantidad).Select(i => new Back.Models.Funko(i, $"Funko {i}", 15m, 1,
             "imagen.png", CategoriaId, categoria, ObjectId.Parse(ProveedorId), false, fecha, fecha)).ToList();
-        _repositoryMock.Setup(r => r.GetAll()).ReturnsAsync(funkos);
+        var pagina = Math.Max(page, 1);
+        var tamano = Math.Clamp(size, 1, 100);
+        var items = funkos.Skip((pagina - 1) * tamano).Take(tamano);
+        _repositoryMock.Setup(r => r.GetPaged(pagina, tamano)).ReturnsAsync((items, cantidad));
 
         // Act
         var resultado = await _service.GetPaged(page, size);
@@ -390,7 +494,8 @@ public class FunkoServicesTests
             var primerId = (Math.Max(page, 1) - 1) * Math.Clamp(size, 1, 100) + 1;
             resultado.Items.Select(f => f.Id).Should().Equal(Enumerable.Range(primerId, esperados).Select(i => (long)i));
         }
-        _repositoryMock.Verify(r => r.GetAll(), Times.Once);
+        _repositoryMock.Verify(r => r.GetPaged(pagina, tamano), Times.Once);
+        _repositoryMock.Verify(r => r.GetAll(), Times.Never);
     }
 
     [TestCase(true)]

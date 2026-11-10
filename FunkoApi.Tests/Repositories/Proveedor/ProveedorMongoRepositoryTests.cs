@@ -36,6 +36,81 @@ public class ProveedorMongoRepositoryTests
     public async Task OneTimeTearDown() => await _container.DisposeAsync();
 
     [Test]
+    public async Task Constructor_IndiceExistente_NoLoDuplicaYPermiteNombresRepetidos() {
+        // Arrange
+        var collection = _database.GetCollection<Back.Models.Proveedor>("proveedores");
+        var fecha = DateTime.UtcNow;
+        await _repository.Create(new Back.Models.Proveedor(ObjectId.GenerateNewId(), "Funko", false, fecha, fecha));
+
+        // Act
+        var repository = new ProveedorMongoRepository(_database,
+            new Mock<ILogger<ProveedorMongoRepository>>().Object);
+        await repository.Create(new Back.Models.Proveedor(ObjectId.GenerateNewId(), "Funko", false, fecha, fecha));
+        using var cursor = await collection.Indexes.ListAsync();
+        var indices = await cursor.ToListAsync();
+
+        // Assert
+        var indice = indices.Should().ContainSingle(i => i["name"] == "idx_proveedor_nombre").Which;
+        indice["key"].AsBsonDocument.Should().Equal(new BsonDocument("nombre", 1));
+        indice.GetValue("unique", false).AsBoolean.Should().BeFalse();
+        (await collection.CountDocumentsAsync(p => p.Nombre == "Funko")).Should().Be(2);
+    }
+
+    [TestCase(1, 2)]
+    [TestCase(2, 2)]
+    [TestCase(3, 2)]
+    [TestCase(10, 2)]
+    [TestCase(int.MaxValue, 1)]
+    public async Task GetPaged_ConDatos_RetornaPaginaOrdenadaYTotal(int page, int size)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var nombres = new[] { "Zeta", "Alpha", "Gamma", "Beta", "Omega" };
+        var proveedores = nombres.Select((nombre, i) => new Back.Models.Proveedor(
+            ObjectId.Parse($"{i + 1:000000000000000000000000}"), nombre, i == 3, fecha, fecha));
+        await _database.GetCollection<Back.Models.Proveedor>("proveedores").InsertManyAsync(proveedores);
+        var esperados = nombres.Where(n => n != "Beta").OrderBy(n => n).Skip((page - 1) * size).Take(size).ToArray();
+
+        // Act
+        var resultado = await _repository.GetPaged(page, size);
+
+        // Assert
+        resultado.TotalItems.Should().Be(4);
+        resultado.Items.Select(p => p.Nombre).Should().Equal(esperados);
+    }
+
+    [Test]
+    public async Task GetPaged_NombresRepetidos_RespetaTamanoYTotal()
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var idMayor = ObjectId.Parse("000000000000000000000002");
+        await _repository.Create(new Back.Models.Proveedor(idMayor, "Funko", false, fecha, fecha));
+        await _repository.Create(new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko", false, fecha, fecha));
+
+        // Act
+        var resultado = await _repository.GetPaged(2, 1);
+
+        // Assert
+        resultado.TotalItems.Should().Be(2);
+        resultado.Items.Should().ContainSingle().Which.Nombre.Should().Be("Funko");
+    }
+
+    [Test]
+    public async Task GetPaged_SinDatos_RetornaPaginaVaciaYTotalCero()
+    {
+        // Arrange
+        const int page = 1;
+
+        // Act
+        var resultado = await _repository.GetPaged(page, 10);
+
+        // Assert
+        resultado.Items.Should().BeEmpty();
+        resultado.TotalItems.Should().Be(0);
+    }
+
+    [Test]
     public async Task Create_ProveedorValido_PersisteProveedor()
     {
         // Arrange
@@ -119,7 +194,13 @@ public class ProveedorMongoRepositoryTests
 
         // Assert
         resultado.Should().Be(existe);
-        if (existe) (await _repository.GetById(Id))!.IsDeleted.Should().BeTrue();
+        if (existe) {
+            var persistido = await _database.GetCollection<Back.Models.Proveedor>("proveedores")
+                .Find(p => p.Id == ObjectId.Parse(Id)).SingleAsync();
+            persistido.IsDeleted.Should().BeTrue();
+            persistido.UpdatedAt.Should().BeOnOrAfter(fecha);
+        }
+        (await _repository.GetById(Id)).Should().BeNull();
     }
 
     [Test]
@@ -135,6 +216,29 @@ public class ProveedorMongoRepositoryTests
 
         // Assert
         resultado.Should().BeFalse();
+    }
+
+    [Test]
+    public async Task Consultas_ProveedorEliminado_LoOcultanSinBorrarloFisicamente() {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var proveedor = new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko", true, fecha, fecha);
+        await _repository.Create(proveedor);
+
+        // Act
+        var listado = await _repository.GetAll();
+        var pagina = await _repository.GetPaged(1, 10);
+        var porId = await _repository.GetById(Id);
+        var existe = await _repository.ExistsById(Id);
+
+        // Assert
+        listado.Should().BeEmpty();
+        pagina.Items.Should().BeEmpty();
+        pagina.TotalItems.Should().Be(0);
+        porId.Should().BeNull();
+        existe.Should().BeFalse();
+        (await _database.GetCollection<Back.Models.Proveedor>("proveedores")
+            .CountDocumentsAsync(p => p.Id == proveedor.Id)).Should().Be(1);
     }
 
     [TestCase(true)]
@@ -199,15 +303,27 @@ public class ProveedorMongoRepositoryTests
         await _repository.Update(proveedor with { Nombre = "Nuevo" });
 
         // Assert
-        (await _repository.GetById(Id)).Should().Be(proveedor);
+        var persistido = await _database.GetCollection<Back.Models.Proveedor>("proveedores")
+            .Find(p => p.Id == ObjectId.Parse(Id)).SingleAsync();
+        persistido.Should().Be(proveedor);
+        (await _repository.GetById(Id)).Should().BeNull();
     }
 
-    [TestCase("")]
-    [TestCase("no-es-objectid")]
-    public async Task GetById_IdInvalido_LanzaFormatException(string id)
+    [TestCase("", "GetById")]
+    [TestCase("no-es-objectid", "GetById")]
+    [TestCase("", "ExistsById")]
+    [TestCase("no-es-objectid", "ExistsById")]
+    [TestCase("", "SoftDelete")]
+    [TestCase("no-es-objectid", "SoftDelete")]
+    public async Task Operacion_IdInvalido_LanzaFormatException(string id, string operacion)
     {
         // Arrange
-        Func<Task> accion = () => _repository.GetById(id);
+        Func<Task> accion = operacion switch
+        {
+            "GetById" => async () => await _repository.GetById(id),
+            "ExistsById" => async () => await _repository.ExistsById(id),
+            _ => async () => await _repository.SoftDelete(id)
+        };
 
         // Act
         var resultado = accion.Should().ThrowAsync<FormatException>();

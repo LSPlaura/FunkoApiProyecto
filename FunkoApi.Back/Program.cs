@@ -4,8 +4,6 @@ using FunkoApi.Back.Hub;
 using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Middleware;
 using FunkoApi.Back.Services.Email;
-using OpenApiSecurityScheme = Microsoft.OpenApi.OpenApiSecurityScheme;
-using OpenApiSecurityRequirement = Microsoft.OpenApi.OpenApiSecurityRequirement;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
@@ -51,38 +49,17 @@ try {
         })
         .AddXmlDataContractSerializerFormatters();
 
-    builder.Services.AddEndpointsApiExplorer();
-    
-    builder.Services.AddSwaggerGen(options =>
-    {
-        options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-        {
-            Name = "Authorization",
-            Type = Microsoft.OpenApi.SecuritySchemeType.Http,
-            Scheme = "bearer",
-            BearerFormat = "JWT",
-            In = Microsoft.OpenApi.ParameterLocation.Header,
-            Description = "Introduce el token JWT"
-        });
-
-        options.AddSecurityRequirement(document => new OpenApiSecurityRequirement
-        {
-            {
-                new Microsoft.OpenApi.OpenApiSecuritySchemeReference("Bearer", document),
-                new List<string>()
-            }
-        });
-    });
+    builder.Services.AddSwaggerConfiguration();
 
     // Registrar SignalR para las conexiones del hub de Funkos.
     builder.Services.AddSignalR();
-    // Permitir el cliente del editor en los dos orígenes locales utilizados, con credenciales.
+    // Leer los orígenes del entorno activo y conservar las credenciales de SignalR.
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+        ?? Array.Empty<string>();
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("ClienteSignalR", policy =>
-            policy.WithOrigins(
-                    "http://127.0.0.1:3000",
-                    "http://127.0.0.1:5500")
+            policy.WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials());

@@ -6,6 +6,6 @@ namespace FunkoApi.Back.Dto.Auth;
 /// </summary>
 /// <param name="Token">Token de acceso JWT generado para autenticar las peticiones posteriores del usuario.</param>
 /// <param name="Email">Correo electrónico asociado a la cuenta del usuario autenticado.</param>
-/// <param name="Role">Rol o perfil de seguridad asignado al usuario (por ejemplo, Admin, User).</param>
-/// <param name="ExpiresAt">Fecha y hora exacta (en UTC o formato local) en la que el token perderá su validez.</param>
+/// <param name="Role">Rol o perfil de seguridad asignado al usuario: ADMIN o USER.</param>
+/// <param name="ExpiresAt">Fecha y hora UTC en la que el token perderá su validez.</param>
 public record AuthResponseDto(string Token, string Email, string Role, DateTime ExpiresAt);

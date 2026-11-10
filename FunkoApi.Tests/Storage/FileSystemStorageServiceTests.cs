@@ -86,6 +86,42 @@ public class FileSystemStorageServiceTests
         Directory.GetFiles(_directorio, "*", SearchOption.AllDirectories).Should().BeEmpty();
     }
 
+    [TestCase(9, true)]
+    [TestCase(10, true)]
+    [TestCase(11, false)]
+    public async Task SaveFileAsync_LimiteDeTamanoConfigurado_AceptaHastaElMaximoInclusive(int longitud, bool valido)
+    {
+        // Arrange
+        var configuracion = new ConfigurationBuilder().AddInMemoryCollection(new Dictionary<string, string?>
+        {
+            ["Storage:MaxFileSize"] = "10"
+        }).Build();
+        var servicio = new FileSystemStorageService(configuracion,
+            new Mock<ILogger<FileSystemStorageService>>().Object, _envMock.Object);
+        using var stream = new MemoryStream(new byte[longitud]);
+        var archivo = new FormFile(stream, 0, longitud, "archivo", "limite.png")
+        {
+            Headers = new HeaderDictionary(), ContentType = "image/png"
+        };
+
+        // Act
+        var resultado = await servicio.SaveFileAsync(archivo, "funkos");
+
+        // Assert
+        resultado.IsSuccess.Should().Be(valido);
+        var archivos = Directory.GetFiles(_directorio, "*", SearchOption.AllDirectories);
+        if (valido)
+        {
+            archivos.Should().ContainSingle();
+            File.ReadAllBytes(archivos.Single()).Should().Equal(new byte[longitud]);
+        }
+        else
+        {
+            resultado.Error.Should().Be(StorageError.ArchivoMuyGrande());
+            archivos.Should().BeEmpty();
+        }
+    }
+
     [TestCase(-1, true)]
     [TestCase(0, true)]
     [TestCase(1, false)]

@@ -1,4 +1,5 @@
 using System.Text.Json;
+using FunkoApi.Back.Dto.Documentation;
 using FluentAssertions;
 using FunkoApi.Back.Middleware;
 using Microsoft.AspNetCore.Builder;
@@ -52,8 +53,16 @@ public class GlobalExceptionHandlerTests
         json.RootElement.GetProperty("errorId").GetString().Should().HaveLength(8);
         json.RootElement.GetProperty("timestamp").GetDateTime().Kind.Should().Be(DateTimeKind.Utc);
         json.RootElement.GetProperty("method").GetString().Should().Be("POST");
-        // PathString se serializa con su propiedad Value en el Back actual.
-        json.RootElement.GetProperty("path").ToString().Should().Contain("/api/funkos");
+        var path = json.RootElement.GetProperty("path");
+        path.EnumerateObject().Select(p => p.Name).Should().BeEquivalentTo("value", "hasValue");
+        path.GetProperty("value").GetString().Should().Be("/api/funkos");
+        path.GetProperty("hasValue").GetBoolean().Should().BeTrue();
+        var documentada = JsonSerializer.Deserialize<ExceptionErrorResponse>(json.RootElement.GetRawText(),
+            new JsonSerializerOptions(JsonSerializerDefaults.Web));
+        documentada.Should().NotBeNull();
+        documentada!.Status.Should().Be(codigo);
+        documentada.Message.Should().Be(mensaje);
+        documentada.Path.Should().Be(new RequestPathResponse("/api/funkos", true));
         json.RootElement.ToString().Should().NotContain("Detalle privado");
         nextMock.Verify(n => n(contexto), Times.Once);
     }

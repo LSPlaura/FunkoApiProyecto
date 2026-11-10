@@ -47,6 +47,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             entity.Property(e => e.CreatedAt);
             entity.Property(e => e.UpdatedAt);
             entity.Property(e => e.IsDeleted);
+            entity.HasQueryFilter(f => !f.IsDeleted);
         });
 
         modelBuilder.Entity<Categoria>(entity => {
@@ -58,6 +59,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : IdentityDbCo
             entity.Property(e => e.CreatedAt);
             entity.Property(e => e.UpdatedAt);
             entity.Property(e => e.IsDeleted);
+            entity.HasQueryFilter(c => !c.IsDeleted);
         });
     }
 }

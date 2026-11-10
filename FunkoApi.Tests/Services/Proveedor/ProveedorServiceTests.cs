@@ -38,6 +38,28 @@ public class ProveedorServiceTests
             new Mock<ILogger<ProveedorService>>().Object);
     }
 
+    [TestCase(2, 2, 2, 2, 5)]
+    [TestCase(0, 0, 1, 1, 5)]
+    [TestCase(-1, 200, 1, 100, 5)]
+    [TestCase(1, 10, 1, 10, 0)]
+    public async Task GetPaged_Parametros_NormalizaYMapeaSoloLaPagina(int page, int size, int pagina, int tamano, int total)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var items = total == 0 ? Array.Empty<Proveedor>() : new[] { new Proveedor(ObjectId.Parse(Id), "Funko Corp", false, fecha, fecha) };
+        _repositoryMock.Setup(r => r.GetPaged(pagina, tamano)).ReturnsAsync((items.AsEnumerable(), total));
+
+        // Act
+        var resultado = await _service.GetPaged(page, size);
+
+        // Assert
+        resultado.Items.Should().BeEquivalentTo(items.Select(p => p.ToDto()));
+        resultado.TotalItems.Should().Be(total);
+        resultado.TotalPages.Should().Be((int)Math.Ceiling((double)total / tamano));
+        _repositoryMock.Verify(r => r.GetPaged(pagina, tamano), Times.Once);
+        _repositoryMock.Verify(r => r.GetAll(), Times.Never);
+    }
+
     [TestCase(true)]
     [TestCase(false)]
     public async Task GetAll_ConYSinDatos_RetornaDtos(bool conDatos)

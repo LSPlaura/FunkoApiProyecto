@@ -1,6 +1,8 @@
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Dto;
 using FunkoApi.Back.Dto.Funko;
+using FunkoApi.Back.Dto.Documentation;
+using Swashbuckle.AspNetCore.Annotations;
 using FunkoApi.Back.Extensions;
 using FunkoApi.Back.Helpers;
 using FunkoApi.Back.Services.Funko;
@@ -31,8 +33,21 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// <param name="proveedorId">Identificador del proveedor asociado.</param>
     /// <param name="archivo">Archivo de imagen opcional para el Funko.</param>
     /// <returns>Respuesta HTTP 201 (Created) con el DTO del Funko recién creado, o un error detallado si falla.</returns>
+    /// <remarks>
+    /// Enviar multipart/form-data con nombre, precio, stock, categoriaId, proveedorId y archivo opcional.
+    /// proveedorId debe ser un ObjectId hexadecimal de 24 caracteres; categoriaId es el ID textual de categoría.
+    /// Sin imagen se usa la predeterminada. Las Data Annotations de CreateFunkoDto no se ejecutan automáticamente,
+    /// porque el DTO se construye dentro de la acción; no se garantizan sus rangos en este endpoint.
+    /// Tras guardar se avisa por SignalR y se encola un correo al destinatario configurado en el servicio,
+    /// no al usuario autenticado. El 201 no garantiza la entrega del correo.
+    /// </remarks>
     [Authorize(Roles = "ADMIN")]
     [HttpPost]
+    [SwaggerOperation(OperationId = "Funkos_Create")]
+    [SwaggerResponse(201, "Funko creado con categoría anidada, fechas, imagen y cabecera Location. No incluye proveedor en la salida.", typeof(FunkoDto))]
+    [SwaggerResponse(400, "Formulario inválido o categoría/proveedor inexistentes.", typeof(MessageErrorResponse))]
+    [SwaggerResponse(409, "Nombre duplicado o excepción capturada al guardar el Funko.", typeof(MessageErrorResponse))]
+    [SwaggerResponse(422, "La imagen supera el tamaño configurado o incumple extensión, MIME o nombre.", typeof(MessageErrorResponse))]
     public async Task<ActionResult<FunkoDto>> Create(
         [FromForm] string nombre, 
         [FromForm] decimal precio, 
@@ -56,6 +71,10 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// <returns>Respuesta HTTP 200 (OK) con el resultado booleano de la operación, o un error si no se encuentra.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpDelete("{id:long}")]
+    [SwaggerOperation(OperationId = "Funkos_Delete")]
+    [SwaggerResponse(200, "Resultado booleano del borrado lógico; se encola un email si es true.", typeof(bool))]
+    [SwaggerResponse(400, "El identificador supera el rango Int32 que recibe actualmente la acción.", typeof(ValidationProblemDetails))]
+    [SwaggerResponse(404, "Funko inexistente o ya eliminado, salvo que exista una entrada de caché previa.", typeof(MessageErrorResponse))]
     public async Task<ActionResult> Delete(int id) {
         return await service.SoftDelete(id).Match(
             response => Ok(response),
@@ -64,18 +83,29 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     }
 
     /// <summary>
-    /// Actualiza por completo la información de un Funko existente (PUT).
+    /// Actualiza la información de un Funko existente (PUT); el servicio exige una imagen nueva.
     /// </summary>
     /// <param name="nombre">Nombre actualizado del Funko.</param>
     /// <param name="precio">Precio actualizado del Funko.</param>
     /// <param name="stock">Stock actualizado.</param>
     /// <param name="categoriaId">Identificador de la nueva categoría.</param>
     /// <param name="proveedorId">Identificador del nuevo proveedor.</param>
-    /// <param name="archivo">Nueva imagen opcional para reemplazar la actual.</param>
+    /// <param name="archivo">Nueva imagen. Aunque el parámetro es nullable, el servicio devuelve 400 si falta o está vacía.</param>
     /// <param name="id">Identificador del Funko que se desea actualizar.</param>
     /// <returns>Respuesta HTTP 200 (OK) con el Funko actualizado, o un error correspondiente.</returns>
+    /// <remarks>
+    /// Formulario multipart/form-data. Se recibe proveedorId como ObjectId de 24 caracteres.
+    /// El DTO se crea dentro de la acción: sus rangos de precio, stock y longitud no se validan automáticamente.
+    /// El id de esta acción es Int32 aunque la ruta tiene restricción long. No se encola email al actualizar.
+    /// </remarks>
     [Authorize(Roles = "ADMIN")]
     [HttpPut("{id:long}")]
+    [SwaggerOperation(OperationId = "Funkos_Update")]
+    [SwaggerResponse(200, "Funko actualizado con categoría anidada.", typeof(FunkoDto))]
+    [SwaggerResponse(400, "Binding inválido, categoría/proveedor inexistentes o imagen ausente/vacía.", typeof(MessageErrorResponse))]
+    [SwaggerResponse(404, "Funko inexistente.", typeof(MessageErrorResponse))]
+    [SwaggerResponse(409, "Nombre duplicado.", typeof(MessageErrorResponse))]
+    [SwaggerResponse(422, "Imagen inválida o error transaccional de actualización.", typeof(MessageErrorResponse))]
     public async Task<ActionResult<FunkoDto>> Update(
         [FromForm] string nombre, 
         [FromForm] decimal precio, 
@@ -98,6 +128,8 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// <returns>Respuesta HTTP 200 (OK) con la colección de Funkos.</returns>
     [Authorize(Roles = "ADMIN,USER")]
     [HttpGet]
+    [SwaggerOperation(OperationId = "Funkos_GetAll")]
+    [SwaggerResponse(200, "Lista sin paginar, ordenada por nombre. Excluye eliminados lógicamente.", typeof(IEnumerable<FunkoDto>))]
     public async Task<ActionResult<IEnumerable<FunkoDto>>> GetAll() {
         return Ok(await service.GetAll());
     }
@@ -109,6 +141,10 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// <returns>Respuesta HTTP 200 (OK) con el Funko encontrado, o un error 404 si no existe.</returns>
     [Authorize(Roles = "ADMIN")]
     [HttpGet("{id:long}")]
+    [SwaggerOperation(OperationId = "Funkos_GetById")]
+    [SwaggerResponse(200, "Funko encontrado, con categoría anidada; el repositorio excluye eliminados.", typeof(FunkoDto))]
+    [SwaggerResponse(400, "Número fuera del rango Int32 admitido por la acción.", typeof(ValidationProblemDetails))]
+    [SwaggerResponse(404, "Funko inexistente o eliminado; la caché puede afectar al resultado.", typeof(MessageErrorResponse))]
     public async Task<ActionResult<FunkoDto>> GetById(int id) {
         return await service.GetById(id).Match(
             response => Ok(response),
@@ -121,8 +157,15 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// </summary>
     /// <param name="nombre">Nombre del Funko que se desea consultar.</param>
     /// <returns>Respuesta HTTP 200 (OK) con el Funko encontrado, o un error si no existe.</returns>
+    /// <remarks>
+    /// La búsqueda usa /api/Funkos/nombre/{nombre}, separada de la consulta por id y de la paginación.
+    /// Permite buscar nombres numéricos o el nombre paged sin confundirlos con otras operaciones.
+    /// </remarks>
     [Authorize(Roles = "ADMIN")]
-    [HttpGet("{nombre}")]
+    [HttpGet("nombre/{nombre}")]
+    [SwaggerOperation(OperationId = "Funkos_GetByNombre")]
+    [SwaggerResponse(200, "Funko cuyo nombre coincide exactamente.", typeof(FunkoDto))]
+    [SwaggerResponse(404, "No existe un Funko activo con ese nombre.", typeof(MessageErrorResponse))]
     public async Task<ActionResult<FunkoDto>> GetByNombre(string nombre) {
         return await service.GetByName(nombre).Match(
             response => Ok(response),
@@ -131,13 +174,26 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     }
     
     /// <summary>
-    /// Actualiza únicamente la imagen asociada a un Funko, eliminando la anterior del almacenamiento de forma segura.
+    /// Intenta actualizar la imagen asociada a un Funko; véanse las limitaciones del flujo en las observaciones.
     /// </summary>
     /// <param name="id">Identificador único del Funko cuya imagen se va a modificar.</param>
     /// <param name="archivo">Nuevo archivo de imagen recibido mediante el formulario.</param>
     /// <returns>Respuesta HTTP 200 (OK) con el Funko actualizado, o un error correspondiente.</returns>
+    /// <remarks>
+    /// Recibe multipart/form-data con archivo obligatorio. ADVERTENCIA DE AUDITORÍA:
+    /// borra la imagen anterior antes de completar la operación y guarda la nueva dos veces.
+    /// El DTO enviado al servicio no contiene Proveedor: con el repositorio MongoDB actual puede fallar con 500
+    /// al convertir el identificador vacío; con otro repositorio puede devolver 400 por proveedor inexistente.
+    /// No se garantiza una actualización correcta; no se modifica este comportamiento desde la documentación.
+    /// </remarks>
     [Authorize(Roles = "ADMIN")]
     [HttpPatch("{id:long}/imagen")]
+    [SwaggerOperation(OperationId = "Funkos_UpdateImagen")]
+    [SwaggerResponse(200, "Funko actualizado únicamente si el flujo completo llega a completarse; véase la advertencia.", typeof(FunkoDto))]
+    [SwaggerResponse(400, "Archivo ausente, binding inválido o proveedor/categoría rechazados por el servicio.", typeof(MessageErrorResponse))]
+    [SwaggerResponse(404, "Funko inexistente.", typeof(MessageErrorResponse))]
+    [SwaggerResponse(409, "Conflicto en la actualización.", typeof(MessageErrorResponse))]
+    [SwaggerResponse(422, "Archivo inválido o error transaccional.", typeof(MessageErrorResponse))]
     public async Task<ActionResult<FunkoDto>> UpdateImagen(long id, IFormFile archivo) {
         var existente = await service.GetById(id);
         if (existente.IsFailure) return existente.Error.ToHttpResult<FunkoDto>();
@@ -165,6 +221,9 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// </returns>
     [Authorize(Roles = "ADMIN,USER")]
     [HttpGet("paged")]
+    [SwaggerOperation(OperationId = "Funkos_GetPaged")]
+    [SwaggerResponse(200, "Objeto data/pagination de Funkos activos, con cabecera Link cuando procede.", typeof(PagedResponse<FunkoDto>))]
+    [SwaggerResponse(400, "page o pageSize no son enteros válidos. Los valores numéricos fuera de límites se ajustan, no se rechazan.", typeof(ValidationProblemDetails))]
     public async Task<ActionResult<PagedResponse<FunkoDto>>> GetPaged(
         [FromQuery] int page = 1, 
         [FromQuery] int pageSize = 10)

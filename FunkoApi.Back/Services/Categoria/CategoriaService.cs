@@ -27,6 +27,17 @@ public class CategoriaService(
         return lista.Select(c => c.ToDto());
     }
     
+    /// <inheritdoc cref="ICategoriaService.GetPaged" />
+    public async Task<(IEnumerable<CategoriaDto> Items, int TotalPages, int TotalItems)> GetPaged(int page, int pageSize) {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var (items, totalItems) = await repository.GetPaged(page, pageSize);
+        var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+        return (items.Select(c => c.ToDto()), totalPages, totalItems);
+    }
+
     /// <inheritdoc cref="ICategoriaService.GetById" />
     public async Task<Result<CategoriaDto, DomainError>> GetById(string key) {
         Log.Debug("Consultando categoría con ID {Id}", key);
