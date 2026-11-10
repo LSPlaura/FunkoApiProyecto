@@ -153,6 +153,8 @@ Se sigue la pirámide de pruebas: **unitarios como base**, integración con cont
 
 ### Frameworks
 
+Resultados y límites de la ampliación de pruebas: [Doc/Pruebas-y-Cobertura.md](Doc/Pruebas-y-Cobertura.md).
+
 - **NUnit 4** + **Moq 4** + **FluentAssertions 8** (unitarios)
 - **Testcontainers 4** (PostgreSQL y MongoDB efímeros para integración)
 - **Bruno** (colección `FunkoApi - Tests E2E`)
@@ -160,14 +162,14 @@ Se sigue la pirámide de pruebas: **unitarios como base**, integración con cont
 ### Ejecución
 
 ```bash
-# Solo tests unitarios (rápidos, sin Docker)
-dotnet test --filter "FullyQualifiedName~Unit"
+# Tests sin integración (no requieren Docker)
+dotnet test --filter "TestCategory!=Integration"
 
 # Tests de integración (requiere Docker en ejecución)
-dotnet test --filter "FullyQualifiedName~Integration"
+dotnet test --filter "TestCategory=Integration"
 
-# Todo sin integración
-SKIP_INTEGRATION_TESTS=true dotnet test
+# Suite completa (incluye Testcontainers; requiere Docker)
+dotnet test
 ```
 
 ### Pruebas E2E con Bruno
@@ -236,7 +238,7 @@ Infrastructure (EF Core, MongoDB, Redis, Storage, Identity)
 | `FunkosController` | `/api/funkos` | GET | ADMIN, USER |
 | `FunkosController` | `/api/funkos/{id:long}` | GET | ADMIN |
 | `FunkosController` | `/api/funkos/{nombre}` | GET | ADMIN |
-| `FunkosController` | `/api/funkos/paged` | GET | Público |
+| `FunkosController` | `/api/funkos/paged` | GET | ADMIN, USER |
 | `FunkosController` | `/api/funkos` | POST | ADMIN |
 | `FunkosController` | `/api/funkos/{id:long}` | PUT | ADMIN |
 | `FunkosController` | `/api/funkos/{id:long}` | DELETE | ADMIN |

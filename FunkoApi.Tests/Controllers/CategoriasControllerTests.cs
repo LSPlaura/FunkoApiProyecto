@@ -131,6 +131,41 @@ public class CategoriasControllerTests
         _serviceMock.Verify(s => s.Update(dto, categoria.Id), Times.Once);
     }
 
+    [Test]
+    public async Task Update_NombreDuplicado_Retorna409ConMensaje()
+    {
+        // Arrange
+        var dto = new UpdateCategoriaDto { Nombre = "Marvel" };
+        var error = CategoriaError.NombreDuplicado(dto.Nombre);
+        _serviceMock.Setup(s => s.Update(dto, "categoria01"))
+            .ReturnsAsync(Result.Failure<CategoriaDto, DomainError>(error));
+
+        // Act
+        var resultado = await _controller.Update(dto, "categoria01");
+
+        // Assert
+        var respuesta = resultado.Result.Should().BeOfType<ConflictObjectResult>().Subject;
+        respuesta.Value.Should().BeEquivalentTo(new { message = error.Message });
+        _serviceMock.Verify(s => s.Update(dto, "categoria01"), Times.Once);
+    }
+
+    [Test]
+    public async Task Delete_CategoriaInexistente_Retorna404ConMensaje()
+    {
+        // Arrange
+        var error = CategoriaError.CategoriaNotFound("categoria01");
+        _serviceMock.Setup(s => s.SoftDelete("categoria01"))
+            .ReturnsAsync(Result.Failure<bool, DomainError>(error));
+
+        // Act
+        var resultado = await _controller.Delete("categoria01");
+
+        // Assert
+        resultado.Should().BeOfType<NotFoundObjectResult>().Which.Value
+            .Should().BeEquivalentTo(new { message = error.Message });
+        _serviceMock.Verify(s => s.SoftDelete("categoria01"), Times.Once);
+    }
+
     [TestCase(true)]
     [TestCase(false)]
     public async Task Delete_ExitoOError_RetornaOkOBadRequest(bool exito)

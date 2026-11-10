@@ -24,14 +24,16 @@ public class EndpointDocumentationFilter : IOperationFilter {
             operation.Description += string.IsNullOrEmpty(roles)
                 ? "\n\nRequiere un JWT válido; no exige un rol concreto."
                 : $"\n\nRequiere JWT y alguno de estos roles: {roles}.";
-            operation.Responses!["401"] = JsonResponse("JWT ausente, inválido o expirado (normalmente sin cuerpo). " +
-                "El middleware también traduce UnauthorizedAccessException a JSON con este estado.", typeof(ExceptionErrorResponse));
+            operation.Responses!["401"] = new OpenApiResponse {
+                Description = "JWT ausente, inválido o expirado (normalmente sin cuerpo)."
+            };
             if (!string.IsNullOrEmpty(roles))
                 operation.Responses["403"] = new OpenApiResponse { Description = "JWT válido, pero sin un rol autorizado. Sin cuerpo." };
         }
 
         // Excepciones transversales: solo llegan aquí si no las transforma previamente un servicio.
         AddException("400", "ArgumentException no tratada; también puede haber errores de binding o validación automática.");
+        AddException("401", "UnauthorizedAccessException no tratada; el middleware devuelve JSON con este estado.");
         AddException("408", "TimeoutException no tratada. Tiempo de espera agotado.");
         AddException("409", "DbUpdateException no tratada. Conflicto al escribir en la base de datos.");
         AddException("500", "Excepción no tratada; los InternalError de dominio devuelven únicamente message.");
@@ -79,10 +81,20 @@ public class EndpointDocumentationFilter : IOperationFilter {
             }
             var response = (OpenApiResponse)existing;
             response.Content ??= new Dictionary<string, OpenApiMediaType>();
+            var previousSchema = response.Content.TryGetValue("application/json", out var json)
+                ? json.Schema
+                : null;
+            // Conservar el esquema declarado por la acción: puede ser validación, no un error de dominio.
+            if (previousSchema is null && code != "500") {
+                response.Content["application/json"] = new OpenApiMediaType {
+                    Schema = context.SchemaGenerator.GenerateSchema(typeof(ExceptionErrorResponse), context.SchemaRepository)
+                };
+                return;
+            }
             response.Content["application/json"] = new OpenApiMediaType {
                 Schema = new OpenApiSchema {
                     AnyOf = [
-                        context.SchemaGenerator.GenerateSchema(typeof(MessageErrorResponse), context.SchemaRepository),
+                        previousSchema ?? context.SchemaGenerator.GenerateSchema(typeof(MessageErrorResponse), context.SchemaRepository),
                         context.SchemaGenerator.GenerateSchema(typeof(ExceptionErrorResponse), context.SchemaRepository)
                     ]
                 }

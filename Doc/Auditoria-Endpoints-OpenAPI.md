@@ -4,7 +4,9 @@
 
 Revisión del código de los **4 controladores y sus 22 operaciones REST**, los DTO de entrada/salida,
 servicios, repositorios, almacenamiento, autorización y traducción de errores.
-Base de la revisión: estado local derivado de `c1159e8`, más los cambios documentales de esta tarea.
+La auditoría inicial indica como base el estado local derivado de `c1159e8`.
+Al retomar el trabajo en el PC de casa se han revisado los controladores, el filtro y las pruebas
+documentales presentes en esta copia; las comprobaciones de esta continuación figuran al final.
 
 Se documenta **lo que hace el código actual**, no un contrato ideal. No se han modificado rutas,
 permisos, validaciones, retornos, servicios ni acceso a datos. No se han enviado correos ni
@@ -228,6 +230,11 @@ proxy o transporte que no están definidos como contrato de estos controladores.
 El filtro documental conserva los éxitos de cada acción y añade los errores transversales.
 Si un estado puede tener cuerpo de dominio o excepción, usa `anyOf`, no inventa un único
 ProblemDetails. Los posibles rechazos de validación automática se muestran por separado.
+Al combinar respuestas se conserva el esquema declarado por la acción: por ejemplo, el 400
+de signup combina ValidationProblemDetails y ExceptionErrorResponse para application/json,
+no MessageErrorResponse. El formato application/problem+json conserva ValidationProblemDetails.
+El 401 transversal por UnauthorizedAccessException también se documenta en acciones públicas;
+esto no significa que login/signup exijan JWT. Login conserva además su error de credenciales.
 
 ## Hallazgos pendientes (no corregidos por esta tarea)
 
@@ -267,3 +274,19 @@ transforman sus queries en endpoints REST ficticios. No hay controlador de desca
 - No se garantiza la serialización XML de todos los modelos ni se ha certificado el transporte
   de GraphQL/SignalR, los límites del proxy o la entrega de emails.
 - Los resultados concretos de compilación y pruebas ejecutadas se comunican en la entrega.
+
+### Continuación en el PC de casa (10 de noviembre de 2026)
+
+- `git status --short` no mostró cambios pendientes antes de esta continuación.
+- `dotnet build FunkoApi.slnx`: compilación correcta, sin errores. Se mantienen avisos de
+  paquetes, comentarios XML y código existente; NuGet advierte de vulnerabilidades de
+  gravedad alta en SSH.NET 2024.2.0. No se han actualizado dependencias en esta tarea.
+- `dotnet test FunkoApi.Tests/FunkoApi.Tests.csproj --no-build --filter "FullyQualifiedName~SwaggerDocumentationTests"`:
+  **17 pruebas correctas, 0 fallidas, 0 omitidas** tras corregir la combinación de esquemas.
+- Se ha reforzado la comprobación del 400 de signup y añadido cobertura del 401 de login
+  (dominio/excepción) y signup (excepción sin exigir JWT).
+- Se ha corregido el README: GET de Funkos paginados exige ADMIN o USER, no es público.
+  El resumen XML del PATCH ya no afirma que el flujo sea seguro mientras siga pendiente F-01.
+- No se ha arrancado Program.cs, Docker ni la API, ni se han ejecutado peticiones HTTP
+  contra datos reales. Los 13 hallazgos de negocio/contrato siguen pendientes; esta
+  continuación corrige documentación, no certifica el funcionamiento de todos los endpoints.

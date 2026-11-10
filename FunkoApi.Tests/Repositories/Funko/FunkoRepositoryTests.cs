@@ -152,7 +152,11 @@ public class FunkoRepositoryTests
 
         // Assert
         result.Should().NotBeNull();
-        result!.Nombre.Should().Be("Iron Man");
+        // La lectura materializa una entidad nueva desde PostgreSQL, incluido el constructor de EF.
+        result.Should().NotBeSameAs(funko);
+        result.Should().BeEquivalentTo(funko,
+            o => o.Using<DateTime>(c => c.Subject.Should().BeCloseTo(c.Expectation,
+                TimeSpan.FromMilliseconds(1))).WhenTypeIs<DateTime>());
     }
 
     [Test]

@@ -202,12 +202,21 @@ public class ProveedorMongoRepositoryTests
         (await _repository.GetById(Id)).Should().Be(proveedor);
     }
 
-    [TestCase("")]
-    [TestCase("no-es-objectid")]
-    public async Task GetById_IdInvalido_LanzaFormatException(string id)
+    [TestCase("", "GetById")]
+    [TestCase("no-es-objectid", "GetById")]
+    [TestCase("", "ExistsById")]
+    [TestCase("no-es-objectid", "ExistsById")]
+    [TestCase("", "SoftDelete")]
+    [TestCase("no-es-objectid", "SoftDelete")]
+    public async Task Operacion_IdInvalido_LanzaFormatException(string id, string operacion)
     {
         // Arrange
-        Func<Task> accion = () => _repository.GetById(id);
+        Func<Task> accion = operacion switch
+        {
+            "GetById" => async () => await _repository.GetById(id),
+            "ExistsById" => async () => await _repository.ExistsById(id),
+            _ => async () => await _repository.SoftDelete(id)
+        };
 
         // Act
         var resultado = accion.Should().ThrowAsync<FormatException>();

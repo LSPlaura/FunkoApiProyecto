@@ -174,7 +174,7 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     }
     
     /// <summary>
-    /// Actualiza únicamente la imagen asociada a un Funko, eliminando la anterior del almacenamiento de forma segura.
+    /// Intenta actualizar la imagen asociada a un Funko; véanse las limitaciones del flujo en las observaciones.
     /// </summary>
     /// <param name="id">Identificador único del Funko cuya imagen se va a modificar.</param>
     /// <param name="archivo">Nuevo archivo de imagen recibido mediante el formulario.</param>

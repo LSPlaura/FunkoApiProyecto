@@ -93,7 +93,7 @@ public class SwaggerDocumentationTests {
         var operation = _document.Paths[path].Operations!.Values.Single(o => o.OperationId == id);
 
         // Act
-        var body = operation.RequestBody!.Content["multipart/form-data"].Schema!;
+        var body = operation.RequestBody!.Content!["multipart/form-data"].Schema!;
 
         // Assert
         body.Properties.Should().ContainKey("archivo");
@@ -144,9 +144,91 @@ public class SwaggerDocumentationTests {
         // Assert
         badRequest.Content.Should().ContainKey("application/problem+json");
         badRequest.Content!["application/json"].Schema!.AnyOf.Should().HaveCount(2);
+        var schemas = badRequest.Content["application/json"].Schema!.AnyOf!
+            .Cast<OpenApiSchemaReference>().Select(s => s.Reference.Id).ToList();
+        schemas.Should().Contain("ValidationProblemDetails");
+        schemas.Should().Contain("ExceptionErrorResponse");
+        schemas.Should().NotContain("MessageErrorResponse");
         _document.Components!.Schemas.Should().ContainKey("MessageErrorResponse");
         _document.Components.Schemas.Should().ContainKey("ExceptionErrorResponse");
         operation.Responses.Should().ContainKey("422");
+    }
+
+    [Test]
+    public void Login_Error401_ConservaErrorDeDominioYDocumentaExcepcion() {
+        // Arrange
+        var operation = _document.Paths["/api/Auth/login"].Operations!.Values.Single();
+
+        // Act
+        var schemas = operation.Responses!["401"].Content!["application/json"].Schema!.AnyOf!
+            .Cast<OpenApiSchemaReference>().Select(s => s.Reference.Id).ToList();
+
+        // Assert
+        schemas.Should().BeEquivalentTo("MessageErrorResponse", "ExceptionErrorResponse");
+    }
+
+    [Test]
+    public void Signup_Error401_DocumentaSoloExcepcionSinExigirJwt() {
+        // Arrange
+        var operation = _document.Paths["/api/Auth/signup"].Operations!.Values.Single();
+
+        // Act
+        var schema = operation.Responses!["401"].Content!["application/json"].Schema!;
+
+        // Assert
+        schema.Should().BeOfType<OpenApiSchemaReference>();
+        ((OpenApiSchemaReference)schema).Reference.Id.Should().Be("ExceptionErrorResponse");
+        operation.Security.Should().BeEmpty();
+    }
+
+    [TestCase("AuthResponseDto", "token,email,role,expiresAt")]
+    [TestCase("UserDto", "id,email,nombre,apellidos,role")]
+    [TestCase("CategoriaDto", "id,nombre,isDeleted,createdAt,updatedAt")]
+    [TestCase("ProveedorDto", "id,nombre,isDeleted,createdAt,updatedAt")]
+    [TestCase("FunkoDto", "id,nombre,precio,stock,imagen,categoria,isDeleted,createdAt,updatedAt")]
+    public void ModelosDeSalida_ContratoActual_ConservaCamposSinExponerDatosInternos(string modelo, string campos) {
+        // Arrange
+        var schema = _document.Components!.Schemas![modelo];
+
+        // Act
+        var propiedades = schema.Properties!.Keys.ToList();
+
+        // Assert
+        propiedades.Should().BeEquivalentTo(campos.Split(','));
+        propiedades.Should().NotContain("password").And.NotContain("passwordHash");
+    }
+
+    [Test]
+    public void GetMe_ExigeJwtSinRol_NoAnuncia403PorRoles() {
+        // Arrange
+        var operation = _document.Paths["/api/Auth/me"].Operations!.Values.Single();
+
+        // Act
+        var responses = operation.Responses!;
+
+        // Assert
+        operation.Description.Should().Contain("Requiere un JWT válido; no exige un rol concreto.");
+        responses.Should().ContainKey("401").And.ContainKey("404");
+        responses.Should().NotContainKey("403");
+        responses["401"].Content!["application/json"].Schema.Should().BeOfType<OpenApiSchemaReference>()
+            .Which.Reference.Id.Should().Be("ExceptionErrorResponse");
+    }
+
+    [TestCase("/api/Categorias", "Categorias_Create")]
+    [TestCase("/api/Proveedores", "Proveedores_Create")]
+    [TestCase("/api/Auth/login", "Auth_Login")]
+    [TestCase("/api/Auth/signup", "Auth_Signup")]
+    public void EntradaJson_Documenta415ConProblemDetails(string path, string id) {
+        // Arrange
+        var operation = _document.Paths[path].Operations!.Values.Single(o => o.OperationId == id);
+
+        // Act
+        var response = operation.Responses!["415"];
+
+        // Assert
+        response.Content.Should().ContainKey("application/problem+json");
+        response.Content!["application/problem+json"].Schema.Should().BeOfType<OpenApiSchemaReference>()
+            .Which.Reference.Id.Should().Be("ProblemDetails");
     }
 
     [Test]

@@ -111,6 +111,40 @@ public class ProveedoresControllerTests
         _serviceMock.Verify(s => s.Update(dto, proveedor.Id), Times.Once);
     }
 
+    [Test]
+    public async Task Delete_ProveedorInexistente_Retorna404ConMensaje()
+    {
+        // Arrange
+        const string id = "000000000000000000000001";
+        var error = ProveedorError.ProveedoraNotFound(id);
+        _serviceMock.Setup(s => s.SoftDelete(id)).ReturnsAsync(Result.Failure<bool, DomainError>(error));
+
+        // Act
+        var resultado = await _controller.Delete(id);
+
+        // Assert
+        resultado.Should().BeOfType<NotFoundObjectResult>().Which.Value
+            .Should().BeEquivalentTo(new { message = error.Message });
+        _serviceMock.Verify(s => s.SoftDelete(id), Times.Once);
+    }
+
+    [Test]
+    public async Task Delete_ServicioNoModificaProveedor_Retorna200False()
+    {
+        // Arrange
+        const string id = "000000000000000000000001";
+        _serviceMock.Setup(s => s.SoftDelete(id)).ReturnsAsync(Result.Success<bool, DomainError>(false));
+
+        // Act
+        var resultado = await _controller.Delete(id);
+
+        // Assert
+        var respuesta = resultado.Should().BeOfType<OkObjectResult>().Subject;
+        respuesta.StatusCode.Should().Be(200);
+        respuesta.Value.Should().Be(false);
+        _serviceMock.Verify(s => s.SoftDelete(id), Times.Once);
+    }
+
     [TestCase(true)]
     [TestCase(false)]
     public async Task Delete_ExitoOConflicto_RetornaOkOConflict(bool exito)

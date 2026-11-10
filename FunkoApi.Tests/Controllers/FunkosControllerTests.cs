@@ -112,6 +112,58 @@ public class FunkosControllerTests
         _storageMock.Verify(s => s.SaveFileAsync(It.IsAny<IFormFile>(), It.IsAny<string>()), Times.Never);
     }
 
+    [TestCase(false, 400)]
+    [TestCase(true, 422)]
+    public async Task Create_RelacionOImagenRechazada_ConservaCodigoYMensaje(bool errorImagen, int codigo)
+    {
+        // Arrange
+        DomainError error = errorImagen ? StorageError.ArchivoMuyGrande()
+            : CategoriaError.CategoriaBadRequest("categoria01");
+        var archivo = new Mock<IFormFile>().Object;
+        _serviceMock.Setup(s => s.Create(It.IsAny<CreateFunkoDto>()))
+            .ReturnsAsync(Result.Failure<FunkoDto, DomainError>(error));
+
+        // Act
+        var resultado = await _controller.Create("Iron Man", 15m, 1, "categoria01",
+            "000000000000000000000001", archivo);
+
+        // Assert
+        var respuesta = resultado.Result.Should().BeAssignableTo<ObjectResult>().Subject;
+        respuesta.StatusCode.Should().Be(codigo);
+        respuesta.Value.Should().BeEquivalentTo(new { message = error.Message });
+        _serviceMock.Verify(s => s.Create(It.Is<CreateFunkoDto>(d => d.Imagen == archivo
+            && d.Categoria == "categoria01")), Times.Once);
+        _storageMock.Verify(s => s.SaveFileAsync(It.IsAny<IFormFile>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestCase("imagenAusente", 400)]
+    [TestCase("duplicado", 409)]
+    [TestCase("imagenInvalida", 422)]
+    public async Task Update_ServicioRechazaOperacion_ConservaCodigoYMensaje(string motivo, int codigo)
+    {
+        // Arrange
+        DomainError error = motivo switch
+        {
+            "imagenAusente" => new BadRequestError("No se ha mandado la imagen"),
+            "duplicado" => FunkoError.FunkoAlreadyExists("Iron Man"),
+            _ => StorageError.ExtensionNoPermitida()
+        };
+        _serviceMock.Setup(s => s.Update(It.IsAny<UpdateFunkoDto>(), 1))
+            .ReturnsAsync(Result.Failure<FunkoDto, DomainError>(error));
+
+        // Act
+        var resultado = await _controller.Update("Iron Man", 15m, 1, "categoria01",
+            "000000000000000000000001", null, 1);
+
+        // Assert
+        var respuesta = resultado.Result.Should().BeAssignableTo<ObjectResult>().Subject;
+        respuesta.StatusCode.Should().Be(codigo);
+        respuesta.Value.Should().BeEquivalentTo(new { message = error.Message });
+        _serviceMock.Verify(s => s.Update(It.Is<UpdateFunkoDto>(d => d.Imagen == null
+            && d.Nombre == "Iron Man" && d.Precio == 15m && d.Stock == 1), 1), Times.Once);
+        _storageMock.Verify(s => s.SaveFileAsync(It.IsAny<IFormFile>(), It.IsAny<string>()), Times.Never);
+    }
+
     [TestCase(true)]
     [TestCase(false)]
     public async Task Update_Formulario_RetornaOkONotFound(bool exito)
@@ -183,6 +235,57 @@ public class FunkosControllerTests
         _storageMock.Verify(s => s.SaveFileAsync(archivo, "funkos"), existe ? Times.Once() : Times.Never());
         _serviceMock.Verify(s => s.Update(It.Is<UpdateFunkoDto>(d => d.Nombre == funko.Nombre
             && d.Imagen == archivo && d.Categoria == categoria.Id), 1), existe && guarda ? Times.Once() : Times.Never());
+    }
+
+    [Test]
+    public async Task UpdateImagen_AlmacenamientoRechazaArchivo_Retorna422SinActualizarEntidad()
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = new CategoriaDto("categoria01", "Marvel", false, fecha, fecha);
+        var funko = new FunkoDto(1, "Iron Man", 15m, 1, "", categoria, false, fecha, fecha);
+        var archivo = new Mock<IFormFile>().Object;
+        var error = StorageError.TipoContenidoNoPermitido();
+        _serviceMock.Setup(s => s.GetById(1)).ReturnsAsync(Result.Success<FunkoDto, DomainError>(funko));
+        _storageMock.Setup(s => s.SaveFileAsync(archivo, "funkos"))
+            .ReturnsAsync(Result.Failure<string, DomainError>(error));
+
+        // Act
+        var resultado = await _controller.UpdateImagen(1, archivo);
+
+        // Assert
+        resultado.Result.Should().BeOfType<UnprocessableEntityObjectResult>().Which.Value
+            .Should().BeEquivalentTo(new { message = error.Message });
+        _serviceMock.Verify(s => s.GetById(1), Times.Once);
+        _storageMock.Verify(s => s.SaveFileAsync(archivo, "funkos"), Times.Once);
+        _storageMock.Verify(s => s.DeleteFileAsync(It.IsAny<string>()), Times.Never);
+        _serviceMock.Verify(s => s.Update(It.IsAny<UpdateFunkoDto>(), It.IsAny<long>()), Times.Never);
+    }
+
+    [Test]
+    public async Task GetPaged_ConDatos_ConservaElementosYEnlacesDeNavegacion()
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = new CategoriaDto("categoria01", "Marvel", false, fecha, fecha);
+        var funko = new FunkoDto(2, "Iron Man", 15m, 1, "imagen.png", categoria, false, fecha, fecha);
+        _controller.Request.Scheme = "https";
+        _controller.Request.Host = new HostString("localhost");
+        _controller.Request.Path = "/api/funkos/paged";
+        _serviceMock.Setup(s => s.GetPaged(2, 1)).ReturnsAsync((new[] { funko }.AsEnumerable(), 3, 3));
+
+        // Act
+        var resultado = await _controller.GetPaged(2, 1);
+
+        // Assert
+        var body = resultado.Result.Should().BeOfType<OkObjectResult>().Which.Value
+            .Should().BeOfType<PagedResponse<FunkoDto>>().Subject;
+        body.Data.Should().Equal(funko);
+        body.Pagination.Should().Be(new PageMetadata(2, 1, 3, 3));
+        var link = _controller.Response.Headers["Link"].ToString();
+        link.Should().Contain("<https://localhost/api/funkos/paged?page=1&pageSize=1>; rel=\"prev\"");
+        link.Should().Contain("<https://localhost/api/funkos/paged?page=3&pageSize=1>; rel=\"next\"");
+        _serviceMock.Verify(s => s.GetPaged(2, 1), Times.Once);
     }
 
     [TestCase(0, 0, 1, 1, 0)]

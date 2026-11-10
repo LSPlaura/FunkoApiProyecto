@@ -71,6 +71,26 @@ public class AuthControllerTests
         _serviceMock.Verify(s => s.SignupAsync(dto), Times.Once);
     }
 
+    [Test]
+    public async Task Signup_IdentityRechazaRegistro_Retorna422ConMensaje()
+    {
+        // Arrange
+        var dto = new SignupDto("usuario@example.test", "sinsimbolos", "Lucia", "Pruebas");
+        var error = new BusinessRuleError("Error al crear el usuario: contraseña no válida");
+        _serviceMock.Setup(s => s.SignupAsync(dto))
+            .ReturnsAsync(Result.Failure<AuthResponseDto, DomainError>(error));
+
+        // Act
+        var resultado = await _controller.Signup(dto);
+
+        // Assert
+        var respuesta = resultado.Result.Should().BeOfType<UnprocessableEntityObjectResult>().Subject;
+        respuesta.StatusCode.Should().Be(422);
+        respuesta.Value.Should().BeEquivalentTo(new { message = error.Message });
+        _serviceMock.Verify(s => s.SignupAsync(dto), Times.Once);
+        _serviceMock.Verify(s => s.LoginAsync(It.IsAny<LoginDto>()), Times.Never);
+    }
+
     [TestCase(true, true)]
     [TestCase(true, false)]
     [TestCase(false, false)]
