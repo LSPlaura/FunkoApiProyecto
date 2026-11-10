@@ -213,9 +213,10 @@ de validar el archivo.
 
 ### Busqueda por nombre
 
-Corregido el nombre del parametro de `GetByNombre`: ahora coincide con
-`{nombre}`. Las pruebas activas llaman a `/api/funkos/{{funkoNombre}}`, sin
-query auxiliar, y esperan 200 o 404 segun exista. No se cambia el permiso ADMIN.
+La busqueda de `GetByNombre` usa ahora `/api/funkos/nombre/{nombre}`, separada
+de la consulta por ID para evitar plantillas equivalentes en OpenAPI.
+Las pruebas activas llaman a `/api/funkos/nombre/{{funkoNombre}}`, sin query
+auxiliar, y esperan 200 o 404 segun exista. No se cambia el permiso ADMIN.
 La plantilla anteriormente pendiente se conserva en `Resueltas/Funkos`, fuera
 de la coleccion; su escenario esta integrado en [008]. Esa ubicacion indica
 que el cambio esta aplicado, no que se haya verificado ejecutando la API.

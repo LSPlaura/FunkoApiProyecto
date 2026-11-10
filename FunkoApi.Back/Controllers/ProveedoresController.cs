@@ -1,4 +1,6 @@
 using CSharpFunctionalExtensions;
+using FunkoApi.Back.Dto;
+using FunkoApi.Back.Helpers;
 using FunkoApi.Back.Dto.Proveedor;
 using FunkoApi.Back.Dto.Documentation;
 using Swashbuckle.AspNetCore.Annotations;
@@ -86,6 +88,32 @@ public class ProveedoresController(IProveedorService service) : ControllerBase {
     [SwaggerResponse(200, "Lista sin paginar, ordenada por nombre; incluye los eliminados lógicamente.", typeof(IEnumerable<ProveedorDto>))]
     public async Task<ActionResult<IEnumerable<ProveedorDto>>> GetAll() {
         return Ok(await service.GetAll());
+    }
+
+    /// <summary>Obtiene una página de proveedores consultada en MongoDB.</summary>
+    /// <param name="page">Número de página, por defecto 1.</param>
+    /// <param name="pageSize">Tamaño de página, por defecto 10 y ajustado entre 1 y 100.</param>
+    /// <returns>Datos, metadatos y cabecera Link cuando procede.</returns>
+    [Authorize(Roles = "ADMIN")]
+    [HttpGet("paged")]
+    [SwaggerOperation(OperationId = "Proveedores_GetPaged")]
+    [SwaggerResponse(200, "Objeto data/pagination. Incluye eliminados lógicamente.", typeof(PagedResponse<ProveedorDto>))]
+    [SwaggerResponse(400, "page o pageSize no son enteros válidos.", typeof(ValidationProblemDetails))]
+    public async Task<ActionResult<PagedResponse<ProveedorDto>>> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10) {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var (items, totalPages, totalItems) = await service.GetPaged(page, pageSize);
+        var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
+        var linkHeader = PaginationHelper.CreateLinkHeader(page, totalPages, pageSize, baseUrl);
+        if (!string.IsNullOrEmpty(linkHeader)) Response.Headers["Link"] = linkHeader;
+
+        return Ok(new PagedResponse<ProveedorDto> {
+            Data = items.ToList(),
+            Pagination = new PageMetadata(page, pageSize, totalPages, totalItems)
+        });
     }
 
     /// <summary>

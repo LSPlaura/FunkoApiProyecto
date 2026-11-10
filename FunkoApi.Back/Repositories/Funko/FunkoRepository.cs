@@ -82,6 +82,23 @@ public class FunkoRepository(AppDbContext context, ILogger<FunkoRepository> logg
             .ToListAsync();
     }
 
+    /// <summary>Recupera una página de funkos con su categoría y el total de registros.</summary>
+    public async Task<(IEnumerable<Models.Funko> Items, int TotalItems)> GetPaged(int page, int pageSize) {
+        logger.LogDebug("Obteniendo página {Page} de Funkos con tamaño {PageSize}", page, pageSize);
+        var query = context.Funkos
+            .AsNoTracking()
+            .Include(f => f.Categoria)
+            .OrderBy(f => f.Nombre);
+
+        var total = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, total);
+    }
+
     /// <inheritdoc cref="IFunkoRepository.GetByName" />
     public async Task<Models.Funko?> GetByName(string name) {
         logger.LogDebug("Obteniendo Funko por nombre: {Name}", name);

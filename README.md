@@ -8,6 +8,9 @@ Con la API actualizada en Development: `/swagger/index.html` (interfaz) y
 `/swagger/v1/swagger.json` (documento OpenAPI). Incluye entradas, salidas, roles,
 errores reales y limitaciones detectadas; no implica que todos los fallos de negocio estén corregidos.
 
+Paginación en base de datos para Funkos, Categorías y Proveedores:
+[endpoints `/paged` y funcionamiento](Doc/Paginacion-BD.md).
+
 [![.NET](https://img.shields.io/badge/.NET-10-blue)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-10-blue)](https://dotnet.microsoft.com/en-us/apps/aspnet)
 [![C#](https://img.shields.io/badge/C%23-14-blue)](https://docs.microsoft.com/en-us/dotnet/csharp/)
@@ -237,7 +240,7 @@ Infrastructure (EF Core, MongoDB, Redis, Storage, Identity)
 | `CategoriasController` | `/api/categorias/{id}` | DELETE | ADMIN |
 | `FunkosController` | `/api/funkos` | GET | ADMIN, USER |
 | `FunkosController` | `/api/funkos/{id:long}` | GET | ADMIN |
-| `FunkosController` | `/api/funkos/{nombre}` | GET | ADMIN |
+| `FunkosController` | `/api/funkos/nombre/{nombre}` | GET | ADMIN |
 | `FunkosController` | `/api/funkos/paged` | GET | ADMIN, USER |
 | `FunkosController` | `/api/funkos` | POST | ADMIN |
 | `FunkosController` | `/api/funkos/{id:long}` | PUT | ADMIN |

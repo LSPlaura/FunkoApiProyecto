@@ -1,4 +1,5 @@
 using System.Reflection;
+using FunkoApi.Back.Dto.Auth;
 using FunkoApi.Back.Dto.Documentation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace FunkoApi.Back.Swagger;
 /// </summary>
 public class EndpointDocumentationFilter : IOperationFilter {
     public void Apply(OpenApiOperation operation, OperationFilterContext context) {
+        DocumentJsonInput();
         var permissions = context.MethodInfo.GetCustomAttributes<AuthorizeAttribute>()
             .Concat(context.MethodInfo.DeclaringType!.GetCustomAttributes<AuthorizeAttribute>()).ToList();
 
@@ -39,11 +41,15 @@ public class EndpointDocumentationFilter : IOperationFilter {
         AddException("500", "Excepción no tratada; los InternalError de dominio devuelven únicamente message.");
         operation.Responses!["406"] = new OpenApiResponse { Description = "No hay un formateador que pueda producir el formato solicitado en Accept. Sin cuerpo." };
 
-        var badRequest = (OpenApiResponse)operation.Responses["400"];
-        badRequest.Content ??= new Dictionary<string, OpenApiMediaType>();
-        badRequest.Content["application/problem+json"] = new OpenApiMediaType {
-            Schema = context.SchemaGenerator.GenerateSchema(typeof(ValidationProblemDetails), context.SchemaRepository)
-        };
+        // ApiController valida las entradas antes de ejecutar la acción. Ese 400
+        // no tiene el mismo cuerpo que un BadRequestError del servicio.
+        if (context.ApiDescription.ParameterDescriptions.Count > 0) {
+            var badRequest = (OpenApiResponse)operation.Responses["400"];
+            AddJsonSchema(badRequest, typeof(ValidationProblemDetails));
+            badRequest.Content!["application/problem+json"] = new OpenApiMediaType {
+                Schema = context.SchemaGenerator.GenerateSchema(typeof(ValidationProblemDetails), context.SchemaRepository)
+            };
+        }
 
         if (context.ApiDescription.SupportedRequestFormats.Count > 0)
             operation.Responses["415"] = new OpenApiResponse {
@@ -72,32 +78,70 @@ public class EndpointDocumentationFilter : IOperationFilter {
             };
         }
 
+        void DocumentJsonInput() {
+            if (operation.RequestBody?.Content is null ||
+                !operation.RequestBody.Content.TryGetValue("application/json", out var content)) return;
+
+            // Los seis cuerpos JSON de los controladores actuales son obligatorios.
+            ((OpenApiRequestBody)operation.RequestBody).Required = true;
+            if (content.Schema is not OpenApiSchemaReference reference ||
+                (reference.Reference.Id != nameof(LoginDto) && reference.Reference.Id != nameof(SignupDto))) return;
+
+            // En estos records los atributos de validación están en los parámetros
+            // del constructor. Swagger no los está trasladando a las propiedades.
+            // Reproducir aquí las restricciones efectivas sin cambiar el binding.
+            var schema = (OpenApiSchema)context.SchemaRepository.Schemas[reference.Reference.Id];
+            schema.Required = new HashSet<string>(schema.Properties!.Keys);
+            foreach (var property in schema.Properties.Values)
+                ((OpenApiSchema)property).Type = JsonSchemaType.String;
+            ((OpenApiSchema)schema.Properties["email"]).Format = "email";
+            var password = (OpenApiSchema)schema.Properties["password"];
+            password.MinLength = 8;
+            password.MaxLength = 100;
+            password.Format = "password";
+            password.WriteOnly = true;
+            if (reference.Reference.Id == nameof(SignupDto)) {
+                ((OpenApiSchema)schema.Properties["nombre"]).MaxLength = 50;
+                ((OpenApiSchema)schema.Properties["apellidos"]).MaxLength = 100;
+            }
+        }
+
         void AddException(string code, string description) {
             if (!operation.Responses!.TryGetValue(code, out var existing)) {
-                operation.Responses[code] = existing = JsonResponse(description, typeof(ExceptionErrorResponse));
+                // El 500 también puede proceder de la traducción de InternalError.
+                // No crear primero un esquema de excepción para después repetirlo.
+                operation.Responses[code] = existing = JsonResponse(description,
+                    code == "500" ? typeof(MessageErrorResponse) : typeof(ExceptionErrorResponse));
                 if (code != "500") return;
             } else {
                 existing.Description += " " + description;
             }
-            var response = (OpenApiResponse)existing;
+            AddJsonSchema((OpenApiResponse)existing, typeof(ExceptionErrorResponse));
+        }
+
+        void AddJsonSchema(OpenApiResponse response, Type type) {
             response.Content ??= new Dictionary<string, OpenApiMediaType>();
             var previousSchema = response.Content.TryGetValue("application/json", out var json)
                 ? json.Schema
                 : null;
-            // Conservar el esquema declarado por la acción: puede ser validación, no un error de dominio.
-            if (previousSchema is null && code != "500") {
+            var schema = context.SchemaGenerator.GenerateSchema(type, context.SchemaRepository);
+            if (previousSchema is null) {
                 response.Content["application/json"] = new OpenApiMediaType {
-                    Schema = context.SchemaGenerator.GenerateSchema(typeof(ExceptionErrorResponse), context.SchemaRepository)
+                    Schema = schema
                 };
                 return;
             }
+
+            // Mantener una lista plana, sin repetir la validación ya declarada
+            // en las anotaciones ni perder el esquema de dominio de la acción.
+            var schemas = previousSchema.AnyOf?.Count > 0
+                ? previousSchema.AnyOf.ToList()
+                : new List<IOpenApiSchema> { previousSchema };
+            if (schema is OpenApiSchemaReference reference && schemas.Any(s =>
+                s is OpenApiSchemaReference previous && previous.Reference.Id == reference.Reference.Id)) return;
+            schemas.Add(schema);
             response.Content["application/json"] = new OpenApiMediaType {
-                Schema = new OpenApiSchema {
-                    AnyOf = [
-                        previousSchema ?? context.SchemaGenerator.GenerateSchema(typeof(MessageErrorResponse), context.SchemaRepository),
-                        context.SchemaGenerator.GenerateSchema(typeof(ExceptionErrorResponse), context.SchemaRepository)
-                    ]
-                }
+                Schema = new OpenApiSchema { AnyOf = schemas }
             };
         }
 

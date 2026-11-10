@@ -1,10 +1,12 @@
 using CSharpFunctionalExtensions;
 using FluentAssertions;
 using FunkoApi.Back.Controllers;
+using FunkoApi.Back.Dto;
 using FunkoApi.Back.Dto.Categoria;
 using FunkoApi.Back.Errors;
 using FunkoApi.Back.Services.Categoria;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Http;
 using Moq;
 using NUnit.Framework;
 
@@ -21,6 +23,38 @@ public class CategoriasControllerTests
     {
         _serviceMock = new Mock<ICategoriaService>();
         _controller = new CategoriasController(_serviceMock.Object);
+    }
+
+    [TestCase(2, 1, 2, 1, 3)]
+    [TestCase(0, 0, 1, 1, 3)]
+    [TestCase(-1, 200, 1, 100, 3)]
+    [TestCase(1, 10, 1, 10, 0)]
+    public async Task GetPaged_Parametros_NormalizaYDevuelveDatosMetadatosYEnlaces(int page, int size, int pagina, int tamano, int total)
+    {
+        // Arrange
+        var context = new DefaultHttpContext();
+        context.Request.Scheme = "http";
+        context.Request.Host = new HostString("localhost:5000");
+        context.Request.Path = "/api/Categorias/paged";
+        _controller.ControllerContext = new ControllerContext { HttpContext = context };
+        var fecha = DateTime.UtcNow;
+        var items = total == 0 ? Array.Empty<CategoriaDto>() : new[] { new CategoriaDto("categoria01", "Marvel", false, fecha, fecha) };
+        var paginas = (int)Math.Ceiling((double)total / tamano);
+        _serviceMock.Setup(s => s.GetPaged(pagina, tamano)).ReturnsAsync((items.AsEnumerable(), paginas, total));
+
+        // Act
+        var resultado = await _controller.GetPaged(page, size);
+
+        // Assert
+        var respuesta = resultado.Result.Should().BeOfType<OkObjectResult>().Which.Value
+            .Should().BeOfType<PagedResponse<CategoriaDto>>().Which;
+        respuesta.Data.Should().BeEquivalentTo(items);
+        respuesta.Pagination.Should().Be(new PageMetadata(pagina, tamano, paginas, total));
+        if (pagina > 1 || pagina < paginas)
+            context.Response.Headers["Link"].ToString().Should().Contain("/api/Categorias/paged?page=").And.Contain($"pageSize={tamano}");
+        else context.Response.Headers.Should().NotContainKey("Link");
+        _serviceMock.Verify(s => s.GetPaged(pagina, tamano), Times.Once);
+        _serviceMock.Verify(s => s.GetAll(), Times.Never);
     }
 
     [TestCase(true)]

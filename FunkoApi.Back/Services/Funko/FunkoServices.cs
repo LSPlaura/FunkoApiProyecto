@@ -198,13 +198,9 @@ public class FunkoServices(
         page = Math.Max(page, 1);
         pageSize = Math.Clamp(pageSize, 1, 100);
         
-        var all = await funkoRepository.GetAll();
-        var list = all.ToList();
-        var totalItems = list.Count;
+        var (items, totalItems) = await funkoRepository.GetPaged(page, pageSize);
         
         var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
-        
-        var items = list.Skip((page - 1) * pageSize).Take(pageSize);
         
         return (items.Select(p => p.ToDto()), totalPages, totalItems);
     }

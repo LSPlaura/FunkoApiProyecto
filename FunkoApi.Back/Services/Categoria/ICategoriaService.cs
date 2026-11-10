@@ -10,6 +10,12 @@ namespace FunkoApi.Back.Services.Categoria;
 /// Hereda las operaciones de IGetService y añade la búsqueda por nombre.
 /// </summary>
 public interface ICategoriaService : ICrudService<CreateCategoriaDto, UpdateCategoriaDto, CategoriaDto, string> {
+    /// <summary>Obtiene una página de categorías y sus totales.</summary>
+    /// <param name="page">Número de página, desde 1.</param>
+    /// <param name="pageSize">Tamaño de página, ajustado entre 1 y 100.</param>
+    /// <returns>DTOs de la página, número de páginas y total de registros.</returns>
+    Task<(IEnumerable<CategoriaDto> Items, int TotalPages, int TotalItems)> GetPaged(int page, int pageSize);
+
     /// <summary>
     /// Obtiene una categoría mediante su nombre.
     /// </summary>

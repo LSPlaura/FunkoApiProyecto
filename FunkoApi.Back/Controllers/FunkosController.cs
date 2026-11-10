@@ -158,11 +158,11 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
     /// <param name="nombre">Nombre del Funko que se desea consultar.</param>
     /// <returns>Respuesta HTTP 200 (OK) con el Funko encontrado, o un error si no existe.</returns>
     /// <remarks>
-    /// Un segmento numérico se interpreta como id, no como nombre. El segmento reservado paged se interpreta como paginación.
-    /// Las rutas GET por id y nombre solo se distinguen mediante restricciones del router; consultar la auditoría OpenAPI.
+    /// La búsqueda usa /api/Funkos/nombre/{nombre}, separada de la consulta por id y de la paginación.
+    /// Permite buscar nombres numéricos o el nombre paged sin confundirlos con otras operaciones.
     /// </remarks>
     [Authorize(Roles = "ADMIN")]
-    [HttpGet("{nombre}")]
+    [HttpGet("nombre/{nombre}")]
     [SwaggerOperation(OperationId = "Funkos_GetByNombre")]
     [SwaggerResponse(200, "Funko cuyo nombre coincide exactamente.", typeof(FunkoDto))]
     [SwaggerResponse(404, "No existe un Funko activo con ese nombre.", typeof(MessageErrorResponse))]

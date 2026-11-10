@@ -36,6 +36,81 @@ public class ProveedorMongoRepositoryTests
     public async Task OneTimeTearDown() => await _container.DisposeAsync();
 
     [Test]
+    public async Task Constructor_IndiceExistente_NoLoDuplicaYPermiteNombresRepetidos() {
+        // Arrange
+        var collection = _database.GetCollection<Back.Models.Proveedor>("proveedores");
+        var fecha = DateTime.UtcNow;
+        await _repository.Create(new Back.Models.Proveedor(ObjectId.GenerateNewId(), "Funko", false, fecha, fecha));
+
+        // Act
+        var repository = new ProveedorMongoRepository(_database,
+            new Mock<ILogger<ProveedorMongoRepository>>().Object);
+        await repository.Create(new Back.Models.Proveedor(ObjectId.GenerateNewId(), "Funko", false, fecha, fecha));
+        using var cursor = await collection.Indexes.ListAsync();
+        var indices = await cursor.ToListAsync();
+
+        // Assert
+        var indice = indices.Should().ContainSingle(i => i["name"] == "idx_proveedor_nombre").Which;
+        indice["key"].AsBsonDocument.Should().Equal(new BsonDocument("nombre", 1));
+        indice.GetValue("unique", false).AsBoolean.Should().BeFalse();
+        (await collection.CountDocumentsAsync(p => p.Nombre == "Funko")).Should().Be(2);
+    }
+
+    [TestCase(1, 2)]
+    [TestCase(2, 2)]
+    [TestCase(3, 2)]
+    [TestCase(10, 2)]
+    [TestCase(int.MaxValue, 1)]
+    public async Task GetPaged_ConDatos_RetornaPaginaOrdenadaYTotal(int page, int size)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var nombres = new[] { "Zeta", "Alpha", "Gamma", "Beta", "Omega" };
+        var proveedores = nombres.Select((nombre, i) => new Back.Models.Proveedor(
+            ObjectId.Parse($"{i + 1:000000000000000000000000}"), nombre, i == 3, fecha, fecha));
+        await _database.GetCollection<Back.Models.Proveedor>("proveedores").InsertManyAsync(proveedores);
+        var esperados = nombres.OrderBy(n => n).Skip((page - 1) * size).Take(size).ToArray();
+
+        // Act
+        var resultado = await _repository.GetPaged(page, size);
+
+        // Assert
+        resultado.TotalItems.Should().Be(5);
+        resultado.Items.Select(p => p.Nombre).Should().Equal(esperados);
+    }
+
+    [Test]
+    public async Task GetPaged_NombresRepetidos_RespetaTamanoYTotal()
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var idMayor = ObjectId.Parse("000000000000000000000002");
+        await _repository.Create(new Back.Models.Proveedor(idMayor, "Funko", false, fecha, fecha));
+        await _repository.Create(new Back.Models.Proveedor(ObjectId.Parse(Id), "Funko", false, fecha, fecha));
+
+        // Act
+        var resultado = await _repository.GetPaged(2, 1);
+
+        // Assert
+        resultado.TotalItems.Should().Be(2);
+        resultado.Items.Should().ContainSingle().Which.Nombre.Should().Be("Funko");
+    }
+
+    [Test]
+    public async Task GetPaged_SinDatos_RetornaPaginaVaciaYTotalCero()
+    {
+        // Arrange
+        const int page = 1;
+
+        // Act
+        var resultado = await _repository.GetPaged(page, 10);
+
+        // Assert
+        resultado.Items.Should().BeEmpty();
+        resultado.TotalItems.Should().Be(0);
+    }
+
+    [Test]
     public async Task Create_ProveedorValido_PersisteProveedor()
     {
         // Arrange

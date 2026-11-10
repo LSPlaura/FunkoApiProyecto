@@ -17,6 +17,11 @@ public record DomainValidationErrorResponse(string Message, Dictionary<string, s
 /// <param name="Status">Código de estado HTTP.</param>
 /// <param name="Message">Descripción pública del error.</param>
 /// <param name="Timestamp">Fecha UTC del error en formato ISO 8601.</param>
-/// <param name="Path">Ruta de la petición.</param>
+/// <param name="Path">Objeto que resulta de serializar PathString; no es una cadena en la implementación actual.</param>
 /// <param name="Method">Verbo HTTP de la petición.</param>
-public record ExceptionErrorResponse(string ErrorId, int Status, string Message, string Timestamp, string Path, string Method);
+public record ExceptionErrorResponse(string ErrorId, int Status, string Message, string Timestamp, RequestPathResponse Path, string Method);
+
+/// <summary>Esquema documental de PathString serializado por el middleware, sin modificar su respuesta.</summary>
+/// <param name="Value">Ruta de la petición; puede omitirse si es null.</param>
+/// <param name="HasValue">Indica si la ruta contiene un valor.</param>
+public record RequestPathResponse(string? Value, bool HasValue);

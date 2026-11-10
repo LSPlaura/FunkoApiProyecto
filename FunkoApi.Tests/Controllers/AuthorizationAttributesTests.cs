@@ -11,6 +11,7 @@ namespace FunkoApi.Tests.Controllers;
 public class AuthorizationAttributesTests
 {
     [TestCase(typeof(CategoriasController), nameof(CategoriasController.GetAll), "ADMIN,USER")]
+    [TestCase(typeof(CategoriasController), nameof(CategoriasController.GetPaged), "ADMIN,USER")]
     [TestCase(typeof(CategoriasController), nameof(CategoriasController.GetById), "ADMIN,USER")]
     [TestCase(typeof(CategoriasController), nameof(CategoriasController.GetByName), "ADMIN,USER")]
     [TestCase(typeof(CategoriasController), nameof(CategoriasController.Post), "ADMIN")]
@@ -25,6 +26,7 @@ public class AuthorizationAttributesTests
     [TestCase(typeof(FunkosController), nameof(FunkosController.UpdateImagen), "ADMIN")]
     [TestCase(typeof(FunkosController), nameof(FunkosController.Delete), "ADMIN")]
     [TestCase(typeof(ProveedoresController), nameof(ProveedoresController.GetAll), "ADMIN")]
+    [TestCase(typeof(ProveedoresController), nameof(ProveedoresController.GetPaged), "ADMIN")]
     [TestCase(typeof(ProveedoresController), nameof(ProveedoresController.GetById), "ADMIN")]
     [TestCase(typeof(ProveedoresController), nameof(ProveedoresController.Create), "ADMIN")]
     [TestCase(typeof(ProveedoresController), nameof(ProveedoresController.Update), "ADMIN")]

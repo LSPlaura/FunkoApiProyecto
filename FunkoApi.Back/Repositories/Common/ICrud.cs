@@ -46,4 +46,12 @@ public interface ICrud<TValue, TKey> {
     /// </summary>
     /// <returns>Colección de entidades encontradas.</returns>
     Task<IEnumerable<TValue>> GetAll();
+
+    /// <summary>
+    /// Cuenta los registros y recupera únicamente la página solicitada desde la base de datos.
+    /// </summary>
+    /// <param name="page">Número de página, desde 1.</param>
+    /// <param name="pageSize">Número máximo de elementos por página.</param>
+    /// <returns>Elementos de la página y total de registros.</returns>
+    Task<(IEnumerable<TValue> Items, int TotalItems)> GetPaged(int page, int pageSize);
 }

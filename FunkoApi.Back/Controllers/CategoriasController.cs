@@ -1,4 +1,6 @@
 using CSharpFunctionalExtensions;
+using FunkoApi.Back.Dto;
+using FunkoApi.Back.Helpers;
 using FunkoApi.Back.Dto.Categoria;
 using FunkoApi.Back.Dto.Documentation;
 using Swashbuckle.AspNetCore.Annotations;
@@ -27,6 +29,32 @@ public class CategoriasController(ICategoriaService service) : ControllerBase {
     [SwaggerResponse(200, "Colección sin paginar. El repositorio actual incluye categorías eliminadas lógicamente.", typeof(IEnumerable<CategoriaDto>))]
     public async Task<ActionResult<IEnumerable<CategoriaDto>>> GetAll() {
         return Ok(await service.GetAll());
+    }
+
+    /// <summary>Obtiene una página de categorías consultada en la base de datos.</summary>
+    /// <param name="page">Número de página, por defecto 1.</param>
+    /// <param name="pageSize">Tamaño de página, por defecto 10 y ajustado entre 1 y 100.</param>
+    /// <returns>Datos, metadatos y cabecera Link cuando procede.</returns>
+    [Authorize(Roles = "ADMIN,USER")]
+    [HttpGet("paged")]
+    [SwaggerOperation(OperationId = "Categorias_GetPaged")]
+    [SwaggerResponse(200, "Objeto data/pagination. Incluye eliminados lógicamente.", typeof(PagedResponse<CategoriaDto>))]
+    [SwaggerResponse(400, "page o pageSize no son enteros válidos.", typeof(ValidationProblemDetails))]
+    public async Task<ActionResult<PagedResponse<CategoriaDto>>> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 10) {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var (items, totalPages, totalItems) = await service.GetPaged(page, pageSize);
+        var baseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
+        var linkHeader = PaginationHelper.CreateLinkHeader(page, totalPages, pageSize, baseUrl);
+        if (!string.IsNullOrEmpty(linkHeader)) Response.Headers["Link"] = linkHeader;
+
+        return Ok(new PagedResponse<CategoriaDto> {
+            Data = items.ToList(),
+            Pagination = new PageMetadata(page, pageSize, totalPages, totalItems)
+        });
     }
 
     /// <summary>

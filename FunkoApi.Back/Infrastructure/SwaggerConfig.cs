@@ -15,7 +15,7 @@ public static class SwaggerConfig {
                 Description = "API REST de autenticación, categorías, funkos y proveedores. " +
                     "Las operaciones protegidas requieren un JWT; cada operación indica los roles admitidos. " +
                     "Los errores de dominio usan message, la validación automática usa ValidationProblemDetails " +
-                    "y las excepciones usan errorId/status/message/timestamp/path/method. " +
+                    "y las excepciones usan errorId/status/message/timestamp/path/method; path es un objeto con value y hasValue. " +
                     "La creación y el borrado de Funkos encolan un email: una respuesta correcta no garantiza su entrega. " +
                     "Consultar Doc/Auditoria-Endpoints-OpenAPI.md para las limitaciones detectadas."
             });

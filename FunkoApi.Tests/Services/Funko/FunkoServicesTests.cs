@@ -476,7 +476,10 @@ public class FunkoServicesTests
         var categoria = new Categoria("Marvel", false, fecha, fecha, CategoriaId);
         var funkos = Enumerable.Range(1, cantidad).Select(i => new Back.Models.Funko(i, $"Funko {i}", 15m, 1,
             "imagen.png", CategoriaId, categoria, ObjectId.Parse(ProveedorId), false, fecha, fecha)).ToList();
-        _repositoryMock.Setup(r => r.GetAll()).ReturnsAsync(funkos);
+        var pagina = Math.Max(page, 1);
+        var tamano = Math.Clamp(size, 1, 100);
+        var items = funkos.Skip((pagina - 1) * tamano).Take(tamano);
+        _repositoryMock.Setup(r => r.GetPaged(pagina, tamano)).ReturnsAsync((items, cantidad));
 
         // Act
         var resultado = await _service.GetPaged(page, size);
@@ -490,7 +493,8 @@ public class FunkoServicesTests
             var primerId = (Math.Max(page, 1) - 1) * Math.Clamp(size, 1, 100) + 1;
             resultado.Items.Select(f => f.Id).Should().Equal(Enumerable.Range(primerId, esperados).Select(i => (long)i));
         }
-        _repositoryMock.Verify(r => r.GetAll(), Times.Once);
+        _repositoryMock.Verify(r => r.GetPaged(pagina, tamano), Times.Once);
+        _repositoryMock.Verify(r => r.GetAll(), Times.Never);
     }
 
     [TestCase(true)]

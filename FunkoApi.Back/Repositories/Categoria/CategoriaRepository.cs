@@ -21,6 +21,22 @@ internal class CategoriaRepository(
             .ToListAsync();
     }
 
+    /// <summary>Recupera una página de categorías y el total de registros.</summary>
+    public async Task<(IEnumerable<Models.Categoria> Items, int TotalItems)> GetPaged(int page, int pageSize) {
+        logger.LogDebug("Obteniendo página {Page} de categorías con tamaño {PageSize}", page, pageSize);
+        var query = context.Categorias
+            .AsNoTracking()
+            .OrderBy(c => c.Nombre);
+
+        var total = await query.CountAsync();
+        var items = await query
+            .Skip((page - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+
+        return (items, total);
+    }
+
     /// <inheritdoc cref="ICategoriaRepository.GetById" />
     public async Task<Models.Categoria?> GetById(string key) {
         logger.LogDebug("Obteniendo categoría por ID: {Key}", key);

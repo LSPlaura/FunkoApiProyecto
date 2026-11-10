@@ -8,8 +8,9 @@ La auditoría inicial indica como base el estado local derivado de `c1159e8`.
 Al retomar el trabajo en el PC de casa se han revisado los controladores, el filtro y las pruebas
 documentales presentes en esta copia; las comprobaciones de esta continuación figuran al final.
 
-Se documenta **lo que hace el código actual**, no un contrato ideal. No se han modificado rutas,
-permisos, validaciones, retornos, servicios ni acceso a datos. No se han enviado correos ni
+Se documenta **lo que hace el código actual**, no un contrato ideal. La auditoría inicial no modificó rutas,
+permisos, validaciones, retornos, servicios ni acceso a datos. En el cierre se ha separado la ruta
+de búsqueda de Funkos por nombre a petición de Lucia; se detalla al final. No se han enviado correos ni
 ejecutado peticiones que creen, actualicen o borren datos de la API desplegada.
 
 ### Referencias del profesor consultadas
@@ -142,7 +143,7 @@ Un segundo DELETE puede responder **200 false** porque el repositorio mide Modif
 | --- | --- | --- | --- | --- |
 | GET `/api/funkos` | ADMIN/USER | Ninguna | 200 FunkoDto[] | Sin error de dominio explícito |
 | GET `/api/funkos/{id}` | ADMIN | Número en ruta, acción Int32 | 200 FunkoDto | 400 fuera de rango Int32; 404 inexistente |
-| GET `/api/funkos/{nombre}` | ADMIN | Nombre exacto en ruta | 200 FunkoDto | 404 inexistente |
+| GET `/api/funkos/nombre/{nombre}` | ADMIN | Nombre exacto en ruta | 200 FunkoDto | 404 inexistente |
 | GET `/api/funkos/paged` | ADMIN/USER | page=1, pageSize=10 en query | 200 PagedResponse de FunkoDto + Link cuando procede | 400 si no se pueden convertir a entero |
 | POST `/api/funkos` | ADMIN | Formulario descrito abajo | 201 FunkoDto + Location | 400 binding o relaciones inexistentes; 409 duplicado/fallo capturado al crear; 422 imagen inválida; 500 almacenamiento/ObjectId inválido |
 | PUT `/api/funkos/{id}` | ADMIN | Int32 en ruta + formulario | 200 FunkoDto | 400 binding, relaciones o imagen ausente; 404 inexistente; 409 duplicado; 422 imagen/transacción; 500 almacenamiento/ObjectId inválido |
@@ -212,10 +213,15 @@ Las respuestas de validación se documentan en application/problem+json.
   "status":500,
   "message":"Ha ocurrido un error interno",
   "timestamp":"2026-11-09T12:00:00.0000000Z",
-  "path":"/api/proveedores/identificador-invalido",
+  "path":{"value":"/api/proveedores/identificador-invalido","hasValue":true},
   "method":"GET"
 }
 ```
+
+`path` es actualmente un objeto: el middleware serializa `HttpContext.Request.Path`
+(`PathString`), no su conversión a cadena. `RequestPathResponse` reproduce sus campos
+`value` y `hasValue` exclusivamente para documentar la salida existente. Si `value` es
+null, el middleware lo omite. No se ha cambiado el middleware para obtener otro formato.
 
 Mapeo transversal: ArgumentException -> 400; UnauthorizedAccessException -> 401;
 TimeoutException -> 408; DbUpdateException -> 409; cualquier otra excepción -> 500.
@@ -236,6 +242,11 @@ no MessageErrorResponse. El formato application/problem+json conserva Validation
 El 401 transversal por UnauthorizedAccessException también se documenta en acciones públicas;
 esto no significa que login/signup exijan JWT. Login conserva además su error de credenciales.
 
+El 500 combina `MessageErrorResponse` y `ExceptionErrorResponse` sin duplicar referencias.
+En operaciones con entradas, el 400 en `application/json` también incluye
+`ValidationProblemDetails` junto a los esquemas ya declarados, sin anidar ni repetir los
+`anyOf`. `application/problem+json` mantiene únicamente `ValidationProblemDetails`.
+
 ## Hallazgos pendientes (no corregidos por esta tarea)
 
 | ID | Prioridad | Evidencia y consecuencia |
@@ -243,7 +254,6 @@ esto no significa que login/signup exijan JWT. Login conserva además su error d
 | F-01 | Alta | FunkosController.UpdateImagen construye UpdateFunkoDto sin Proveedor. ProveedorMongoRepository.ExistsById convierte el valor vacío con ObjectId.Parse: puede producir 500 después de eliminar la imagen anterior y guardar la nueva. Si se superase esa comprobación, el servicio guardaría de nuevo el archivo. No es un PATCH seguro. |
 | F-02 | Alta | Create/Update de Funkos construyen sus DTO dentro de la acción. ApiController no valida esas instancias: los límites de precio, stock y longitud declarados en los DTO no garantizan el contrato de entrada del formulario. |
 | F-03 | Media | GetById/Delete/Update de Funkos reciben int pero sus rutas usan long y el servicio usa long. La salida expone Int64 que algunas acciones no admiten. |
-| F-04 | Media | GET /api/funkos/{id:long} y GET /api/funkos/{nombre} comparten forma de URL. Swagger genera ambas claves, pero OpenAPI no expresa la restricción de routing que distingue estas plantillas equivalentes. Puede causar ambigüedad en importadores/generadores de clientes. Hace falta acordar una ruta de búsqueda distinta; no se cambia silenciosamente una URL pública. |
 | F-05 | Media | ProveedorMongoRepository y ExistAnyFunkoProveedor usan ObjectId.Parse sin validación previa. IDs mal formados producen 500 en vez de una respuesta de entrada inválida. |
 | F-06 | Media | Los listados incluyen IsDeleted; consultas por ID/nombre de categorías y proveedores tampoco lo filtran. No se puede afirmar que todos los GET devuelvan solo recursos activos. |
 | F-07 | Media | GlobalExceptionHandler, DomainErrorExtensions y ApiController tienen formatos distintos. ForbiddenError cae en 500 y no en 403. El profesor prioriza ProblemDetails, pero migrar el formato sería un cambio de contrato y no se ha realizado. |
@@ -270,7 +280,7 @@ transforman sus queries en endpoints REST ficticios. No hay controlador de desca
 - El host documental de pruebas **no ejecuta Program.cs**, seeders ni envío SMTP, y no arranca
   un servidor contra las bases de datos de la alumna.
 - Generar Swagger y pasar tests no equivale a haber probado todos los códigos por HTTP.
-- F-04 impide asegurar compatibilidad total con herramientas OpenAPI hasta decidir las rutas.
+- Se comprueba que no existen operaciones con el mismo método y plantilla al normalizar los nombres de parámetros de ruta.
 - No se garantiza la serialización XML de todos los modelos ni se ha certificado el transporte
   de GraphQL/SignalR, los límites del proxy o la entrega de emails.
 - Los resultados concretos de compilación y pruebas ejecutadas se comunican en la entrega.
@@ -289,4 +299,40 @@ transforman sus queries en endpoints REST ficticios. No hay controlador de desca
   El resumen XML del PATCH ya no afirma que el flujo sea seguro mientras siga pendiente F-01.
 - No se ha arrancado Program.cs, Docker ni la API, ni se han ejecutado peticiones HTTP
   contra datos reales. Los 13 hallazgos de negocio/contrato siguen pendientes; esta
-  continuación corrige documentación, no certifica el funcionamiento de todos los endpoints.
+   continuación corrige documentación, no certifica el funcionamiento de todos los endpoints.
+
+### Cierre de Swagger y separación de rutas (10 de noviembre de 2026)
+
+- **F-04 resuelto:** la búsqueda exacta por nombre pasa a
+  `GET /api/Funkos/nombre/{nombre}`. Se conserva `GET /api/Funkos/{id:long}` para
+  consultar por ID y `GET /api/Funkos/paged` para paginación. No se mantiene un alias
+  con la plantilla antigua, porque volvería a introducir la coincidencia. Los clientes
+  que buscaban por nombre deben utilizar la nueva URL; los permisos ADMIN no cambian.
+- Se han actualizado README, inventario OpenAPI y las cinco peticiones Bruno de
+  búsqueda por nombre (cuatro activas y una plantilla de `Resueltas`). No se han ejecutado
+  peticiones E2E contra datos existentes.
+- Se corrige el esquema de excepciones: `path` es `RequestPathResponse` con
+  `value` y `hasValue`, como la respuesta del middleware. Las pruebas deserializan
+  el JSON real del manejador con ese DTO documental, sin modificar el manejador.
+- El 500 documenta dominio y excepción sin duplicados. El 400 de las operaciones
+  con entradas incluye la validación automática en JSON sin perder los errores de dominio.
+- Los seis cuerpos JSON se marcan como obligatorios. Login y signup documentan
+  email, contraseña de 8 a 100 caracteres y campos obligatorios no nulos; signup
+  conserva los máximos de nombre (50) y apellidos (100). Las restricciones de estos
+  records posicionales se reflejan en el filtro, ya que el generador no estaba
+  recogiendo las anotaciones situadas en los parámetros del constructor.
+- No se publican como validación efectiva los rangos de los DTOs de Funkos creados
+  dentro de las acciones. No se han modificado las validaciones ni la lógica de los servicios.
+- Las pruebas documentales comprueban explícitamente el inventario de las 22 operaciones,
+  las entradas JSON/formulario, las salidas, los esquemas corregidos y la ausencia de
+  plantillas equivalentes por método HTTP.
+- Los otros hallazgos de negocio del inventario siguen fuera de esta corrección de Swagger;
+  no se declara que estén solucionados por pasar las pruebas documentales.
+- Comprobaciones finales: **77 pruebas relacionadas con Swagger, DTOs documentales y
+  middleware correctas**; suite sin integración, **524 correctas, 0 fallidas y 0 omitidas**.
+  Compilación del proyecto de tests y su API correcta. `git diff --check` sin errores de espacios.
+  Permanecen avisos existentes de paquetes y comentarios XML. No se ha reiniciado la API,
+  ejecutado seeders ni realizado una ejecución de Bruno o de integración en este cierre.
+- Guía: apartados 24.3, 24.4, 24.6 y 24.9 del material enlazado al principio y las rutas
+  con segmento literal del `ProductosController` de `22-ProductosComplete`. La ruta
+  `nombre/{nombre}` es la adaptación a esta API; no se atribuye ese nombre exacto al ejemplo.

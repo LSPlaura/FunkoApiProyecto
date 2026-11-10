@@ -70,6 +70,45 @@ public class CategoriaRepositoryTests
         if (_container is not null) await _container.DisposeAsync();
     }
 
+    [TestCase(1, 2)]
+    [TestCase(2, 2)]
+    [TestCase(3, 2)]
+    [TestCase(10, 2)]
+    [TestCase(int.MaxValue, 1)]
+    public async Task GetPaged_ConDatos_RetornaPaginaOrdenadaYTotal(int page, int size)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var nombres = new[] { "Zeta", "Alpha", "Gamma", "Beta", "Omega" };
+        await _context.Categorias.AddRangeAsync(nombres.Select((nombre, i) =>
+            new Categoria(nombre, i == 3, fecha, fecha, $"cat{i:00000000}")));
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+        var esperados = nombres.OrderBy(n => n).Skip((page - 1) * size).Take(size).ToArray();
+
+        // Act
+        var resultado = await _repository.GetPaged(page, size);
+
+        // Assert
+        resultado.TotalItems.Should().Be(5);
+        resultado.Items.Select(c => c.Nombre).Should().Equal(esperados);
+        _context.ChangeTracker.Entries().Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task GetPaged_SinDatos_RetornaPaginaVaciaYTotalCero()
+    {
+        // Arrange
+        const int page = 1;
+
+        // Act
+        var resultado = await _repository.GetPaged(page, 10);
+
+        // Assert
+        resultado.Items.Should().BeEmpty();
+        resultado.TotalItems.Should().Be(0);
+    }
+
     [Test]
     public async Task Create_CategoriaValida_PersisteYActualizaFechaCreacion()
     {
@@ -199,6 +238,23 @@ public class CategoriaRepositoryTests
         resultado.Should().Be(existe);
         if (existe) (await _repository.GetById(Id))!.IsDeleted.Should().BeTrue();
         else (await _repository.GetAll()).Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task SoftDelete_YaEliminada_ConservaRegistroYActualizaFecha()
+    {
+        // Arrange
+        var fecha = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        await _repository.Create(new Categoria("Marvel", true, fecha, fecha, Id));
+
+        // Act
+        var resultado = await _repository.SoftDelete(Id);
+
+        // Assert
+        resultado.Should().BeTrue();
+        var persistida = await _context.Categorias.AsNoTracking().SingleAsync();
+        persistida.IsDeleted.Should().BeTrue();
+        persistida.UpdatedAt.Should().BeAfter(fecha);
     }
 
     [TestCase(true)]

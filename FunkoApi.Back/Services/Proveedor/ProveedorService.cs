@@ -128,6 +128,17 @@ public class ProveedorService(
         return updated.ToDto();
     }
 
+    /// <inheritdoc cref="IProveedorService.GetPaged"/>
+    public async Task<(IEnumerable<ProveedorDto> Items, int TotalPages, int TotalItems)> GetPaged(int page, int pageSize) {
+        page = Math.Max(page, 1);
+        pageSize = Math.Clamp(pageSize, 1, 100);
+
+        var (items, totalItems) = await repository.GetPaged(page, pageSize);
+        var totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+
+        return (items.Select(p => p.ToDto()), totalPages, totalItems);
+    }
+
     /// <inheritdoc cref="IProveedorService.GetAll"/>
     public async Task<IEnumerable<ProveedorDto>> GetAll() {
         logger.LogInformation("Obteniendo todos los proveedores...");

@@ -86,14 +86,18 @@ public class DatabaseInitializationExtensionsTests
         mongoClientMock.Verify(c => c.DropDatabaseAsync("initialization_test", default), Times.Once);
         (await contexto.Users.CountAsync()).Should().Be(2);
     }
+}
 
-    [Test]
-    public async Task InitializeDatabaseAsync_Production_ConservaDatosYNoEjecutaSeedersDestructivos()
+[TestFixture]
+public class DatabaseInitializationWithoutSeedingTests
+{
+    [TestCase("Production")]
+    [TestCase("Staging")]
+    public async Task InitializeDatabaseAsync_FueraDeDevelopment_ConservaDatosYNoEjecutaSeedersDestructivos(string entorno)
     {
-        // Arrange: solo se usa PostgreSQL temporal de Testcontainers, no la API desplegada.
+        // Arrange: esta rama solo usa Identity; no ejecuta SQL ni transacciones.
         await using var contexto = new AppDbContext(new DbContextOptionsBuilder<AppDbContext>()
-            .UseNpgsql(_container.GetConnectionString()).Options);
-        await contexto.Database.EnsureDeletedAsync();
+            .UseInMemoryDatabase(Guid.NewGuid().ToString()).Options);
         await contexto.Database.EnsureCreatedAsync();
         var fecha = DateTime.UtcNow;
         contexto.Categorias.Add(new Categoria("Conservar", false, fecha, fecha, "conservar01"));
@@ -103,7 +107,7 @@ public class DatabaseInitializationExtensionsTests
         var mongoClientMock = new Mock<IMongoClient>();
         var mongoDatabaseMock = new Mock<IMongoDatabase>();
         mongoDatabaseMock.Setup(d => d.Client).Returns(mongoClientMock.Object);
-        var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = "Production" });
+        var builder = WebApplication.CreateBuilder(new WebApplicationOptions { EnvironmentName = entorno });
         builder.Services.AddSingleton(contexto);
         builder.Services.AddSingleton(mongoDatabaseMock.Object);
         builder.Services.AddSingleton(repositorioMock.Object);

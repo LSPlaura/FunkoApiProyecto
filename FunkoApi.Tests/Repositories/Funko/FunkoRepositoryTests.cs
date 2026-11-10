@@ -66,6 +66,49 @@ public class FunkoRepositoryTests
     private FunkoRepository _repository = null!;
     private bool _databaseCreated;
 
+    [TestCase(1, 2)]
+    [TestCase(2, 2)]
+    [TestCase(3, 2)]
+    [TestCase(10, 2)]
+    [TestCase(int.MaxValue, 1)]
+    public async Task GetPaged_ConDatos_RetornaPaginaOrdenadaConCategoriaYTotal(int page, int size)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        var nombres = new[] { "Zeta", "Alpha", "Gamma", "Beta", "Omega" };
+        await _context.Categorias.AddAsync(categoria);
+        await _context.Funkos.AddRangeAsync(nombres.Select((nombre, i) => new Back.Models.Funko(
+            i + 1, nombre, 15m, 1, "imagen.png", categoria.Id, categoria,
+            ObjectId.Parse("000000000000000000000001"), i == 3, fecha, fecha)));
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+        var esperados = nombres.OrderBy(n => n).Skip((page - 1) * size).Take(size).ToArray();
+
+        // Act
+        var resultado = await _repository.GetPaged(page, size);
+
+        // Assert
+        resultado.TotalItems.Should().Be(5);
+        resultado.Items.Select(f => f.Nombre).Should().Equal(esperados);
+        resultado.Items.Should().OnlyContain(f => f.Categoria != null && f.Categoria.Nombre == "Marvel");
+        _context.ChangeTracker.Entries().Should().BeEmpty();
+    }
+
+    [Test]
+    public async Task GetPaged_SinDatos_RetornaPaginaVaciaYTotalCero()
+    {
+        // Arrange
+        const int page = 1;
+
+        // Act
+        var resultado = await _repository.GetPaged(page, 10);
+
+        // Assert
+        resultado.Items.Should().BeEmpty();
+        resultado.TotalItems.Should().Be(0);
+    }
+
     [Test]
     public async Task Create_FunkoValido_SeGuardaEnPostgreSQL()
     {
@@ -238,6 +281,33 @@ public class FunkoRepositoryTests
         persistido.Categoria!.Id.Should().Be(categoria.Id);
         persistido.CreatedAt.Should().BeCloseTo(funko.CreatedAt, TimeSpan.FromMilliseconds(1));
         persistido.UpdatedAt.Should().BeOnOrAfter(persistido.CreatedAt);
+    }
+
+    [Test]
+    public async Task Update_CambiaCategoria_RecargaRelacionYConservaFechaCreacion()
+    {
+        // Arrange
+        var fecha = new DateTime(2026, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var anterior = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        var nueva = new Categoria("Anime", false, fecha, fecha, "cat00000002");
+        await _context.Categorias.AddRangeAsync(anterior, nueva);
+        await _context.SaveChangesAsync();
+        var funko = await _repository.Create(new Back.Models.Funko(0, "Iron Man", 15m, 1,
+            "imagen.png", anterior.Id, anterior, ObjectId.Parse("000000000000000000000001"), false, fecha, fecha));
+        _context.ChangeTracker.Clear();
+
+        // Act
+        var resultado = await _repository.Update(funko with { CategoriaId = nueva.Id, Categoria = nueva });
+
+        // Assert
+        resultado.Should().NotBeNull();
+        resultado!.CategoriaId.Should().Be(nueva.Id);
+        resultado.Categoria!.Nombre.Should().Be(nueva.Nombre);
+        var persistido = await _repository.GetById(funko.Id);
+        persistido!.Categoria!.Id.Should().Be(nueva.Id);
+        persistido.CreatedAt.Should().Be(fecha);
+        persistido.UpdatedAt.Should().BeAfter(fecha);
+        (await _context.Categorias.CountAsync()).Should().Be(2);
     }
 
     [Test]
