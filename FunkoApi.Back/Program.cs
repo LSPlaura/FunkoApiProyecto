@@ -99,6 +99,7 @@ try {
     
     app.UseAuthentication();
     app.UseAuthorization();
+    app.MapGraphQlEndpoints();
 
     if (app.Environment.IsDevelopment()) {
         app.UseSwagger();
