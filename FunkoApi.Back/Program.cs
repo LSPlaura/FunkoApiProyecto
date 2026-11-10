@@ -43,11 +43,10 @@ try {
 
     // ── SERVICIOS ─────────────────────────────────────────────────────────────
     builder.Services.AddControllers(options =>
-        {
-            options.RespectBrowserAcceptHeader = true;
-            options.ReturnHttpNotAcceptable = true;
-        })
-        .AddXmlDataContractSerializerFormatters();
+    {
+        options.RespectBrowserAcceptHeader = true;
+        options.ReturnHttpNotAcceptable = true;
+    });
 
     builder.Services.AddSwaggerConfiguration();
 
