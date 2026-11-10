@@ -1,5 +1,13 @@
 # FunkoApi.Back 🛍️
 
+## Documentación de endpoints (Swagger/OpenAPI)
+
+La auditoría de los 4 controladores y sus 22 operaciones está en
+[Doc/Auditoria-Endpoints-OpenAPI.md](Doc/Auditoria-Endpoints-OpenAPI.md).
+Con la API actualizada en Development: `/swagger/index.html` (interfaz) y
+`/swagger/v1/swagger.json` (documento OpenAPI). Incluye entradas, salidas, roles,
+errores reales y limitaciones detectadas; no implica que todos los fallos de negocio estén corregidos.
+
 [![.NET](https://img.shields.io/badge/.NET-10-blue)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-10-blue)](https://dotnet.microsoft.com/en-us/apps/aspnet)
 [![C#](https://img.shields.io/badge/C%23-14-blue)](https://docs.microsoft.com/en-us/dotnet/csharp/)

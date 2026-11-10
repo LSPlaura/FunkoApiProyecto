@@ -8,6 +8,7 @@ namespace FunkoApi.Back.Dto.Proveedor;
 public record CreateProveedorDto {
     
     /// <summary>Nombre del proveedor que se quiere incorporar al catálogo.</summary>
+    /// <example>Distribuciones Coleccionables</example>
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [StringLength(100, ErrorMessage = "El nombre no puede superar los 100 caracteres")]
     public string Nombre { get; init; } = string.Empty;

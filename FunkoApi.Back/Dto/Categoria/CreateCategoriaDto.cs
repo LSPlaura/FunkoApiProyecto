@@ -10,6 +10,7 @@ public record CreateCategoriaDto {
     /// <summary>
     /// Obtiene o establece el nombre de la nueva categoría.
     /// </summary>
+    /// <example>Marvel</example>
     [Required(ErrorMessage = "El nombre es obligatorio")]
     [MaxLength(100, ErrorMessage = "El nombre no puede tener más de 100 caracteres")]
     public string Nombre { get; init; } = string.Empty;
