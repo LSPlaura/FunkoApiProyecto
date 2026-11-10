@@ -53,13 +53,13 @@ try {
 
     // Registrar SignalR para las conexiones del hub de Funkos.
     builder.Services.AddSignalR();
-    // Permitir el cliente del editor en los dos orígenes locales utilizados, con credenciales.
+    // Leer los orígenes del entorno activo y conservar las credenciales de SignalR.
+    var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
+        ?? Array.Empty<string>();
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("ClienteSignalR", policy =>
-            policy.WithOrigins(
-                    "http://127.0.0.1:3000",
-                    "http://127.0.0.1:5500")
+            policy.WithOrigins(allowedOrigins)
                 .AllowAnyHeader()
                 .AllowAnyMethod()
                 .AllowCredentials());

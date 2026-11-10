@@ -216,6 +216,20 @@ Infrastructure (EF Core, MongoDB, Redis, Storage, Identity)
 
 ## 🔐 Seguridad (JWT y roles)
 
+### CORS por entorno
+
+`Program.cs` lee `Cors:AllowedOrigins` de la configuración. En Development
+se conservan `http://127.0.0.1:3000` y `http://127.0.0.1:5500`.
+En Production la lista queda vacía: configura el origen real del cliente
+en `appsettings.Production.json` o mediante `Cors__AllowedOrigins__0`
+(y `Cors__AllowedOrigins__1` para otro origen). Usa el origen completo,
+incluido esquema y puerto si corresponde, sin ruta ni barra final.
+Se mantienen las credenciales para SignalR y CORS antes de autenticación.
+
+Referencia: [UD02, configuración por entorno (25.2)](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/25-perfiles.md)
+y [CorsConfig del profesor](https://github.com/joseluisgs/TiendaDawApi-NetCore/blob/main/TiendaApi.Api/Infrastructures/CorsConfig.cs).
+Se adapta la lectura de orígenes, sin abrir todos los orígenes en desarrollo.
+
 - **Autenticación**: JWT simétrico con `HMAC-SHA256`. La clave proviene de variable de entorno `Jwt__Key`.
 - **Identity**: `AppUser : IdentityUser<long>` con email único, roles en tabla de unión `AspNetUserRoles` (no como propiedad de la entidad).
 - **Login**: `FindByEmailAsync` → `CheckPasswordSignInAsync(..., lockoutOnFailure: false)` → `GetRolesAsync` → generación de token.
