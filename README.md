@@ -1,16 +1,5 @@
 # FunkoApi.Back 🛍️
 
-## Documentación de endpoints (Swagger/OpenAPI)
-
-La auditoría de los 4 controladores y sus 22 operaciones está en
-[Doc/Auditoria-Endpoints-OpenAPI.md](Doc/Auditoria-Endpoints-OpenAPI.md).
-Con la API actualizada en Development: `/swagger/index.html` (interfaz) y
-`/swagger/v1/swagger.json` (documento OpenAPI). Incluye entradas, salidas, roles,
-errores reales y limitaciones detectadas; no implica que todos los fallos de negocio estén corregidos.
-
-Paginación en base de datos para Funkos, Categorías y Proveedores:
-[endpoints `/paged` y funcionamiento](Doc/Paginacion-BD.md).
-
 [![.NET](https://img.shields.io/badge/.NET-10-blue)](https://dotnet.microsoft.com/)
 [![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-10-blue)](https://dotnet.microsoft.com/en-us/apps/aspnet)
 [![C#](https://img.shields.io/badge/C%23-14-blue)](https://docs.microsoft.com/en-us/dotnet/csharp/)
@@ -21,7 +10,7 @@ Paginación en base de datos para Funkos, Categorías y Proveedores:
 
 **API REST didáctica de catálogo de Funkos** desarrollada con **.NET 10, ASP.NET Core 10 y C# 14** como parte del módulo *Entorno Servidor* (2DAW, Tema 2).
 
-Implementa una API RESTful completa sobre HTTP con **autenticación JWT, autorización por roles, almacenamiento de ficheros, servicios de negocio, repositorios, dos bases de datos (PostgreSQL + MongoDB) y caché Redis**. Incluye pruebas unitarias, de integración (Testcontainers) y E2E con Bruno.
+Implementa una API RESTful completa sobre HTTP con **autenticación JWT, autorización por roles, almacenamiento de ficheros, servicios de negocio, repositorios genéricos, dos bases de datos (PostgreSQL + MongoDB) y caché distribuida Redis**. Incluye pruebas unitarias, de integración con Testcontainers y E2E con Bruno.
 
 ---
 
@@ -29,14 +18,15 @@ Implementa una API RESTful completa sobre HTTP con **autenticación JWT, autoriz
 
 El proyecto resuelve el enunciado didáctico de construir un servicio backend profesional que exponga un catálogo de productos coleccionables (Funkos) mediante una **API REST sobre HTTP**, cubriendo los requisitos típicos de una aplicación real:
 
-- **Autenticación y autorización**: login/registro con JWT, roles `ADMIN` y `USER`, protección de endpoints con `[Authorize]`.
-- **Almacenamiento de ficheros**: subida de imágenes de Funkos con validación de seguridad (extensión, tipo MIME, tamaño, nombre).
-- **Lógica de negocio en servicios**: los controladores son delgados; la orquestación vive en servicios (`FunkoServices`, `CategoriaService`, `ProveedorService`, `AuthService`).
-- **Acceso a datos con repositorios**: patrón Repository sobre dos tecnologías distintas.
-- **Dos bases de datos**: PostgreSQL (EF Core) para entidades relacionales y MongoDB (driver nativo) para proveedores.
-- **Caché distribuida**: Redis para lecturas frecuentes.
+- **Autenticación y autorización**: login/registro con ASP.NET Core Identity + JWT, roles `ADMIN` y `USER`, protección por acción con `[Authorize(Roles = "...")]`.
+- **Almacenamiento de ficheros**: subida de imágenes de Funkos con validación de extensión, tipo MIME y tamaño, y nombres únicos.
+- **Lógica de negocio en servicios**: los controladores son delgados; la orquestación vive en `FunkoServices`, `CategoriaService`, `ProveedorService`, `AuthService` y `FunkoTransactionsService`.
+- **Acceso a datos con repositorios**: contrato genérico `ICrud<T, TKey>` y repositorios específicos por agregado.
+- **Dos bases de datos**: PostgreSQL (EF Core) para Funciones, Categorías e Identity; MongoDB (driver nativo) para Proveedores.
+- **Caché distribuida**: Redis con expiración absoluta y deslizante, más bloqueo distribuido contra *cache stampede*.
 - **Manejo de errores tipado**: patrón `Result` con `DomainError` y traducción centralizada a códigos HTTP.
-- **Transacciones con compensación**: borrado/actualización de Funkos con rollback de base de datos y eliminación compensatoria de archivos.
+- **Transacciones con compensación**: alta, actualización y borrado de Funkos con rollback en base de datos y eliminación compensatoria de la imagen subida.
+- **Paginación estándar**: `PagedResponse<T>` + cabeceras `Link` según RFC 5988.
 - **Pruebas**: unitarias (NUnit + Moq + FluentAssertions), integración (Testcontainers con PostgreSQL y MongoDB reales) y E2E (colección de Bruno).
 
 ---
@@ -48,53 +38,61 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 | 1 | [✨ Características](#-características) |
 | 2 | [🚀 Tecnologías utilizadas](#-tecnologías-utilizadas) |
 | 3 | [🏃‍♂️ Inicio rápido](#️-inicio-rápido) |
-| 4 | [🧪 Estrategia de testing](#-estrategia-de-testing) |
+| 4 | [⚙️ Configuración de la aplicación](#️-configuración-de-la-aplicación) |
 | 5 | [🏗️ Arquitectura y patrones](#️-arquitectura-y-patrones) |
 | 6 | [🔐 Seguridad (JWT y roles)](#-seguridad-jwt-y-roles) |
 | 7 | [📡 Endpoints](#-endpoints) |
-| 8 | [🗄️ Entidades por base de datos](#️-entidades-por-base-de-datos) |
-| 9 | [📂 Estructura del proyecto](#-estructura-del-proyecto) |
-| 10 | [🐳 Despliegue con Docker](#-despliegue-con-docker) |
-| 11 | [👥 Usuarios de prueba](#-usuarios-de-prueba) |
-| 12 | [📄 Licencia](#-licencia) |
+| 8 | [🗄️ Modelo de datos y semilla](#️-modelo-de-datos-y-semilla) |
+| 9 | [🔄 Ciclo de arranque](#-ciclo-de-arranque) |
+| 10 | [📂 Estructura del proyecto](#-estructura-del-proyecto) |
+| 11 | [🧪 Estrategia de testing](#-estrategia-de-testing) |
+| 12 | [🐳 Despliegue con Docker](#-despliegue-con-docker) |
+| 13 | [👥 Usuarios de prueba](#-usuarios-de-prueba) |
+| 14 | [📄 Licencia](#-licencia) |
 
 ---
 
 ## ✨ Características
 
 - 🏪 **CRUD completo**: Funkos, Categorías y Proveedores.
-- 🔐 **Autenticación JWT**: login y registro con `UserManager` / `SignInManager` de ASP.NET Core Identity.
-- 🔒 **Autorización por roles**: políticas y atributo `[Authorize(Roles = "ADMIN")]` / `"USER"`.
+- 🔐 **Autenticación JWT**: login y registro con `UserManager`, contraseñas hasheadas por Identity y token simétrico `HMAC-SHA256`.
+- 🔒 **Autorización por roles**: `[Authorize]` y `[Authorize(Roles = "ADMIN,USER")]` a nivel de acción.
 - 🖼️ **Almacenamiento de archivos**: `IStorageService` con `FileSystemStorageService`, validación de seguridad y nombres únicos.
-- ⚡ **Caché Redis**: `ICacheService` con `RedisCacheService`, expiración absoluta y deslizante, bloqueo contra *cache stampede*.
-- 🗄️ **Multi-base de datos**: PostgreSQL (EF Core) + MongoDB (driver nativo, sin `IdentityDbContext`).
-- 🔁 **Patrón Result**: `CSharpFunctionalExtensions` (`Result<T, DomainError>`) con errores de dominio tipados (`NotFoundError`, `ConflictError`, `BusinessRuleError`, etc.).
-- 📐 **DTOs separados por dirección**: `Create*Dto`, `Update*Dto`, `*Dto` (lectura). El dominio nunca se serializa directamente.
-- 🗺️ **Mapeadores manuales**: extensiones `ToDto()` / `ToModel()` para entidad ↔ DTO.
-- ⚙️ **Transacciones con compensación**: `FunkoTransactionsService` con `BeginTransactionAsync`, rollback de EF Core y eliminación de imagen subida si falla.
-- 🧪 **Tests**: unitarios, de integración con contenedores reales y E2E con Bruno.
-- 🐳 **Docker**: `compose.yaml` con PostgreSQL, MongoDB, Redis y API.
+- ⚡ **Caché Redis**: `ICacheService` con `RedisCacheService` y `GetOrSetAsync` (lectura → bloqueo distribuido → fábrica → escritura).
+- 🗄️ **Multi-base de datos**: PostgreSQL (EF Core 10 + Npgsql) + MongoDB (driver nativo `MongoDB.Driver`).
+- 🔁 **Patrón Result**: `CSharpFunctionalExtensions` (`Result<T, DomainError>`) con errores de dominio tipados.
+- 📐 **DTOs separados por dirección**: `Create*Dto`, `Update*Dto` y DTOs de lectura; el modelo de dominio nunca se serializa.
+- 🗺️ **Mapeadores explícitos**: extensiones `ToDto()` / `ToModel()` en `Mappers/`.
+- 🆔 **Identificadores personalizados**: generador de IDs estilo YouTube (11 caracteres) para `Categoria`.
+- ⚙️ **Configuración tipada**: `ApiConfig`, `JwtSettings`, `StorageSettings`, `CacheOptions` con `IOptions<T>`.
+- 🔗 **Factory de cadenas de conexión**: `ConnectionStringGenerator` construye las cadenas de PostgreSQL, MongoDB y Redis a partir de componentes.
+- 📄 **Paginación**: `PagedResponse<T>` con `PageMetadata` y cabecera `Link`.
+- 🧪 **Tests**: unitarios, integración con contenedores reales y E2E con Bruno.
+- 🐳 **Docker**: `compose.yaml` con PostgreSQL, MongoDB, Redis y la API, con `healthcheck` y volúmenes nombrados.
 
 ---
 
 ## 🚀 Tecnologías utilizadas
 
-| Capa | Tecnología | Versión / Uso |
-|------|------------|---------------|
-| Plataforma | .NET / ASP.NET Core | 10.0 |
+| Capa | Tecnología | Versión |
+|------|------------|---------|
+| Plataforma | .NET / ASP.NET Core | `net10.0` |
 | Lenguaje | C# | 14 |
-| ORM relacional | Entity Framework Core + Npgsql | PostgreSQL |
-| Base de datos documentos | MongoDB.Driver | Driver nativo (sin EF Core) |
-| Caché | StackExchange.Redis | Redis distribuido |
-| Autenticación | ASP.NET Core Identity + JWT Bearer | HMAC-SHA256 |
-| Patrón Result | CSharpFunctionalExtensions | `Result<T, TError>` |
-| Documentación API | Swashbuckle.AspNetCore | Swagger / OpenAPI |
-| Serialización JSON | System.Text.Json | Con `ObjectIdJsonConverter` para MongoDB |
-| Logging | Serilog | Consola y archivo rodante |
-| Pruebas unitarias | NUnit + Moq + FluentAssertions | AAA estricto |
-| Pruebas de integración | Testcontainers | PostgreSQL + MongoDB reales |
+| ORM relacional | Entity Framework Core | `10.0.14` |
+| Proveedor PostgreSQL | Npgsql.EntityFrameworkCore.PostgreSQL | `10.0.3` |
+| Base de datos documentos | MongoDB.Driver (nativo) | `3.12.0` |
+| Integración EF + Mongo | MongoDB.EntityFrameworkCore | `10.0.4` |
+| Caché | StackExchange.Redis / DistributedCache | `10.0.14` |
+| Autenticación | Identity + JwtBearer | `10.0.14` |
+| Tokens | Microsoft.IdentityModel.Tokens | `8.23.0` |
+| Patrón Result | CSharpFunctionalExtensions | `3.7.0` |
+| Documentación API | Swashbuckle.AspNetCore | `10.3.1` |
+| Serialización | System.Text.Json | `10.0.12` |
+| Logging | Serilog (Console + File) | `4.4.0` |
+| Pruebas unitarias | NUnit `4.4.0` + Moq `4.20.72` + FluentAssertions `8.8.0` | — |
+| Pruebas de integración | Testcontainers PostgreSql/MongoDb | `4.8.1` |
 | Pruebas E2E | Bruno | Colección `FunkoApi - Tests E2E` |
-| Contenedores | Docker + compose.yaml | Orquestación de servicios |
+| Contenedores | Docker + compose.yaml | PostgreSQL 17, MongoDB 7.0, Redis 7 |
 
 ---
 
@@ -103,38 +101,71 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 ### Requisitos previos
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (para bases de datos y despliegue completo)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (para las bases de datos y el despliegue completo)
 
-### Opción A: Desarrollo local
+La solución usa el nuevo formato `FunkoApi.slnx`, con dos proyectos:
+
+```
+FunkoApi.Back/    → API (ASP.NET Core)
+FunkoApi.Tests/   → pruebas (NUnit)
+```
+
+### Opción A: desarrollo local
 
 ```bash
 # 1. Clona el repositorio
 git clone https://github.com/LSPlaura/FunkoApiProyecto
 
-# 2. Sitúate en el proyecto API
-cd "C:\Users\TU_USUARIO\RiderProjects\FunkoApiProyecto"
+# 2. Sitúate en la raíz de la solución
+cd FunkoApiProyecto
 
 # 3. Restaura paquetes y compila
 dotnet restore
 dotnet build
 
 # 4. Levanta la infraestructura (PostgreSQL, MongoDB, Redis)
-docker compose -f compose.yaml up -d postgres mongodb redis
+docker compose up -d postgres mongodb redis
 
-# 5. Ejecuta la API
-dotnet run
+# 5. Ejecuta la API pasando los secretos por variables de entorno
+#    (en PowerShell)
+$env:Jwt__Key="ClaveSecretaMuyLargaYSegura1234567890"
+$env:PostgresDb__Host="localhost"
+$env:PostgresDb__Port="5432"
+$env:PostgresDb__Database="funkoapi"
+$env:PostgresDb__User="admin"
+$env:PostgresDb__Password="admin123"
+$env:MongoDb__Host="localhost"
+$env:MongoDb__Port="27017"
+$env:MongoDb__Database="funkoapi"
+$env:MongoDb__User="admin"
+$env:MongoDb__Password="admin123"
+$env:Redis__Host="localhost"
+$env:Redis__Port="6379"
+
+dotnet run --project FunkoApi.Back
 ```
 
-La API escucha por defecto en `http://localhost:5000` (puerto configurable en `compose.yaml` / `launchSettings`).  
-Swagger está disponible en `/swagger` solo en entorno de desarrollo.
+Al arrancar, la API imprime en consola el nombre, el entorno y la URL:
 
-### Opción B: Todo con Docker (recomendado)
+```
+========================================
+  Funko API (DEV)
+  Modo desarrollo - depuración activada
+  http://localhost:5000
+  Swagger: http://localhost:5000/swagger
+  Entorno: Development
+========================================
+```
 
-Desde la raíz de la solución:
+> **Importante:** `Jwt:Key` debe tener al menos 32 caracteres para `HMAC-SHA256`. Si no se indica, el arranque falla al construir las credenciales de firma.
+
+Swagger está disponible en `/swagger` **solo** en entorno de desarrollo.
+
+### Opción B: todo con Docker (recomendado)
 
 ```bash
-# Copia el ejemplo de variables de entorno si no existe .env
-cp .env.example .env   # o crea .env con tus secretos
+# Crea el archivo .env con los secretos (ver sección Docker)
+cp .env.example .env
 
 # Levanta todos los servicios (incluye la API)
 docker compose up -d --build
@@ -146,44 +177,55 @@ docker compose logs -f api
 docker compose down
 ```
 
-> **Nota:** Las variables secretas (`Jwt__Key`, `PostgresDb__Password`, `MongoDb__Password`, etc.) van en `.env` y no se suben a Git (están en `.gitignore` y `.dockerignore`). Los nombres de variable usan `__` en lugar de `:` por limitación de YAML/shell (ej. `Jwt__Key`, `Cache__RedisConfiguration`).
+La API queda publicada en **`http://localhost:5000`** (mapeo `5000:8080` del contenedor).
 
 ---
 
-## 🧪 Estrategia de testing
+## ⚙️ Configuración de la aplicación
 
-Se sigue la pirámide de pruebas: **unitarios como base**, integración con contenedores reales y E2E con Bruno.
+La configuración se distribuye en tres ficheros:
 
-### Frameworks
+| Fichero | Uso |
+|---------|-----|
+| `appsettings.json` | Valores por defecto |
+| `appsettings.Development.json` | Sobrescritura en desarrollo (`Api`, `Logging`, `Serilog`) |
+| `appsettings.Production.json` | Sobrescritura en producción (`Api`, hosts Docker, `Logging`) |
 
-Resultados y límites de la ampliación de pruebas: [Doc/Pruebas-y-Cobertura.md](Doc/Pruebas-y-Cobertura.md).
+### Secciones de `appsettings.json`
 
-- **NUnit 4** + **Moq 4** + **FluentAssertions 8** (unitarios)
-- **Testcontainers 4** (PostgreSQL y MongoDB efímeros para integración)
-- **Bruno** (colección `FunkoApi - Tests E2E`)
+| Sección | Claves | Para qué sirve |
+|---------|--------|----------------|
+| `Api` | `Nombre`, `Mensaje` | Configuración tipada (`ApiConfig`) que se muestra al arrancar |
+| `Cache` | `DefaultExpirationMinutes`, `SlidingExpirationMinutes` | TTL de las entradas en caché |
+| `Postgres` / `PostgresDb` | `Host`, `Port`, `Database`, `User`, `Password` | Conexión a PostgreSQL |
+| `MongoDb` | `Host`, `Port`, `Database`, `User`, `Password` | Conexión a MongoDB |
+| `Redis` | `Host`, `Port`, `RedisInstanceName`, `Password` | Conexión y prefijo de claves de Redis |
+| `Storage` | `UploadPath`, `MaxFileSize`, `AllowedExtensions`, `AllowedContentTypes`, `DefaultImage`, `Folders` | Reglas de subida de imágenes |
+| `Jwt` | `Key`, `Issuer`, `Audience`, `ExpireMinutes` | Firma y validación del token (`ExpirationMinutes`, 30 por defecto) |
+| `Logging` / `Serilog` | `LogLevel`, `MinimumLevel`, `WriteTo` | Niveles de log y *sinks* |
 
-### Ejecución
+### Sobrescritura en tiempo de ejecución
+
+Cualquier clave se puede sobrescribir con variables de entorno usando `__` (doble guion bajo) en lugar de `:`:
 
 ```bash
-# Tests sin integración (no requieren Docker)
-dotnet test --filter "TestCategory!=Integration"
-
-# Tests de integración (requiere Docker en ejecución)
-dotnet test --filter "TestCategory=Integration"
-
-# Suite completa (incluye Testcontainers; requiere Docker)
-dotnet test
+Jwt__Key=...
+PostgresDb__Host=localhost
+PostgresDb__Port=5432
+MongoDb__Host=localhost
+Redis__Host=localhost
 ```
 
-### Pruebas E2E con Bruno
+> **Ojo con los nombres:** el código de `DatabaseConfig` lee la sección **`PostgresDb`**, mientras que `appsettings.json` declara `Postgres`. En local hay que definir las variables `PostgresDb__*` (como en el ejemplo de inicio rápido); en Docker ya vienen inyectadas desde `compose.yaml`.
 
-La colección vive en:
+### Configuración tipada
 
-```
-FunkoApi.Tests.E2E/Bruno/FunkoApi - Tests E2E/
-```
-
-Con Bruno (o su CLI) puedes ejecutar la colección contra la API levantada, incluyendo el flujo de autenticación (obtener `token` en `/api/auth/login` y enviarlo en el header `Authorization: Bearer <token>` a los endpoints protegidos).
+| Clase | Sección | Se consume con |
+|-------|---------|----------------|
+| `ApiConfig` | `Api` | `IOptions<ApiConfig>` en `Program.cs` |
+| `JwtSettings` | `Jwt` | `IOptions<JwtSettings>` en `IdentityConfig` |
+| `StorageSettings` | `Storage` | `IOptions<StorageSettings>` en `StorageConfig` y `EfcSeeder` |
+| `CacheOptions` | `Redis` | `IOptions<CacheOptions>` en `RedisCacheService` y los servicios de negocio |
 
 ---
 
@@ -194,102 +236,198 @@ El proyecto sigue una **arquitectura en capas estilo Onion-like**, donde las dep
 ```
 Presentation (Controllers)
     ↓ depende de
-Application (Services)
+Application (Services, DTOs, Mappers)
     ↓ depende de
 Domain (Models, Errors, Result)
-    ← depende de
-Infrastructure (EF Core, MongoDB, Redis, Storage, Identity)
+    ↑ implementado por
+Infrastructure (EF Core, MongoDB, Redis, Storage, Identity, Config)
 ```
 
 ### Principios aplicados
 
 | Principio | Cómo se aplica |
 |-----------|----------------|
-| **SRP** | Controladores delgados: solo traducen HTTP → servicio → respuesta. La lógica de negocio vive en los servicios. |
-| **DIP** | Inyección por constructor con interfaces (`IXxxService`, `IXxxRepository`). Nada de `new` de dependencias concretas en el dominio. |
-| **ROP** | `Result<T, DomainError>` como tipo de retorno en servicios; errores tipados y traducidos centralizadamente a HTTP mediante `DomainErrorExtensions.ToHttpResult<T>()`. |
-| **Repository** | `ICrud<T, TKey>` genérico más interfaces específicas (`IFunkoRepository`, `ICategoriaRepository`, `IProveedorRepository`). |
-| **DTOs separados** | `Create*Dto`, `Update*Dto`, `*Dto` de lectura. Validación con Data Annotations antes de llegar al servicio. |
-| **Mapeo explícito** | Extensiones estáticas en `Mappers/` (`ToDto`, `ToModel`) sin AutoMapper. |
+| **SRP** | Controladores delgados: solo traducen HTTP → servicio → respuesta. La lógica vive en los servicios. |
+| **DIP** | Inyección por constructor con interfaces (`IXxxService`, `IXxxRepository`, `ICacheService`, `IStorageService`). |
+| **OCP / ISP** | `ICrud<T, TKey>` define el contrato mínimo; cada repositorio añade solo lo que necesita (`GetByName`, `ExistsById`, `ExistAnyFunkoProveedor`…). |
+| **ROP** | `Result<T, DomainError>` como tipo de retorno en servicios, con traducción centralizada a HTTP en `DomainErrorExtensions.ToHttpResult<T>()`. |
+| **Repository** | `ICrud<T, TKey>` + `ICategoriaRepository`, `IFunkoRepository`, `IProveedorRepository`. |
+| **Service Layer** | `ICrudService<TValue, TKey, TCreate, TUpdate>`, `IFunkoService`, `ICategoriaService`, `IProveedorService`, `IAuthService`. |
+| **DTOs separados** | `Create*Dto`, `Update*Dto` y de lectura. Validación con Data Annotations antes de llegar al servicio. |
+| **Mapeo explícito** | Extensiones estáticas en `Mappers/` (`ToDto`, `ToModel`), sin AutoMapper. |
+| **Composition Root** | Todo el registro de DI vive en `Infrastructure/*Config.cs` y se encadena en `Program.cs`. |
+
+### Registro de dependencias
+
+`Program.cs` encadena las extensiones del *Composition Root*:
+
+```csharp
+builder.Services
+    .AddCache(builder.Configuration)        // Redis + ICacheService
+    .AddDatabases(builder.Configuration)    // PostgreSQL (EF Core) + MongoDB
+    .AddSeeders(builder.Configuration)      // EfcSeeder, MongoSeeder
+    .AddRepositories(builder.Configuration) // IFunkoRepository, ICategoriaRepository, IProveedorRepository
+    .AddStorage(builder.Configuration)      // IStorageService
+    .AddServices();                         // Servicios de negocio
+```
+
+`AddIdentityConfiguration` se registra aparte porque necesita también `IWebHostEnvironment`.
+
+| Extensión | Fichero | Registra |
+|-----------|---------|----------|
+| `AddDatabases` | `Infrastructure/DatabaseConfig.cs` | `AppDbContext`, `IMongoClient`, `IMongoDatabase`, `DbContextMongo` |
+| `AddIdentityConfiguration` | `Infrastructure/IdentityConfig.cs` | Identity, JWT Bearer, autorización |
+| `AddCache` | `Infrastructure/CacheConfig.cs` | `IDistributedCache`, `IConnectionMultiplexer`, `ICacheService` |
+| `AddStorage` | `Infrastructure/StorageConfig.cs` | `IStorageService` |
+| `AddRepositories` | `Infrastructure/RepositoriesConfig.cs` | Repositorios (`Scoped`) |
+| `AddServices` | `Infrastructure/ServicesConfig.cs` | Servicios de negocio (`Scoped`) |
+| `AddSeeders` | `Infrastructure/SeederConfig.cs` | `EfcSeeder`, `MongoSeeder` |
+
+### Piezas destacadas
+
+- **`Factory/ConnectionStringGenerator`**: construye cadenas de conexión para PostgreSQL, MongoDB y Redis a partir de componentes (`BuildPostgres`, `BuildMongoDb`, `BuildRedis`), evitando cadenas *hardcodeadas*.
+- **`Generators/YouTubeIdValueGenerator`**: `ValueGenerator<string>` de EF Core que produce IDs de 11 caracteres (`A-Z`, `a-z`, `0-9`, `-_`) para `Categoria`.
+- **`Dto/PagedResponse<T>` + `PageMetadata`**: contrato de paginación (`Data`, `Page`, `PageSize`, `TotalPages`, `TotalItems`).
+- **`Helpers/PaginationHelper`**: genera la cabecera `Link` (`first`, `prev`, `next`, `last`) según RFC 5988.
+- **`Services/Funko/Transactions/FunkoTransactionsService`**: transacciones explícitas de EF Core con compensación de ficheros.
 
 ---
 
 ## 🔐 Seguridad (JWT y roles)
 
-### CORS por entorno
+- **Autenticación**: JWT simétrico con `HMAC-SHA256`. La clave viene de `Jwt:Key` (variable de entorno `Jwt__Key`).
+- **Identity**: `AppUser : IdentityUser<long>`, con email único, contraseña de mínimo 8 caracteres, dígito obligatorio y bloqueo tras varios intentos fallidos. Los roles viven en la tabla de unión `AspNetUserRoles`.
+- **Login**: `FindByEmailAsync` → comprobación de contraseña → `GetRolesAsync` → emisión del token con los *claims* de rol.
+- **Autorización**: atributos `[Authorize]`, `[Authorize(Roles = "ADMIN")]` y `[Authorize(Roles = "ADMIN,USER")]` en cada acción.
+- **Manejo global de excepciones**: `GlobalExceptionHandler` (`Middleware/ExceptionHandlerMiddleware.cs`) captura cualquier excepción no controlada, registra un `errorId` y devuelve JSON estandarizado sin filtrar detalles internos:
 
-`Program.cs` lee `Cors:AllowedOrigins` de la configuración. En Development
-se conservan `http://127.0.0.1:3000` y `http://127.0.0.1:5500`.
-En Production la lista queda vacía: configura el origen real del cliente
-en `appsettings.Production.json` o mediante `Cors__AllowedOrigins__0`
-(y `Cors__AllowedOrigins__1` para otro origen). Usa el origen completo,
-incluido esquema y puerto si corresponde, sin ruta ni barra final.
-Se mantienen las credenciales para SignalR y CORS antes de autenticación.
+  ```json
+  {
+    "errorId": "a1b2c3d4",
+    "status": 500,
+    "message": "Ha ocurrido un error interno",
+    "timestamp": "2026-01-01T12:00:00.0000000Z",
+    "path": "/api/funkos",
+    "method": "GET"
+  }
+  ```
 
-Referencia: [UD02, configuración por entorno (25.2)](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/25-perfiles.md)
-y [CorsConfig del profesor](https://github.com/joseluisgs/TiendaDawApi-NetCore/blob/main/TiendaApi.Api/Infrastructures/CorsConfig.cs).
-Se adapta la lectura de orígenes, sin abrir todos los orígenes en desarrollo.
+  Mapeo de excepciones: `ArgumentException` → 400, `UnauthorizedAccessException` → 401, `TimeoutException` → 408, `DbUpdateException` → 409, resto → 500.
 
-- **Autenticación**: JWT simétrico con `HMAC-SHA256`. La clave proviene de variable de entorno `Jwt__Key`.
-- **Identity**: `AppUser : IdentityUser<long>` con email único, roles en tabla de unión `AspNetUserRoles` (no como propiedad de la entidad).
-- **Login**: `FindByEmailAsync` → `CheckPasswordSignInAsync(..., lockoutOnFailure: false)` → `GetRolesAsync` → generación de token.
-- **Autorización**: atributos `[Authorize(Roles = "ADMIN")]` y `[Authorize(Roles = "ADMIN,USER")]` en controladores y acciones.
-- **Manejo de errores global**: `GlobalExceptionHandler` convierte excepciones en respuestas JSON estandarizadas sin filtrar detalles internos.
-- **Validación de archivos**: `FileSystemStorageService` rechaza archivos vacíos, demasiado grandes, extensiones no permitidas, `Content-Type` no permitido y nombres con traversal (`..`, `/`, `\`).
+- **Validación de archivos**: `FileSystemStorageService` rechaza archivos vacíos, demasiado grandes, extensiones o `Content-Type` no permitidos y nombres con *path traversal* (`..`, `/`, `\`).
 
 ---
 
 ## 📡 Endpoints
 
-| Controlador | Endpoint | Método | Rol |
-|-------------|----------|--------|-----|
+| Controlador | Endpoint | Método | Autorización |
+|-------------|----------|--------|--------------|
 | `AuthController` | `/api/auth/login` | POST | Público |
 | `AuthController` | `/api/auth/signup` | POST | Público |
 | `AuthController` | `/api/auth/me` | GET | Autenticado |
-| `CategoriasController` | `/api/categorias` | GET | ADMIN, USER |
-| `CategoriasController` | `/api/categorias/{id}` | GET | ADMIN, USER |
-| `CategoriasController` | `/api/categorias/nombre` | GET | ADMIN, USER |
-| `CategoriasController` | `/api/categorias` | POST | ADMIN |
-| `CategoriasController` | `/api/categorias/{id}` | PUT | ADMIN |
-| `CategoriasController` | `/api/categorias/{id}` | DELETE | ADMIN |
-| `FunkosController` | `/api/funkos` | GET | ADMIN, USER |
-| `FunkosController` | `/api/funkos/{id:long}` | GET | ADMIN |
-| `FunkosController` | `/api/funkos/nombre/{nombre}` | GET | ADMIN |
-| `FunkosController` | `/api/funkos/paged` | GET | ADMIN, USER |
-| `FunkosController` | `/api/funkos` | POST | ADMIN |
-| `FunkosController` | `/api/funkos/{id:long}` | PUT | ADMIN |
-| `FunkosController` | `/api/funkos/{id:long}` | DELETE | ADMIN |
-| `FunkosController` | `/api/funkos/{id:long}/imagen` | PATCH | ADMIN |
-| `ProveedoresController` | `/api/proveedores` | GET | ADMIN |
-| `ProveedoresController` | `/api/proveedores/{id}` | GET | ADMIN |
-| `ProveedoresController` | `/api/proveedores` | POST | ADMIN |
-| `ProveedoresController` | `/api/proveedores/{id}` | PUT | ADMIN |
-| `ProveedoresController` | `/api/proveedores/{id}` | DELETE | ADMIN |
+| `CategoriasController` | `/api/categorias` | GET | `ADMIN,USER` |
+| `CategoriasController` | `/api/categorias/{id}` | GET | `ADMIN,USER` |
+| `CategoriasController` | `/api/categorias/nombre?name=...` | GET | `ADMIN,USER` |
+| `CategoriasController` | `/api/categorias` | POST | `ADMIN` |
+| `CategoriasController` | `/api/categorias/{id}` | PUT | `ADMIN` |
+| `CategoriasController` | `/api/categorias/{id}` | DELETE | `ADMIN` |
+| `FunkosController` | `/api/funkos` | GET | `ADMIN,USER` |
+| `FunkosController` | `/api/funkos/paged?page=1&pageSize=10` | GET | **Público** |
+| `FunkosController` | `/api/funkos/{id:long}` | GET | `ADMIN` |
+| `FunkosController` | `/api/funkos/{nombre}` | GET | `ADMIN` |
+| `FunkosController` | `/api/funkos` | POST | `ADMIN` |
+| `FunkosController` | `/api/funkos/{id:long}` | PUT | `ADMIN` |
+| `FunkosController` | `/api/funkos/{id:long}` | DELETE | `ADMIN` |
+| `FunkosController` | `/api/funkos/{id:long}/imagen` | PATCH | `ADMIN` |
+| `ProveedoresController` | `/api/proveedores` | GET | `ADMIN` |
+| `ProveedoresController` | `/api/proveedores/{id}` | GET | `ADMIN` |
+| `ProveedoresController` | `/api/proveedores` | POST | `ADMIN` |
+| `ProveedoresController` | `/api/proveedores/{id}` | PUT | `ADMIN` |
+| `ProveedoresController` | `/api/proveedores/{id}` | DELETE | `ADMIN` |
 
-> Los errores de dominio se traducen automáticamente a códigos HTTP (`404`, `400`, `401`, `409`, `500`) mediante `ToHttpResult<T>()` sin `switch` en cada controlador.
+> Los errores de dominio se traducen automáticamente a códigos HTTP (`400`, `401`, `403`, `404`, `409`, `500`) mediante `ToHttpResult<T>()`, sin `switch` en cada controlador.
+
+### Detalles de las peticiones
+
+- **POST/PUT de Funkos** usan `multipart/form-data` con los campos `nombre`, `precio`, `stock`, `categoriaId`, `proveedorId` y el fichero opcional `archivo`.
+- **PATCH de imagen** recibe únicamente el fichero `archivo`; borra la imagen anterior del almacenamiento y guarda la nueva.
+- **`/api/funkos/paged`** es paginación pública: `page` se normaliza a mínimo 1 y `pageSize` se limita al rango `1..100`. Devuelve `PagedResponse<FunkoDto>` y, si procede, la cabecera `Link`.
+
+### Ejemplo con `curl`
+
+```bash
+# 1. Obtener token
+curl -X POST http://localhost:5000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"admin@admin.com","password":"Admin123!"}'
+
+# 2. Usar el token en un endpoint protegido
+curl http://localhost:5000/api/funkos \
+  -H "Authorization: Bearer <TOKEN>"
+```
 
 ---
 
-## 🗄️ Entidades por base de datos
+## 🗄️ Modelo de datos y semilla
 
 ### PostgreSQL (EF Core)
-Contexto `AppDbContext` (`IdentityDbContext<AppUser, IdentityRole<long>, long>`):
 
-| Entidad | Tabla | Clave |
-|---------|-------|-------|
-| `AppUser` | `AspNetUsers` | `long` (Identity) |
-| `Categoria` | `Categorias` | `string` (YouTube ID de 11 chars) |
-| `Funko` | `Funkos` | `long` |
+Contexto `AppDbContext : IdentityDbContext<AppUser, IdentityRole<long>, long>`:
+
+| Entidad | Tabla | Clave | Notas |
+|---------|-------|-------|-------|
+| `AppUser` | `AspNetUsers` | `long` | Identity |
+| `Categoria` | `Categorias` | `string` (11 chars) | `YouTubeIdValueGenerator`, nombre único, máx. 100 |
+| `Funko` | `Funkos` | `long` (identidad) | Nombre único, `Precio` con precisión `(18,2)`, FK a `Categoria` |
+
+`Funko.ProveedorId` es un `ObjectId` de MongoDB convertido a `string` en la base relacional mediante `HasConversion`; la integridad entre ambos motores se valida en la capa de servicio.
 
 ### MongoDB (driver nativo)
-Contexto `DbContextMongo` sobre `IMongoCollection<Proveedor>` (colección `"proveedores"`):
+
+Contexto `DbContextMongo` sobre la colección `proveedores`:
 
 | Entidad | Colección | Clave |
 |---------|-----------|-------|
 | `Proveedor` | `proveedores` | `ObjectId` |
 
 ### Redis
-Caché distribuida para lecturas frecuentes de categorías y funkos, con bloqueo distribuido contra *cache stampede*.
+
+| Uso | Claves |
+|-----|--------|
+| Caché de Funkos | `funko:{id}` |
+| Caché de Categorías | `categoria:{id}` |
+| Caché de Proveedores | `proveedor:{id}` |
+| Bloqueo distribuido | `lock:{clave}` (TTL 10 s) |
+
+Las entradas usan expiración absoluta y deslizante configuradas en `CacheOptions`, con prefijo `FunkoApi` (`RedisInstanceName`).
+
+### Datos iniciales
+
+| Motor | Contenido |
+|-------|-----------|
+| PostgreSQL | Categorías `Marvel`, `Star Wars`, `Anime` y Funkos `Iron Man` (14,99 €), `Darth Vader` (16,50 €), `Goku Super Saiyan` (15,00 €) |
+| MongoDB | Proveedores `Funko Corp`, `Toy Master`, `Geek Toys` |
+| Identity | Usuarios `admin@admin.com` y `user@user.com` con sus roles |
+| Storage | Imágenes de ejemplo copiadas desde `SeedImages/` a `uploads/funkos/` |
+
+---
+
+## 🔄 Ciclo de arranque
+
+`Program.cs` es el *Composition Root* y ejecuta la siguiente secuencia:
+
+1. Configura **Serilog** (consola + `logs/funkos-.log` con rotación diaria y retención de 7 ficheros).
+2. Registra la **configuración tipada** (`ApiConfig`) y **Identity + JWT**.
+3. Registra **controladores** (negociación de contenido y formateadores XML) y **Swagger**.
+4. Encadena las extensiones del *Composition Root* (`AddCache`, `AddDatabases`, `AddSeeders`, `AddRepositories`, `AddStorage`, `AddServices`).
+5. Construye la app y monta el **pipeline**: `UseSerilogRequestLogging` → `UseGlobalExceptionHandler` → `UseAuthentication` → `UseAuthorization` → Swagger (solo DEV) → `MapControllers`.
+6. Ejecuta `InitializeStorage`: vacía `uploads/`, recrea las carpetas declaradas en `Storage:Folders` y copia las imágenes de `SeedImages/`.
+7. Ejecuta `InitializeDatabaseAsync`.
+8. Muestra el banner con nombre, URL y entorno, y arranca con `RunAsync()`.
+
+> ⚠️ **Aviso importante:** `InitializeDatabaseAsync` deja las bases de datos limpias **en cada arranque**: elimina la base de datos de MongoDB y hace `EnsureDeletedAsync()` + `EnsureCreatedAsync()` en PostgreSQL antes de resembrar. Es intencionado para el aula (estado reproducible), pero **no lo uses con datos que quieras conservar**.
+
+También se prepara el directorio `uploads/`, que se sirve como contenido estático y se vacía en cada arranque.
 
 ---
 
@@ -297,32 +435,129 @@ Caché distribuida para lecturas frecuentes de categorías y funkos, con bloqueo
 
 ```
 FunkoApi.Back/
-├── Program.cs                    # Composition Root: DI, middleware, endpoints
-├── Controllers/                  # Auth, Categorias, Funkos, Proveedores
-├── Services/                     # Lógica de negocio (Auth, Funko, Categoria, Proveedor)
-│   ├── Funko/Transactions/       # FunkoTransactionsService (transacciones + compensación)
-├── Repositories/                 # Acceso a datos (EF Core + Mongo nativo)
-│   ├── Categoria/, Funko/, Proveedor/, Common/
-├── Models/                       # Entidades de dominio (AppUser, Categoria, Funko, Proveedor)
-├── Dtos/                         # Contratos de entrada/salida por área
-├── Mappers/                      # Mapeo manual entidad ↔ DTO
-├── Validators/                   # (Data Annotations en DTOs)
-├── Errors/                       # DomainError y errores por área (records sellados)
-├── Extensions/                   # DomainErrorExtensions.ToHttpResult()
-├── Middleware/                   # GlobalExceptionHandler
-├── Infrastructures/              # DI: DatabaseConfig, IdentityConfig, CacheConfig, StorageConfig, ServicesConfig…
-├── Data/                         # AppDbContext, DbContextMongo, Seed (Efc, Identity, Mongo)
-├── Storage/                      # IStorageService, FileSystemStorageService
-├── Cache/                        # ICacheService, RedisCacheService
-├── Factory/                      # ConnectionStringGenerator
-├── Helpers/                      # PaginationHelper (RFC 5988 Link headers)
-├── Conventers/                   # ObjectIdJsonConverter (MongoDB ↔ JSON)
-├── appsettings.json              # Valores por defecto
-├── appsettings.Development.json  # Sobrescritura desarrollo
-├── appsettings.Production.json   # Sobrescritura producción
-├── Dockerfile                    # Multi-stage build .NET 10
-└── FunkoApi.Back.csproj
+├── Program.cs                     # Composition Root: DI, pipeline, arranque
+├── Controllers/                   # Auth, Categorias, Funkos, Proveedores
+├── Services/                      # Lógica de negocio
+│   ├── Auth/                      # AuthService + IAuthService
+│   ├── Categoria/                 # CategoriaService + ICategoriaService
+│   ├── Common/                    # ICrudService genérico
+│   ├── Funko/                     # FunkoServices + IFunkoService
+│   │   └── Transactions/          # FunkoTransactionsService
+│   └── Proveedor/                 # ProveedorService + IProveedorService
+├── Repositories/                  # Acceso a datos
+│   ├── Common/                    # ICrud<T, TKey>
+│   ├── Categoria/                 # ICategoriaRepository + CategoriaRepository (EF Core)
+│   ├── Funko/                     # IFunkoRepository + FunkoRepository (EF Core)
+│   └── Proveedor/                 # IProveedorRepository + ProveedorMongoRepository (Mongo)
+├── Models/                        # AppUser, Categoria, Funko, Proveedor
+├── Dto/                           # Contratos de entrada/salida
+│   ├── Auth/  Categoria/  Funko/  Proveedor/
+│   └── PagedResponse.cs           # PagedResponse<T> + PageMetadata
+├── Mappers/                       # ToDto() / ToModel() por agregado
+├── Errors/                        # DomainError + errores por área
+├── Extensions/                    # DomainErrorExtensions.ToHttpResult()
+├── Middleware/                    # ExceptionHandlerMiddleware (GlobalExceptionHandler)
+├── Infrastructure/                # Composition Root
+│   ├── DatabaseConfig.cs          # EF Core + MongoDB
+│   ├── IdentityConfig.cs          # Identity + JWT + autorización
+│   ├── CacheConfig.cs             # Redis + ICacheService
+│   ├── StorageConfig.cs           # IStorageService
+│   ├── RepositoriesConfig.cs      # Repositorios
+│   ├── ServicesConfig.cs          # Servicios
+│   ├── SeederConfig.cs            # Seeders
+│   ├── DatabaseInitializationExtensions.cs
+│   └── StorageInitializationExtensions.cs
+├── Data/                          # AppDbContext, DbContextMongo, Seed/
+│   ├── Seed/Efc/                  # Categorías y Funkos
+│   ├── Seed/Identity/             # Roles y usuarios
+│   └── Seed/Mongo/                # Proveedores
+├── Config/                        # ApiConfig, JwtSettings, StorageSettings
+├── Cache/                         # ICacheService, RedisCacheService, CacheOptions
+├── Storage/                       # IStorageService, FileSystemStorageService
+├── Factory/                       # ConnectionStringGenerator
+├── Generators/                    # YouTubeIdValueGenerator, YouTubeIdAttribute
+├── Helpers/                       # PaginationHelper (RFC 5988)
+├── Conventers/                    # ObjectIdJsonConverter
+├── appsettings.json               # Valores por defecto
+├── appsettings.Development.json   # Sobrescritura desarrollo
+├── appsettings.Production.json    # Sobrescritura producción
+├── FunkoApi.Back.csproj
+├── FunkoApi.http                  # Peticiones de prueba
+└── Dockerfile                     # Multi-stage build .NET 10
+
+FunkoApi.Tests/
+├── Cache/  Config/  Controllers/  Data/  Dto/  Errors/
+├── Extensions/  Factory/  Generators/  Helpers/  Infrastructure/
+├── Mappers/  Middleware/  Models/  Repositories/  Services/  Storage/
+└── FunkoApi.Tests.csproj
 ```
+
+---
+
+## 🧪 Estrategia de testing
+
+Se sigue la pirámide de pruebas: **unitarios como base**, integración con contenedores reales y E2E con Bruno.
+
+### Frameworks
+
+- **NUnit 4.4** + **Moq 4.20** + **FluentAssertions 8.8** para pruebas unitarias.
+- **Testcontainers 4.8** (`Testcontainers.PostgreSql`, `Testcontainers.MongoDb`) para integración con PostgreSQL 17 y MongoDB 7 efímeros.
+- **Microsoft.AspNetCore.Mvc.Testing** para pruebas de controladores.
+- **Bruno** para la colección E2E.
+
+### Categorías de pruebas
+
+Solo las pruebas de integración llevan atributo:
+
+```csharp
+[Category("Integration")]
+```
+
+El resto son unitarias y no requieren Docker.
+
+### Ejecución
+
+```bash
+# Solo pruebas de integración (requiere Docker en ejecución)
+dotnet test --filter "Category=Integration"
+
+# Todo excepto integración (rápido, sin Docker)
+dotnet test --filter "Category!=Integration"
+
+# Suite completa
+dotnet test
+
+# Con cobertura (coverlet.msbuild)
+dotnet test --collect:"XPlat Code Coverage"
+```
+
+### Cobertura por área
+
+Más de 50 ficheros de prueba:
+
+| Área | Qué se prueba |
+|------|---------------|
+| `Services/*` | Reglas de negocio, uso de caché, errores de dominio, transacciones y compensación |
+| `Repositories/*` | Repositorios EF Core y Mongo (integración con Testcontainers) |
+| `Controllers/*` | Respuestas HTTP, roles y códigos de estado |
+| `Mappers/*` | Conversión entidad ↔ DTO |
+| `Errors/*`, `Extensions/*` | Errores tipados y traducción a HTTP |
+| `Config/*`, `Infrastructure/*` | Registro de DI, binding de opciones, seeders e inicialización |
+| `Dto/*` | Validación con Data Annotations |
+| `Cache/*` | `Get`, `Set`, `Remove` y `GetOrSet` sobre dobles de `IDistributedCache` |
+| `Storage/*` | Validaciones de ficheros y rutas |
+| `Middleware/*` | Formato y códigos del manejador global de excepciones |
+| `Helpers/*`, `Generators/*`, `Factory/*` | Paginación, generación de IDs y cadenas de conexión |
+
+### Pruebas E2E con Bruno
+
+La colección vive en:
+
+```
+FunkoApi.Tests.E2E/Bruno/FunkoApi - Tests E2E/
+```
+
+Con Bruno (o su CLI) se ejecuta contra la API levantada, incluyendo el flujo de autenticación (obtener el token en `/api/auth/login` y enviarlo como `Authorization: Bearer <token>` a los endpoints protegidos).
 
 ---
 
@@ -330,21 +565,30 @@ FunkoApi.Back/
 
 El orquestador está en la raíz (`compose.yaml`) y define cuatro servicios:
 
-- `postgres`: PostgreSQL 17 Alpine
-- `mongodb`: MongoDB 7.0
-- `redis`: Redis 7 Alpine
-- `api`: FunkoApi.Back (imagen construida desde `FunkoApi.Back/Dockerfile`)
+| Servicio | Imagen | Contenedor | Puerto |
+|----------|--------|------------|--------|
+| `postgres` | `postgres:17-alpine` | `funkoapi-postgres` | `5432` |
+| `mongodb` | `mongo:7.0` | `funkoapi-mongodb` | `27017` |
+| `redis` | `redis:7-alpine` | `funkoapi-redis` | `6379` |
+| `api` | build desde `FunkoApi.Back/Dockerfile` | `funkoapi-api` | `5000 → 8080` |
+
+Características del orquestador:
+
+- **`healthcheck`** en las tres bases de datos; la API arranca cuando están sanas (`depends_on.condition: service_healthy`).
+- **Volúmenes nombrados** `postgres-data`, `mongodb-data` y `redis-data` para persistir los datos.
+- **Redes**: todos los servicios comparten la red *bridge* `funkoapi-network`.
+- **Multi-stage build** en el `Dockerfile` (`sdk:10.0` → `aspnet:10.0`), ejecutando como usuario no root (`$APP_UID`).
 
 ### Comandos
 
 ```bash
-# Desde la raíz de la solución
+# Construir y levantar todo
 docker compose up -d --build
 
-# Ver estado de los contenedores
+# Estado de los contenedores
 docker compose ps
 
-# Ver logs de un servicio
+# Logs de un servicio
 docker compose logs -f api
 
 # Detener y eliminar contenedores (mantiene volúmenes)
@@ -356,19 +600,30 @@ docker compose down -v
 
 ### Variables de entorno (`.env`)
 
-Se recomienda crear un archivo `.env` en la raíz con los secretos. Ejemplo mínimo:
+`compose.yaml` lee los secretos del archivo `.env` de la raíz. Ejemplo mínimo:
 
 ```env
+# PostgreSQL
 POSTGRES_USER=admin
-POSTGRES_PASSWORD=admin123
 POSTGRES_DB=funkoapi
+Postgres__Password=admin123
+POSTGRES_PORT=5432
+
+# MongoDB
 MONGO_ROOT_USER=admin
-MONGO_ROOT_PASSWORD=admin123
 MONGO_DB=funkoapi
+MongoDb__Password=admin123
+MONGO_PORT=27017
+
+# Redis
+REDIS_PORT=6379
+REDIS_PASSWORD=
+
+# API
 Jwt__Key=ClaveSecretaMuyLargaYSegura1234567890
 ```
 
-> Las variables con `__` (doble guion bajo) se usan en lugar de `:` para evitar problemas en YAML y shell (ej. `Jwt__Key`, `Cache__RedisConfiguration`, `PostgresDb__Password`).
+> Las variables con `__` (doble guion bajo) sustituyen a `:` de la jerarquía de configuración de .NET (`Jwt:Key` → `Jwt__Key`). El `.env` está excluido de Git y de la imagen Docker.
 
 ---
 
