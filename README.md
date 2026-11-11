@@ -16,7 +16,7 @@ Implementa una API RESTful completa sobre HTTP con **autenticación JWT, autoriz
 
 ## 🎯 Descripción del problema
 
-El proyecto resuelve el enunciado didáctico de construir un servicio backend profesional que exponga un catálogo de productos coleccionables (Funkos) mediante una **API REST sobre HTTP**, cubriendo los requisitos típicos de una aplicación real:
+El proyecto implementa un catálogo de productos coleccionables (Funkos) mediante una **API REST sobre HTTP**. Estas son sus funcionalidades actuales; la lista no sustituye al enunciado ni a los criterios de evaluación de la práctica:
 
 - **Autenticación y autorización**: login/registro con ASP.NET Core Identity + JWT, roles `ADMIN` y `USER`, protección por acción con `[Authorize(Roles = "...")]`.
 - **Almacenamiento de ficheros**: subida de imágenes de Funkos con validación de extensión, tipo MIME y tamaño, y nombres únicos.
@@ -25,7 +25,7 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 - **Dos bases de datos**: PostgreSQL (EF Core) para Funkos, Categorías e Identity; MongoDB (driver nativo) para Proveedores.
 - **Caché distribuida**: Redis con expiración absoluta y deslizante, más bloqueo distribuido contra *cache stampede*.
 - **Manejo de errores tipado**: patrón `Result` con `DomainError` y traducción centralizada a códigos HTTP.
-- **Transacciones con compensación**: alta, actualización y borrado de Funkos con rollback en base de datos y eliminación compensatoria de la imagen subida.
+- **Transacciones y archivos**: el servicio transaccional de Funkos implementa actualización y borrado físico con operaciones sobre la base de datos y las imágenes. El sistema de archivos no forma parte de la transacción de PostgreSQL; no se garantiza una reversión conjunta de ambos recursos.
 - **Paginación estándar**: `PagedResponse<T>` + cabeceras `Link` según RFC 5988.
 - **Pruebas**: unitarias (NUnit + Moq + FluentAssertions), integración (Testcontainers con PostgreSQL y MongoDB reales) y E2E (colección de Bruno).
 
@@ -35,24 +35,25 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 
 | # | Sección |
 |---|---------|
-| 1 | [✨ Características](#-características) |
-| 2 | [🚀 Tecnologías utilizadas](#-tecnologías-utilizadas) |
-| 3 | [🏃‍♂️ Inicio rápido](#️-inicio-rápido) |
-| 4 | [⚙️ Configuración de la aplicación](#️-configuración-de-la-aplicación) |
-| 5 | [🏗️ Arquitectura y patrones](#️-arquitectura-y-patrones) |
-| 6 | [🔐 Seguridad (JWT y roles)](#-seguridad-jwt-y-roles) |
-| 7 | [📡 Endpoints](#-endpoints) |
-| 8 | [🗄️ Modelo de datos y semilla](#️-modelo-de-datos-y-semilla) |
-| 9 | [🔄 Ciclo de arranque](#-ciclo-de-arranque) |
-| 10 | [📂 Estructura del proyecto](#-estructura-del-proyecto) |
-| 11 | [🧪 Estrategia de testing](#-estrategia-de-testing) |
-| 12 | [🐳 Despliegue con Docker](#-despliegue-con-docker) |
-| 13 | [👥 Usuarios de prueba](#-usuarios-de-prueba) |
-| 14 | [📄 Licencia](#-licencia) |
-| 15 | [📢 Probar SignalR con Live Server](#-probar-signalr-con-live-server) |
+| 1 | [✨ Características](#caracteristicas) |
+| 2 | [🚀 Tecnologías utilizadas](#tecnologias) |
+| 3 | [🏃‍♂️ Inicio rápido y cambio de entorno](#inicio-rapido) |
+| 4 | [⚙️ Configuración de la aplicación](#configuracion) |
+| 5 | [🏗️ Arquitectura y patrones](#arquitectura) |
+| 6 | [🔐 Seguridad (JWT y roles)](#seguridad) |
+| 7 | [📡 Endpoints](#endpoints) |
+| 8 | [🗄️ Modelo de datos y semilla](#modelo-datos) |
+| 9 | [🔄 Ciclo de arranque](#arranque) |
+| 10 | [📂 Estructura del proyecto](#estructura) |
+| 11 | [🧪 Estrategia de testing](#testing) |
+| 12 | [📢 Probar SignalR con Live Server](#signalr) |
+| 13 | [🐳 Despliegue con Docker](#docker) |
+| 14 | [👥 Usuarios de prueba](#usuarios-prueba) |
+| 15 | [📄 Licencia](#licencia) |
 
 ---
 
+<a id="caracteristicas"></a>
 ## ✨ Características
 
 - 🏪 **CRUD completo**: Funkos, Categorías y Proveedores.
@@ -62,11 +63,11 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 - ⚡ **Caché Redis**: `ICacheService` con `RedisCacheService` y `GetOrSetAsync` (lectura → bloqueo distribuido → fábrica → escritura).
 - 🗄️ **Multi-base de datos**: PostgreSQL (EF Core 10 + Npgsql) + MongoDB (driver nativo `MongoDB.Driver`).
 - 🔁 **Patrón Result**: `CSharpFunctionalExtensions` (`Result<T, DomainError>`) con errores de dominio tipados.
-- 📐 **DTOs separados por dirección**: `Create*Dto`, `Update*Dto` y DTOs de lectura; el modelo de dominio nunca se serializa.
+- 📐 **DTOs en REST**: `Create*Dto`, `Update*Dto` y DTOs de lectura. GraphQL define sus propios tipos y resolvers.
 - 🗺️ **Mapeadores explícitos**: extensiones `ToDto()` / `ToModel()` en `Mappers/`.
 - 🆔 **Identificadores personalizados**: generador de IDs estilo YouTube (11 caracteres) para `Categoria`.
 - ⚙️ **Configuración tipada**: `ApiConfig`, `JwtSettings`, `StorageSettings`, `CacheOptions` con `IOptions<T>`.
-- 🔗 **Factory de cadenas de conexión**: `ConnectionStringGenerator` construye las cadenas de PostgreSQL, MongoDB y Redis a partir de componentes.
+- 🔗 **Factory de cadenas de conexión**: `ConnectionStringGenerator` dispone de métodos para PostgreSQL, MongoDB y Redis. El registro actual de PostgreSQL construye la cadena directamente en `DatabaseConfig`.
 - 📄 **Paginación**: `PagedResponse<T>` con `PageMetadata` y cabecera `Link`.
 - 🧪 **Tests**: unitarios, integración con contenedores reales y E2E con Bruno.
 - 🐳 **Docker**: `compose.yaml` con PostgreSQL, MongoDB, Redis y la API, con `healthcheck` y volúmenes nombrados.
@@ -77,6 +78,7 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 
 ---
 
+<a id="tecnologias"></a>
 ## 🚀 Tecnologías utilizadas
 
 | Capa | Tecnología | Versión |
@@ -87,7 +89,7 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 | Proveedor PostgreSQL | Npgsql.EntityFrameworkCore.PostgreSQL | `10.0.3` |
 | Base de datos documentos | MongoDB.Driver (nativo) | `3.12.0` |
 | Integración EF + Mongo | MongoDB.EntityFrameworkCore | `10.0.4` |
-| Caché | StackExchange.Redis / DistributedCache | `10.0.14` |
+| Caché distribuida | Microsoft.Extensions.Caching.StackExchangeRedis | `10.0.14` |
 | Autenticación | Identity + JwtBearer | `10.0.14` |
 | Tokens | Microsoft.IdentityModel.Tokens | `8.23.0` |
 | Patrón Result | CSharpFunctionalExtensions | `3.7.0` |
@@ -103,6 +105,7 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 
 ---
 
+<a id="inicio-rapido"></a>
 ## 🏃‍♂️ Inicio rápido
 
 ### Requisitos previos
@@ -117,7 +120,11 @@ FunkoApi.Back/    → API (ASP.NET Core)
 FunkoApi.Tests/   → pruebas (NUnit)
 ```
 
-### Opción A: desarrollo local
+### Preparar la configuración
+
+Antes de arrancar, prepara el **`.env` de la raíz** siguiendo la [sección de variables de entorno](#variables-env). Si ya existe y funciona, consérvalo: **no lo sobrescribas**. Para una instalación nueva, copia `.env.example` a `.env` y rellena `Postgres__Password`, `MongoDb__Password` y `Jwt__Key` (al menos 32 caracteres). La plantilla deja esos secretos vacíos y el correo en modo simulado; no está lista para arrancar sin completar la configuración.
+
+### Opción A: API local y bases de datos en Docker
 
 ```bash
 # 1. Clona el repositorio
@@ -133,14 +140,14 @@ dotnet build
 # 4. Levanta la infraestructura (PostgreSQL, MongoDB, Redis)
 docker compose up -d postgres mongodb redis
 
-# 5. Continua con los comandos PowerShell del apartado siguiente.
+# 5. Continúa con la carga del .env y la elección del entorno que aparecen debajo.
 ```
 
 #### Arrancar la API y seleccionar el entorno (PowerShell)
 
 **Fuente:** [9.1.4, Ficheros .env](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/09-configuracion-logging.md#914-ficheros-env) y [25.4, Variables de entorno](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/25-perfiles.md#254-variables-de-entorno). Se utiliza el bloque de carga del profesor y la variable `ASPNETCORE_ENVIRONMENT`. No hay un script de arranque adicional.
 
-Ejecuta desde la **raiz del repositorio**, donde esta el `.env`, en una terminal nueva de PowerShell. Asi no se reutiliza el `DOTNET_ENVIRONMENT` que establecian las instrucciones anteriores, ya retiradas.
+Ejecuta los siguientes bloques desde la **raíz del repositorio**, donde está el `.env`, usando PowerShell. La carga del `.env` y el arranque deben hacerse en la misma terminal. En una terminal nueva hay que cargarlo otra vez. Para este procedimiento no debe haber otra variable `DOTNET_ENVIRONMENT` seleccionando un entorno diferente.
 
 **1. Cargar el `.env` (bloque del apartado 9.1.4):**
 
@@ -155,26 +162,30 @@ Get-Content .env | ForEach-Object {
 **2. Elegir un entorno y ejecutar:**
 
 ```powershell
-# Produccion
-$env:ASPNETCORE_ENVIRONMENT = "Production"
-dotnet run --project FunkoApi.Back
-```
-
-O bien:
-
-```powershell
-# Desarrollo
+# Desarrollo: recrea las bases de datos de prueba en cada arranque
 $env:ASPNETCORE_ENVIRONMENT = "Development"
 dotnet run --project FunkoApi.Back
 ```
 
-Deten la ejecucion con `Ctrl+C` antes de arrancar en el otro entorno.
+Para Production, únicamente si su base de datos y sus tablas ya están preparadas:
 
-**Aplicacion a este proyecto, no copia literal de los datos del profesor:** `--project FunkoApi.Back` selecciona nuestra API. La seccion PostgreSQL se llama `Postgres`, igual que las variables del `.env`, sin alias ni conversiones. Los nombres de las bases se configuran en `appsettings.Development.json` (`funkos_dev`) y `appsettings.Production.json` (`funkoapi`), siguiendo la separacion por entornos del apartado 25.11. Se mantiene PostgreSQL y MongoDB, que son los motores del proyecto; no se introduce SQLite ni SQL Server.
+```powershell
+$env:ASPNETCORE_ENVIRONMENT = "Production"
+dotnet run --project FunkoApi.Back
+```
 
-El `.env` local contiene los datos de conexion y secretos; **no debe definir `Postgres__Database` ni `MongoDb__Database`**, porque esas variables sobrescribirian los nombres de base del entorno. Tampoco debe definir `DOTNET_ENVIRONMENT`. El `.env` local existente se ha ajustado sin cambiar contraseñas; no lo sustituyas por la antigua plantilla `.env.example`, que aun contiene valores de otra configuracion.
+Detén la ejecución con `Ctrl+C` antes de arrancar en el otro entorno. Si conservas la terminal, basta con cambiar `ASPNETCORE_ENVIRONMENT` y ejecutar de nuevo `dotnet run --project FunkoApi.Back`; no hace falta repetir `restore` o `build` por cambiar el entorno.
 
-**Condiciones de arranque del codigo actual:** las bases de datos deben estar accesibles y las credenciales deben ser validas. Production requiere las tablas ya creadas y ejecuta el seeder de Identity. Development elimina y recrea las bases `funkos_dev` en cada arranque. Swagger solo se habilita en Development. `uploads` se vacia en ambos entornos. Cambiar el entorno no elimina estos requisitos ni estos efectos.
+**Datos de este proyecto:** `--project FunkoApi.Back` selecciona el backend. PostgreSQL usa la sección `Postgres`, igual que las variables del `.env`. Los nombres de las bases se configuran en `appsettings.Development.json` (`funkos_dev`) y `appsettings.Production.json` (`funkoapi`), siguiendo la separación por entornos del apartado 25.11. Son los nombres de esta práctica, no datos copiados del ejemplo del profesor.
+
+El `.env` local contiene los datos de conexión y secretos. Para respetar esta separación, **no debe definir `Postgres__Database` ni `MongoDb__Database`**: esas variables sobrescribirían los nombres de base elegidos por los JSON. Tampoco debe seleccionar el entorno mediante `DOTNET_ENVIRONMENT`.
+
+| Ejecución local | PostgreSQL y MongoDB | Inicialización | Herramientas |
+|---|---|---|---|
+| Development | `funkos_dev` | Elimina y recrea los datos; ejecuta los seeders | Swagger y exploración de GraphQL |
+| Production | `funkoapi` | Requiere tablas existentes; ejecuta el seeder de Identity | Sin Swagger; introspección de GraphQL desactivada |
+
+> ⚠️ **En ambos entornos se intenta vaciar `uploads` en cada arranque.** Este comportamiento pertenece al código actual, no al comando utilizado. No ejecutes la inicialización con imágenes que quieras conservar.
 
 Al arrancar en Development, la API imprime en consola el nombre, el entorno y la URL:
 
@@ -184,19 +195,29 @@ Al arrancar en Development, la API imprime en consola el nombre, el entorno y la
   Modo desarrollo - depuración activada
   http://localhost:5000
   Swagger: http://localhost:5000/swagger
+  GraphQL: http://localhost:5000/graphql
   Entorno: Development
 ========================================
 ```
 
-> **Importante:** `Jwt:Key` debe tener al menos 32 caracteres para `HMAC-SHA256`. Si no se indica, el arranque falla al construir las credenciales de firma.
+> **Importante:** configura `Jwt__Key` con una clave propia de al menos 32 caracteres. La clave de relleno del JSON no es una configuración válida para utilizar la autenticación.
 
 Swagger está disponible en `/swagger` **solo** en entorno de desarrollo.
 
-### Opción B: todo con Docker (recomendado)
+#### Errores de arranque frecuentes
+
+| Mensaje | Qué comprobar |
+|---|---|
+| `No password has been provided` | Que hayas cargado el `.env` antes del arranque y que `Postgres__Password` tenga un valor válido. No publiques su contenido. |
+| `address already in use` en el puerto 5000 | Que no estén ejecutándose a la vez la API local y la API de Docker. Para usar la local, `docker compose stop api` detiene solo la API de Docker, no las bases de datos. |
+| `Access to the path … is denied` al preparar `uploads` | La limpieza de una imagen ha fallado. Comprueba si está abierta y revisa sus permisos; no presupongas que necesita ejecutarse como administrador. El método registra el error y continúa, de modo que ver el banner no garantiza que las imágenes se hayan preparado. |
+
+Los mensajes `warning CS…` son avisos de compilación, no el mismo fallo que una excepción de arranque. Los avisos `NU1903` sobre `SSH.NET` señalan una vulnerabilidad de una dependencia y deben revisarse aparte; que la compilación termine no elimina esa advertencia.
+
+### Opción B: API y bases de datos en Docker
 
 ```bash
-# Crea el archivo .env con los secretos (ver sección Docker)
-cp .env.example .env
+# Prepara antes el .env según la sección de configuración; no sobrescribas uno existente.
 
 # Levanta la API y sus dependencias (PostgreSQL, MongoDB y Redis)
 docker compose up -d --build api
@@ -209,6 +230,8 @@ docker compose down
 ```
 
 La API queda publicada en **`http://localhost:5000`** (mapeo `5000:8080` del contenedor).
+
+**El Compose actual selecciona Development**, pero inyecta `funkoapi` como nombre de ambas bases, sobrescribiendo `funkos_dev` de los JSON. Por tanto, con los valores por defecto, **la API Docker elimina y recrea `funkoapi` en cada arranque**. Esa es también la base usada por Production local: no utilices esta opción si necesitas conservar sus datos. No hay un perfil Docker de Production configurado en este archivo.
 
 ### Comandos habituales: API y pruebas
 
@@ -229,6 +252,7 @@ Espera a que la API termine de inicializarse antes de ejecutar Bruno (puedes con
 
 ---
 
+<a id="configuracion"></a>
 ## ⚙️ Configuración de la aplicación
 
 La configuración se distribuye en tres ficheros:
@@ -236,8 +260,8 @@ La configuración se distribuye en tres ficheros:
 | Fichero | Uso |
 |---------|-----|
 | `appsettings.json` | Valores por defecto |
-| `appsettings.Development.json` | Sobrescritura en desarrollo (`Api`, `Logging`, `Serilog`) |
-| `appsettings.Production.json` | Sobrescritura en producción (`Api`, hosts locales, `Logging`); Docker inyecta sus propios hosts |
+| `appsettings.Development.json` | Nombre de las bases `funkos_dev`, API, CORS y niveles de log |
+| `appsettings.Production.json` | Nombre de las bases `funkoapi`, hosts locales, API, CORS y niveles de log; Docker inyecta sus propios valores |
 
 ### Secciones de `appsettings.json`
 
@@ -279,6 +303,7 @@ Redis__Host=localhost
 
 ---
 
+<a id="arquitectura"></a>
 ## 🏗️ Arquitectura y patrones
 
 El proyecto sigue una **arquitectura en capas estilo Onion-like**, donde las dependencias apuntan hacia el dominio:
@@ -303,7 +328,7 @@ Infrastructure (EF Core, MongoDB, Redis, Storage, Identity, Config)
 | **ROP** | `Result<T, DomainError>` como tipo de retorno en servicios, con traducción centralizada a HTTP en `DomainErrorExtensions.ToHttpResult<T>()`. |
 | **Repository** | `ICrud<T, TKey>` + `ICategoriaRepository`, `IFunkoRepository`, `IProveedorRepository`. |
 | **Service Layer** | `ICrudService<TValue, TKey, TCreate, TUpdate>`, `IFunkoService`, `ICategoriaService`, `IProveedorService`, `IAuthService`. |
-| **DTOs separados** | `Create*Dto`, `Update*Dto` y de lectura. Validación con Data Annotations antes de llegar al servicio. |
+| **DTOs separados** | `Create*Dto`, `Update*Dto` y de lectura. En POST/PUT de Funkos se construyen dentro de la acción: sus Data Annotations no se validan automáticamente. |
 | **Mapeo explícito** | Extensiones estáticas en `Mappers/` (`ToDto`, `ToModel`), sin AutoMapper. |
 | **Composition Root** | Todo el registro de DI vive en `Infrastructure/*Config.cs` y se encadena en `Program.cs`. |
 
@@ -339,17 +364,18 @@ builder.Services
 - **`Generators/YouTubeIdValueGenerator`**: `ValueGenerator<string>` de EF Core que produce IDs de 11 caracteres (`A-Z`, `a-z`, `0-9`, `-_`) para `Categoria`.
 - **`Dto/PagedResponse<T>` + `PageMetadata`**: contrato de paginación (`Data`, `Page`, `PageSize`, `TotalPages`, `TotalItems`).
 - **`Helpers/PaginationHelper`**: genera la cabecera `Link` (`first`, `prev`, `next`, `last`) según RFC 5988.
-- **`Services/Funko/Transactions/FunkoTransactionsService`**: transacciones explícitas de EF Core con compensación de ficheros.
+- **`Services/Funko/Transactions/FunkoTransactionsService`**: transacciones explícitas de EF Core para actualización y borrado físico. Las operaciones de archivos se realizan aparte; no constituyen una transacción conjunta con PostgreSQL.
 
 ---
 
+<a id="seguridad"></a>
 ## 🔐 Seguridad (JWT y roles)
 
 - **Autenticación**: JWT simétrico con `HMAC-SHA256`. La clave viene de `Jwt:Key` (variable de entorno `Jwt__Key`).
 - **Identity**: `AppUser : IdentityUser<long>`, con email único, contraseña de mínimo 8 caracteres, dígito obligatorio y bloqueo tras varios intentos fallidos. Los roles viven en la tabla de unión `AspNetUserRoles`.
 - **Login**: `FindByEmailAsync` → comprobación de contraseña → `GetRolesAsync` → emisión del token con los *claims* de rol.
 - **Autorización**: atributos `[Authorize]`, `[Authorize(Roles = "ADMIN")]` y `[Authorize(Roles = "ADMIN,USER")]` en cada acción.
-- **Manejo global de excepciones**: `GlobalExceptionHandler` (`Middleware/ExceptionHandlerMiddleware.cs`) captura cualquier excepción no controlada, registra un `errorId` y devuelve JSON estandarizado sin filtrar detalles internos:
+- **Manejo de excepciones HTTP**: `GlobalExceptionHandler` (`Middleware/ExceptionHandlerMiddleware.cs`) captura las excepciones que llegan a ese middleware durante una petición y registra un `errorId`. No trata las excepciones de inicialización ni garantiza capturar los errores del worker. Devuelve una respuesta como esta para los errores no contemplados específicamente:
 
   ```json
   {
@@ -364,10 +390,11 @@ builder.Services
 
   Mapeo de excepciones: `ArgumentException` → 400, `UnauthorizedAccessException` → 401, `TimeoutException` → 408, `DbUpdateException` → 409, resto → 500.
 
-- **Validación de archivos**: `FileSystemStorageService` rechaza archivos vacíos, demasiado grandes, extensiones o `Content-Type` no permitidos y nombres con *path traversal* (`..`, `/`, `\`).
+- **Validación de archivos**: `FileSystemStorageService` comprueba tamaño máximo, extensión, `Content-Type` y nombre. El tratamiento de una imagen ausente o vacía depende también de la operación del servicio; no debe interpretarse como una garantía general de validación de rutas.
 
 ---
 
+<a id="endpoints"></a>
 ## 📡 Endpoints
 
 | Controlador | Endpoint | Método | Autorización |
@@ -397,15 +424,17 @@ builder.Services
 | `ProveedoresController` | `/api/proveedores/{id}` | PUT | `ADMIN` |
 | `ProveedoresController` | `/api/proveedores/{id}` | DELETE | `ADMIN` |
 
-> Los errores de dominio se traducen automáticamente a códigos HTTP (`400`, `401`, `403`, `404`, `409`, `500`) mediante `ToHttpResult<T>()`, sin `switch` en cada controlador.
+> `ToHttpResult<T>()` traduce errores de dominio a `400`, `401`, `404`, `409`, `422` o `500`. El `403` corresponde a la autorización por roles y no a esa extensión.
 
 ### Detalles de las peticiones
 
-- **POST/PUT de Funkos** usan `multipart/form-data` con los campos `nombre`, `precio`, `stock`, `categoriaId`, `proveedorId` y el fichero opcional `archivo`.
+- **POST/PUT de Funkos** usan `multipart/form-data` con los campos `nombre`, `precio`, `stock`, `categoriaId`, `proveedorId` y `archivo`. En POST la imagen es opcional; en PUT el servicio exige una imagen nueva. El DTO se construye dentro del controlador, por lo que sus rangos de Data Annotations no se comprueban automáticamente.
 - **PATCH de imagen** recibe únicamente el fichero `archivo`; borra la imagen anterior del almacenamiento y guarda la nueva.
 - **`/api/funkos/paged`** requiere `ADMIN` o `USER`: `page` se normaliza a mínimo 1 y `pageSize` se limita al rango `1..100`. Devuelve `PagedResponse<FunkoDto>` (`data` y `pagination`) y, si procede, la cabecera `Link`.
 
 ### Ejemplo con `curl`
+
+Este bloque utiliza sintaxis Bash (las continuaciones con `\` no son sintaxis PowerShell). También puedes realizar las peticiones desde Swagger en Development o desde la colección de Bruno.
 
 ```bash
 # 1. Obtener token
@@ -420,6 +449,7 @@ curl http://localhost:5000/api/funkos \
 
 ---
 
+<a id="modelo-datos"></a>
 ## 🗄️ Modelo de datos y semilla
 
 ### PostgreSQL (EF Core)
@@ -451,7 +481,7 @@ Contexto `DbContextMongo` sobre la colección `proveedores`:
 | Caché de Proveedores | `proveedor:{id}` |
 | Bloqueo distribuido | `lock:{clave}` (TTL 10 s) |
 
-Las entradas usan expiración absoluta y deslizante configuradas en `CacheOptions`, con prefijo `FunkoApi` (`RedisInstanceName`).
+Las entradas usan expiración absoluta y deslizante configuradas en `CacheOptions`. El prefijo se lee de `Redis:RedisInstanceName`; las claves de bloqueo se manejan directamente en Redis. La configuración actual no añade un prefijo diferente por entorno.
 
 ### Datos iniciales
 
@@ -460,10 +490,11 @@ Las entradas usan expiración absoluta y deslizante configuradas en `CacheOption
 | PostgreSQL | Categorías `Marvel`, `Star Wars`, `Anime` y Funkos `Iron Man` (14,99 €), `Darth Vader` (16,50 €), `Goku Super Saiyan` (15,00 €) |
 | MongoDB | Proveedores `Funko Corp`, `Toy Master`, `Geek Toys` |
 | Identity | Usuarios `admin@admin.com` y `user@user.com` con sus roles |
-| Storage | Imágenes de ejemplo copiadas desde `SeedImages/` a `uploads/funkos/` |
+| Storage | Copia imágenes a `uploads/funkos/` solo si existe `SeedImages/funkos/` dentro del ContentRoot del backend. La carpeta `SeedImages/` de la raíz no se utiliza automáticamente desde esa ruta. |
 
 ---
 
+<a id="arranque"></a>
 ## 🔄 Ciclo de arranque
 
 `Program.cs` es el *Composition Root* y ejecuta la siguiente secuencia:
@@ -473,7 +504,7 @@ Las entradas usan expiración absoluta y deslizante configuradas en `CacheOption
 3. Registra **controladores** (negociación de contenido JSON, sin añadir formateadores XML), **Swagger**, **SignalR** y **CORS**.
 4. Encadena las extensiones del *Composition Root* (`AddCache`, `AddDatabases`, `AddSeeders`, `AddRepositories`, `AddStorage`, `AddServices`).
 5. Registra **GraphQL**, **rate limiting** y los servicios de **email** con su worker. Construye la app y monta el **pipeline**: `UseSerilogRequestLogging` → `UseGlobalExceptionHandler` → `UseCors` → `UseAuthentication` → `UseAuthorization` → `UseRateLimiter`. Mapea GraphQL, Swagger (solo DEV), controladores y `/hubs/funkos`.
-6. Ejecuta `InitializeStorage`: vacía `uploads/`, recrea las carpetas declaradas en `Storage:Folders` y copia las imágenes de `SeedImages/`.
+6. Ejecuta `InitializeStorage`: intenta vaciar `uploads/`, recrear las carpetas de `Storage:Folders` y copiar las imágenes desde `SeedImages/` **dentro del ContentRoot del backend**, si esa carpeta existe. Si falla, registra el error y continúa; no garantiza que las imágenes estén disponibles.
 7. Ejecuta `InitializeDatabaseAsync`.
 8. Muestra el banner con nombre, URL y entorno, y arranca con `RunAsync()`.
 
@@ -481,8 +512,11 @@ Las entradas usan expiración absoluta y deslizante configuradas en `CacheOption
 
 También se prepara el directorio `uploads/`, que se vacía en cada arranque, independientemente del entorno. El pipeline actual no registra `UseStaticFiles`, por lo que no publica esas imágenes como contenido estático.
 
+La separación de bases de datos locales no implica un aislamiento completo: `uploads` y la configuración de Redis se comparten entre las ejecuciones locales de Development y Production. El log `Caché: Redis (Producción)` es un texto fijo de `CacheConfig`, no una comprobación del entorno activo.
+
 ---
 
+<a id="estructura"></a>
 ## 📂 Estructura del proyecto
 
 ```
@@ -501,7 +535,7 @@ FunkoApi.Back/
 │   ├── Categoria/                 # ICategoriaRepository + CategoriaRepository (EF Core)
 │   ├── Funko/                     # IFunkoRepository + FunkoRepository (EF Core)
 │   └── Proveedor/                 # IProveedorRepository + ProveedorMongoRepository (Mongo)
-├── Models/                        # AppUser, Categoria, Funko, Proveedor
+├── Domain/                        # AppUser, Categoria, Funko, Proveedor (namespace Models)
 ├── Dto/                           # Contratos de entrada/salida
 │   ├── Auth/  Categoria/  Funko/  Proveedor/
 │   └── PagedResponse.cs           # PagedResponse<T> + PageMetadata
@@ -557,6 +591,7 @@ La API también incluye las carpetas `Hub/`, `GraphQl/` y `Services/Email/` para
 
 ---
 
+<a id="testing"></a>
 ## 🧪 Estrategia de testing
 
 Se sigue la pirámide de pruebas: **unitarios como base**, integración con contenedores reales y E2E con Bruno.
@@ -632,6 +667,7 @@ Este Compose ejecuta las carpetas de autenticación, categorías, proveedores, f
 
 ---
 
+<a id="signalr"></a>
 ## 📢 Probar SignalR con Live Server
 
 El cliente está en **[`FunkoApi.Clients/signalr-client-js/index.html`](FunkoApi.Clients/signalr-client-js/index.html)**. El hub se publica en **`http://localhost:5000/hubs/funkos`** y solo admite el rol **`ADMIN`**.
@@ -653,6 +689,7 @@ Referencia de clase: [18. WebSockets y SignalR](https://github.com/joseluisgs/De
 
 ---
 
+<a id="docker"></a>
 ## 🐳 Despliegue con Docker
 
 El orquestador está en la raíz (`compose.yaml`) y define cuatro servicios:
@@ -686,25 +723,32 @@ docker compose logs -f api
 # Detener y eliminar contenedores (mantiene volúmenes)
 docker compose down
 
-# Detener y eliminar también los volúmenes de datos
+# PELIGRO: elimina también los volúmenes y sus datos; no es necesario para reiniciar
 docker compose down -v
 ```
 
+<a id="variables-env"></a>
 ### Variables de entorno (`.env`)
 
-`compose.yaml` lee los secretos del archivo `.env` de la raíz. Ejemplo mínimo:
+El `.env` de la raíz no se publica. Docker Compose lo lee para los contenedores; la API local necesita cargarlo con el bloque PowerShell de [Inicio rápido](#inicio-rapido). Cada línea tiene formato `CLAVE=valor`, sin comillas, como en el apartado 9.1.4 del profesor.
+
+**Preparación local:** configura los hosts, puertos publicados, usuarios y secretos que lee `DatabaseConfig`, `CacheConfig` e `IdentityConfig`. Las claves de PostgreSQL empiezan por `Postgres__`, no por `PostgresDb__`. Los usuarios y contraseñas deben coincidir con los de los contenedores existentes. No definas los nombres de base en el `.env` local: se seleccionan con los JSON del entorno.
+
+La plantilla `.env.example` incluye las claves de la API local y las de Compose, sin contraseñas ni claves JWT reales. Si cambias un usuario o un puerto, ajusta tanto su clave local como la de Compose indicada en los comentarios. No cambies credenciales esperando que se actualicen automáticamente las bases de datos de volúmenes ya existentes.
+
+**Preparación Docker:** Compose obtiene las contraseñas de `Postgres__Password` y `MongoDb__Password`, y la clave de firma de `Jwt__Key`. Los valores siguientes son una **plantilla documental, no credenciales válidas ni un archivo listo para copiar**; sustituye los marcadores por valores propios:
 
 ```env
 # PostgreSQL
 POSTGRES_USER=admin
 POSTGRES_DB=funkoapi
-Postgres__Password=admin123
+Postgres__Password=<CONTRASEÑA_POSTGRESQL>
 POSTGRES_PORT=5432
 
 # MongoDB
 MONGO_ROOT_USER=admin
 MONGO_DB=funkoapi
-MongoDb__Password=admin123
+MongoDb__Password=<CONTRASEÑA_MONGODB>
 MONGO_PORT=27017
 
 # Redis
@@ -712,13 +756,18 @@ REDIS_PORT=6379
 REDIS_PASSWORD=
 
 # API
-Jwt__Key=ClaveSecretaMuyLargaYSegura1234567890
+Jwt__Key=<CLAVE_PROPIA_DE_AL_MENOS_32_CARACTERES>
 ```
 
 > Las variables con `__` (doble guion bajo) sustituyen a `:` de la jerarquía de configuración de .NET (`Jwt:Key` → `Jwt__Key`). El `.env` está excluido de Git y de la imagen Docker.
 
+Las variables `POSTGRES_*`, `MONGO_*` y `REDIS_PORT` del ejemplo configuran Compose: no sustituyen por sí solas las claves de conexión que lee la API local. Compose inyecta sus hosts y nombres de base en el contenedor `api`. Su entorno actual es Development, con la recreación de datos descrita anteriormente. El servicio Redis no configura `requirepass`: definir `REDIS_PASSWORD` no activa autenticación por sí solo.
+
+Para el correo, `Email__UseSmtp=true` activa MailKit también en Development. Si quieres la simulación en memoria, utiliza `Email__UseSmtp=false`; no incluyas credenciales SMTP en documentación ni archivos publicados.
+
 ---
 
+<a id="usuarios-prueba"></a>
 ## 👥 Usuarios de prueba
 
 El `IdentitySeeder` crea dos usuarios al inicializar la base de datos:
@@ -732,8 +781,9 @@ Estos usuarios permiten probar los endpoints protegidos con `[Authorize]` y la o
 
 ---
 
+<a id="licencia"></a>
 ## 📄 Licencia
 
-Proyecto educativo desarrollado con fines didácticos en el módulo **Entorno Servidor (2DAW)**. Puedes usarlo, modificarlo y compartirlo citando la fuente.
+Proyecto educativo desarrollado en el módulo **Entorno Servidor (2DAW)**.
 
 ---
