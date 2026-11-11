@@ -77,11 +77,11 @@
       - Api__Nombre=Funko EF Core API (Docker)
       - Api__Mensaje=Desplegado en contenedor
       - Jwt__Key=${Jwt__Key}
-      - PostgresDb__Host=postgres
-      - PostgresDb__Port=5432
-      - PostgresDb__Database=${POSTGRES_DB:-funkoapi}
-      - PostgresDb__User=${POSTGRES_USER:-admin}
-      - PostgresDb__Password=${Postgres__Password}
+       - Postgres__Host=postgres
+       - Postgres__Port=5432
+       - Postgres__Database=${POSTGRES_DB:-funkoapi}
+       - Postgres__User=${POSTGRES_USER:-admin}
+       - Postgres__Password=${Postgres__Password}
       - MongoDb__Host=mongodb
       - MongoDb__Port=27017
       - MongoDb__Database=${MONGO_DB:-funkoapi}

@@ -22,8 +22,8 @@ public class DatabaseConfigTests
         {
             ["MongoDb:Host"] = "localhost", ["MongoDb:Database"] = "pruebas",
             ["MongoDb:User"] = "test", ["MongoDb:Password"] = "test", ["MongoDb:Port"] = puerto,
-            ["PostgresDb:Host"] = "localhost", ["PostgresDb:Database"] = "pruebas",
-            ["PostgresDb:User"] = "test", ["PostgresDb:Password"] = "test", ["PostgresDb:Port"] = puerto
+            ["Postgres:Host"] = "localhost", ["Postgres:Database"] = "pruebas",
+            ["Postgres:User"] = "test", ["Postgres:Password"] = "test", ["Postgres:Port"] = puerto
         }).Build();
         var servicios = new ServiceCollection();
 

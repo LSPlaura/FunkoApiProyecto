@@ -23,7 +23,7 @@ public class SwaggerDocumentationTests {
         builder.Services.AddControllers(options => {
             options.RespectBrowserAcceptHeader = true;
             options.ReturnHttpNotAcceptable = true;
-        }).AddApplicationPart(typeof(AuthController).Assembly).AddXmlDataContractSerializerFormatters();
+        }).AddApplicationPart(typeof(AuthController).Assembly);
         builder.Services.AddSwaggerConfiguration();
         _app = builder.Build();
         _app.MapControllers();
