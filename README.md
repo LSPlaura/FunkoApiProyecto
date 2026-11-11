@@ -22,7 +22,7 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 - **Almacenamiento de ficheros**: subida de imágenes de Funkos con validación de extensión, tipo MIME y tamaño, y nombres únicos.
 - **Lógica de negocio en servicios**: los controladores son delgados; la orquestación vive en `FunkoServices`, `CategoriaService`, `ProveedorService`, `AuthService` y `FunkoTransactionsService`.
 - **Acceso a datos con repositorios**: contrato genérico `ICrud<T, TKey>` y repositorios específicos por agregado.
-- **Dos bases de datos**: PostgreSQL (EF Core) para Funciones, Categorías e Identity; MongoDB (driver nativo) para Proveedores.
+- **Dos bases de datos**: PostgreSQL (EF Core) para Funkos, Categorías e Identity; MongoDB (driver nativo) para Proveedores.
 - **Caché distribuida**: Redis con expiración absoluta y deslizante, más bloqueo distribuido contra *cache stampede*.
 - **Manejo de errores tipado**: patrón `Result` con `DomainError` y traducción centralizada a códigos HTTP.
 - **Transacciones con compensación**: alta, actualización y borrado de Funkos con rollback en base de datos y eliminación compensatoria de la imagen subida.
@@ -49,6 +49,7 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 | 12 | [🐳 Despliegue con Docker](#-despliegue-con-docker) |
 | 13 | [👥 Usuarios de prueba](#-usuarios-de-prueba) |
 | 14 | [📄 Licencia](#-licencia) |
+| 15 | [📢 Probar SignalR con Live Server](#-probar-signalr-con-live-server) |
 
 ---
 
@@ -69,6 +70,10 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 - 📄 **Paginación**: `PagedResponse<T>` con `PageMetadata` y cabecera `Link`.
 - 🧪 **Tests**: unitarios, integración con contenedores reales y E2E con Bruno.
 - 🐳 **Docker**: `compose.yaml` con PostgreSQL, MongoDB, Redis y la API, con `healthcheck` y volúmenes nombrados.
+- 📢 **SignalR**: hub `/hubs/funkos` exclusivo para `ADMIN`, con notificaciones `FunkoCreado` y cliente JavaScript de prueba.
+- 🔎 **GraphQL**: servidor Hot Chocolate con consultas, tipos, resolvers y DataLoader.
+- ✉️ **Email en segundo plano**: cola y worker, con simulación en memoria en desarrollo por defecto o SMTP con MailKit mediante `Email:UseSmtp`.
+- 🚦 **Rate limiting**: límite por IP y ámbito; 200 solicitudes/minuto para POST de Funkos y 1000/minuto para el resto. Devuelve `429` y `Retry-After` al superar el límite.
 
 ---
 
@@ -87,7 +92,9 @@ El proyecto resuelve el enunciado didáctico de construir un servicio backend pr
 | Tokens | Microsoft.IdentityModel.Tokens | `8.23.0` |
 | Patrón Result | CSharpFunctionalExtensions | `3.7.0` |
 | Documentación API | Swashbuckle.AspNetCore | `10.3.1` |
-| Serialización | System.Text.Json | `10.0.12` |
+| Serialización | System.Text.Json | Incluido en .NET 10 |
+| GraphQL | HotChocolate / GreenDonut | `16.7.3` |
+| Email SMTP | MailKit | `4.18.2` |
 | Logging | Serilog (Console + File) | `4.4.0` |
 | Pruebas unitarias | NUnit `4.4.0` + Moq `4.20.72` + FluentAssertions `8.8.0` | — |
 | Pruebas de integración | Testcontainers PostgreSql/MongoDb | `4.8.1` |
@@ -126,26 +133,50 @@ dotnet build
 # 4. Levanta la infraestructura (PostgreSQL, MongoDB, Redis)
 docker compose up -d postgres mongodb redis
 
-# 5. Ejecuta la API pasando los secretos por variables de entorno
-#    (en PowerShell)
-$env:Jwt__Key="ClaveSecretaMuyLargaYSegura1234567890"
-$env:PostgresDb__Host="localhost"
-$env:PostgresDb__Port="5432"
-$env:PostgresDb__Database="funkoapi"
-$env:PostgresDb__User="admin"
-$env:PostgresDb__Password="admin123"
-$env:MongoDb__Host="localhost"
-$env:MongoDb__Port="27017"
-$env:MongoDb__Database="funkoapi"
-$env:MongoDb__User="admin"
-$env:MongoDb__Password="admin123"
-$env:Redis__Host="localhost"
-$env:Redis__Port="6379"
+# 5. Continua con los comandos PowerShell del apartado siguiente.
+```
 
+#### Arrancar la API y seleccionar el entorno (PowerShell)
+
+**Fuente:** [9.1.4, Ficheros .env](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/09-configuracion-logging.md#914-ficheros-env) y [25.4, Variables de entorno](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/25-perfiles.md#254-variables-de-entorno). Se utiliza el bloque de carga del profesor y la variable `ASPNETCORE_ENVIRONMENT`. No hay un script de arranque adicional.
+
+Ejecuta desde la **raiz del repositorio**, donde esta el `.env`, en una terminal nueva de PowerShell. Asi no se reutiliza el `DOTNET_ENVIRONMENT` que establecian las instrucciones anteriores, ya retiradas.
+
+**1. Cargar el `.env` (bloque del apartado 9.1.4):**
+
+```powershell
+Get-Content .env | ForEach-Object {
+    if ($_ -match '^\s*([^#=]+)=(.*)$') {
+        Set-Item -Path "env:$($Matches[1].Trim())" -Value $Matches[2].Trim()
+    }
+}
+```
+
+**2. Elegir un entorno y ejecutar:**
+
+```powershell
+# Produccion
+$env:ASPNETCORE_ENVIRONMENT = "Production"
 dotnet run --project FunkoApi.Back
 ```
 
-Al arrancar, la API imprime en consola el nombre, el entorno y la URL:
+O bien:
+
+```powershell
+# Desarrollo
+$env:ASPNETCORE_ENVIRONMENT = "Development"
+dotnet run --project FunkoApi.Back
+```
+
+Deten la ejecucion con `Ctrl+C` antes de arrancar en el otro entorno.
+
+**Aplicacion a este proyecto, no copia literal de los datos del profesor:** `--project FunkoApi.Back` selecciona nuestra API. La seccion PostgreSQL se llama `Postgres`, igual que las variables del `.env`, sin alias ni conversiones. Los nombres de las bases se configuran en `appsettings.Development.json` (`funkos_dev`) y `appsettings.Production.json` (`funkoapi`), siguiendo la separacion por entornos del apartado 25.11. Se mantiene PostgreSQL y MongoDB, que son los motores del proyecto; no se introduce SQLite ni SQL Server.
+
+El `.env` local contiene los datos de conexion y secretos; **no debe definir `Postgres__Database` ni `MongoDb__Database`**, porque esas variables sobrescribirian los nombres de base del entorno. Tampoco debe definir `DOTNET_ENVIRONMENT`. El `.env` local existente se ha ajustado sin cambiar contraseñas; no lo sustituyas por la antigua plantilla `.env.example`, que aun contiene valores de otra configuracion.
+
+**Condiciones de arranque del codigo actual:** las bases de datos deben estar accesibles y las credenciales deben ser validas. Production requiere las tablas ya creadas y ejecuta el seeder de Identity. Development elimina y recrea las bases `funkos_dev` en cada arranque. Swagger solo se habilita en Development. `uploads` se vacia en ambos entornos. Cambiar el entorno no elimina estos requisitos ni estos efectos.
+
+Al arrancar en Development, la API imprime en consola el nombre, el entorno y la URL:
 
 ```
 ========================================
@@ -167,8 +198,8 @@ Swagger está disponible en `/swagger` **solo** en entorno de desarrollo.
 # Crea el archivo .env con los secretos (ver sección Docker)
 cp .env.example .env
 
-# Levanta todos los servicios (incluye la API)
-docker compose up -d --build
+# Levanta la API y sus dependencias (PostgreSQL, MongoDB y Redis)
+docker compose up -d --build api
 
 # Ver logs de la API
 docker compose logs -f api
@@ -178,6 +209,23 @@ docker compose down
 ```
 
 La API queda publicada en **`http://localhost:5000`** (mapeo `5000:8080` del contenedor).
+
+### Comandos habituales: API y pruebas
+
+Ejecuta estos comandos desde la **raíz del repositorio**, con Docker Desktop en ejecución y el archivo `.env` preparado. Antes de la primera ejecución de los tests, ejecuta `dotnet restore "FunkoApi.Tests/FunkoApi.Tests.csproj"`: `--no-restore` requiere los paquetes ya restaurados en tu equipo; construir la imagen Docker no los restaura en el host.
+
+```bash
+# 1. Construir y levantar la API y sus dependencias
+docker compose up -d --build api
+
+# 2. Ejecutar las pruebas unitarias y de integración
+dotnet test "FunkoApi.Tests/FunkoApi.Tests.csproj" --no-restore
+
+# 3. Ejecutar las pruebas E2E con Bruno contra la API levantada
+docker compose -f "FunkoApi.Tests.E2E/compose.bruno.yaml" run --rm bruno
+```
+
+Espera a que la API termine de inicializarse antes de ejecutar Bruno (puedes consultar `docker compose logs -f api` o abrir `http://localhost:5000/swagger`). Las pruebas de integración crean sus propios contenedores con Testcontainers; las E2E sí utilizan la API publicada en el puerto 5000 y modifican sus datos de prueba.
 
 ---
 
@@ -189,7 +237,7 @@ La configuración se distribuye en tres ficheros:
 |---------|-----|
 | `appsettings.json` | Valores por defecto |
 | `appsettings.Development.json` | Sobrescritura en desarrollo (`Api`, `Logging`, `Serilog`) |
-| `appsettings.Production.json` | Sobrescritura en producción (`Api`, hosts Docker, `Logging`) |
+| `appsettings.Production.json` | Sobrescritura en producción (`Api`, hosts locales, `Logging`); Docker inyecta sus propios hosts |
 
 ### Secciones de `appsettings.json`
 
@@ -197,11 +245,13 @@ La configuración se distribuye en tres ficheros:
 |---------|--------|----------------|
 | `Api` | `Nombre`, `Mensaje` | Configuración tipada (`ApiConfig`) que se muestra al arrancar |
 | `Cache` | `DefaultExpirationMinutes`, `SlidingExpirationMinutes` | TTL de las entradas en caché |
-| `Postgres` / `PostgresDb` | `Host`, `Port`, `Database`, `User`, `Password` | Conexión a PostgreSQL |
+| `Postgres` | `Host`, `Port`, `Database`, `User`, `Password` | Conexión a PostgreSQL |
 | `MongoDb` | `Host`, `Port`, `Database`, `User`, `Password` | Conexión a MongoDB |
 | `Redis` | `Host`, `Port`, `RedisInstanceName`, `Password` | Conexión y prefijo de claves de Redis |
 | `Storage` | `UploadPath`, `MaxFileSize`, `AllowedExtensions`, `AllowedContentTypes`, `DefaultImage`, `Folders` | Reglas de subida de imágenes |
 | `Jwt` | `Key`, `Issuer`, `Audience`, `ExpireMinutes` | Firma y validación del token (`ExpirationMinutes`, 30 por defecto) |
+| `Cors` | `AllowedOrigins` | Orígenes permitidos para el cliente del navegador y SignalR |
+| `Email` | `Host`, `Port`, `Username`, `Password`, `From`, `DisplayName`, `Security`, `UseSmtp` | Configuración SMTP; `UseSmtp` permite activar o desactivar el envío real |
 | `Logging` / `Serilog` | `LogLevel`, `MinimumLevel`, `WriteTo` | Niveles de log y *sinks* |
 
 ### Sobrescritura en tiempo de ejecución
@@ -210,13 +260,11 @@ Cualquier clave se puede sobrescribir con variables de entorno usando `__` (dobl
 
 ```bash
 Jwt__Key=...
-PostgresDb__Host=localhost
-PostgresDb__Port=5432
+Postgres__Host=localhost
+Postgres__Port=5432
 MongoDb__Host=localhost
 Redis__Host=localhost
 ```
-
-> **Ojo con los nombres:** el código de `DatabaseConfig` lee la sección **`PostgresDb`**, mientras que `appsettings.json` declara `Postgres`. En local hay que definir las variables `PostgresDb__*` (como en el ejemplo de inicio rápido); en Docker ya vienen inyectadas desde `compose.yaml`.
 
 ### Configuración tipada
 
@@ -225,7 +273,9 @@ Redis__Host=localhost
 | `ApiConfig` | `Api` | `IOptions<ApiConfig>` en `Program.cs` |
 | `JwtSettings` | `Jwt` | `IOptions<JwtSettings>` en `IdentityConfig` |
 | `StorageSettings` | `Storage` | `IOptions<StorageSettings>` en `StorageConfig` y `EfcSeeder` |
-| `CacheOptions` | `Redis` | `IOptions<CacheOptions>` en `RedisCacheService` y los servicios de negocio |
+| `CacheOptions` | `Cache` | `IOptions<CacheOptions>` en `RedisCacheService` y los servicios de negocio |
+
+> **Expiración JWT:** actualmente `appsettings.json` declara `Jwt:ExpireMinutes`, pero `JwtSettings` y `AuthService` usan `ExpirationMinutes`. Para cambiar la duración efectiva utiliza `Jwt__ExpirationMinutes`; si no se configura, se mantienen los 30 minutos por defecto.
 
 ---
 
@@ -326,20 +376,22 @@ builder.Services
 | `AuthController` | `/api/auth/signup` | POST | Público |
 | `AuthController` | `/api/auth/me` | GET | Autenticado |
 | `CategoriasController` | `/api/categorias` | GET | `ADMIN,USER` |
+| `CategoriasController` | `/api/categorias/paged?page=1&pageSize=10` | GET | `ADMIN,USER` |
 | `CategoriasController` | `/api/categorias/{id}` | GET | `ADMIN,USER` |
 | `CategoriasController` | `/api/categorias/nombre?name=...` | GET | `ADMIN,USER` |
 | `CategoriasController` | `/api/categorias` | POST | `ADMIN` |
 | `CategoriasController` | `/api/categorias/{id}` | PUT | `ADMIN` |
 | `CategoriasController` | `/api/categorias/{id}` | DELETE | `ADMIN` |
 | `FunkosController` | `/api/funkos` | GET | `ADMIN,USER` |
-| `FunkosController` | `/api/funkos/paged?page=1&pageSize=10` | GET | **Público** |
+| `FunkosController` | `/api/funkos/paged?page=1&pageSize=10` | GET | `ADMIN,USER` |
 | `FunkosController` | `/api/funkos/{id:long}` | GET | `ADMIN` |
-| `FunkosController` | `/api/funkos/{nombre}` | GET | `ADMIN` |
+| `FunkosController` | `/api/funkos/nombre/{nombre}` | GET | `ADMIN` |
 | `FunkosController` | `/api/funkos` | POST | `ADMIN` |
 | `FunkosController` | `/api/funkos/{id:long}` | PUT | `ADMIN` |
 | `FunkosController` | `/api/funkos/{id:long}` | DELETE | `ADMIN` |
 | `FunkosController` | `/api/funkos/{id:long}/imagen` | PATCH | `ADMIN` |
 | `ProveedoresController` | `/api/proveedores` | GET | `ADMIN` |
+| `ProveedoresController` | `/api/proveedores/paged?page=1&pageSize=10` | GET | `ADMIN` |
 | `ProveedoresController` | `/api/proveedores/{id}` | GET | `ADMIN` |
 | `ProveedoresController` | `/api/proveedores` | POST | `ADMIN` |
 | `ProveedoresController` | `/api/proveedores/{id}` | PUT | `ADMIN` |
@@ -351,7 +403,7 @@ builder.Services
 
 - **POST/PUT de Funkos** usan `multipart/form-data` con los campos `nombre`, `precio`, `stock`, `categoriaId`, `proveedorId` y el fichero opcional `archivo`.
 - **PATCH de imagen** recibe únicamente el fichero `archivo`; borra la imagen anterior del almacenamiento y guarda la nueva.
-- **`/api/funkos/paged`** es paginación pública: `page` se normaliza a mínimo 1 y `pageSize` se limita al rango `1..100`. Devuelve `PagedResponse<FunkoDto>` y, si procede, la cabecera `Link`.
+- **`/api/funkos/paged`** requiere `ADMIN` o `USER`: `page` se normaliza a mínimo 1 y `pageSize` se limita al rango `1..100`. Devuelve `PagedResponse<FunkoDto>` (`data` y `pagination`) y, si procede, la cabecera `Link`.
 
 ### Ejemplo con `curl`
 
@@ -418,16 +470,16 @@ Las entradas usan expiración absoluta y deslizante configuradas en `CacheOption
 
 1. Configura **Serilog** (consola + `logs/funkos-.log` con rotación diaria y retención de 7 ficheros).
 2. Registra la **configuración tipada** (`ApiConfig`) y **Identity + JWT**.
-3. Registra **controladores** (negociación de contenido y formateadores XML) y **Swagger**.
+3. Registra **controladores** (negociación de contenido JSON, sin añadir formateadores XML), **Swagger**, **SignalR** y **CORS**.
 4. Encadena las extensiones del *Composition Root* (`AddCache`, `AddDatabases`, `AddSeeders`, `AddRepositories`, `AddStorage`, `AddServices`).
-5. Construye la app y monta el **pipeline**: `UseSerilogRequestLogging` → `UseGlobalExceptionHandler` → `UseAuthentication` → `UseAuthorization` → Swagger (solo DEV) → `MapControllers`.
+5. Registra **GraphQL**, **rate limiting** y los servicios de **email** con su worker. Construye la app y monta el **pipeline**: `UseSerilogRequestLogging` → `UseGlobalExceptionHandler` → `UseCors` → `UseAuthentication` → `UseAuthorization` → `UseRateLimiter`. Mapea GraphQL, Swagger (solo DEV), controladores y `/hubs/funkos`.
 6. Ejecuta `InitializeStorage`: vacía `uploads/`, recrea las carpetas declaradas en `Storage:Folders` y copia las imágenes de `SeedImages/`.
 7. Ejecuta `InitializeDatabaseAsync`.
 8. Muestra el banner con nombre, URL y entorno, y arranca con `RunAsync()`.
 
-> ⚠️ **Aviso importante:** `InitializeDatabaseAsync` deja las bases de datos limpias **en cada arranque**: elimina la base de datos de MongoDB y hace `EnsureDeletedAsync()` + `EnsureCreatedAsync()` en PostgreSQL antes de resembrar. Es intencionado para el aula (estado reproducible), pero **no lo uses con datos que quieras conservar**.
+> ⚠️ **Aviso importante:** en **Development**, `InitializeDatabaseAsync` deja las bases de datos limpias **en cada arranque**: elimina la base de datos de MongoDB y hace `EnsureDeletedAsync()` + `EnsureCreatedAsync()` en PostgreSQL antes de resembrar. El `compose.yaml` actual utiliza Development, por lo que también ocurre con Docker. En otros entornos se omite esta recreación, pero se ejecuta el seeder de Identity. **No arranques esta configuración con datos que quieras conservar**.
 
-También se prepara el directorio `uploads/`, que se sirve como contenido estático y se vacía en cada arranque.
+También se prepara el directorio `uploads/`, que se vacía en cada arranque, independientemente del entorno. El pipeline actual no registra `UseStaticFiles`, por lo que no publica esas imágenes como contenido estático.
 
 ---
 
@@ -490,7 +542,18 @@ FunkoApi.Tests/
 ├── Extensions/  Factory/  Generators/  Helpers/  Infrastructure/
 ├── Mappers/  Middleware/  Models/  Repositories/  Services/  Storage/
 └── FunkoApi.Tests.csproj
+
+FunkoApi.Clients/
+└── signalr-client-js/index.html    # Cliente manual de SignalR (Live Server)
+
+FunkoApi.Tests.E2E/
+├── Bruno/FunkoApi - Tests E2E/     # Colección de peticiones
+├── compose.bruno.yaml             # Ejecución de Bruno CLI con Docker
+├── environments/cli.local.json    # Entorno para acceder a la API desde Docker
+└── reports/                       # Informes generados por Bruno
 ```
+
+La API también incluye las carpetas `Hub/`, `GraphQl/` y `Services/Email/` para tiempo real, consultas GraphQL y envío de correo, respectivamente.
 
 ---
 
@@ -524,10 +587,10 @@ dotnet test --filter "Category=Integration"
 # Todo excepto integración (rápido, sin Docker)
 dotnet test --filter "Category!=Integration"
 
-# Suite completa
-dotnet test
+# Suite completa de pruebas unitarias y de integración (paquetes ya restaurados)
+dotnet test "FunkoApi.Tests/FunkoApi.Tests.csproj" --no-restore
 
-# Con cobertura (coverlet.msbuild)
+# Con cobertura (coverlet.collector)
 dotnet test --collect:"XPlat Code Coverage"
 ```
 
@@ -559,6 +622,35 @@ FunkoApi.Tests.E2E/Bruno/FunkoApi - Tests E2E/
 
 Con Bruno (o su CLI) se ejecuta contra la API levantada, incluyendo el flujo de autenticación (obtener el token en `/api/auth/login` y enviarlo como `Authorization: Bearer <token>` a los endpoints protegidos).
 
+```bash
+docker compose -f "FunkoApi.Tests.E2E/compose.bruno.yaml" run --rm bruno
+```
+
+Este Compose ejecuta las carpetas de autenticación, categorías, proveedores, funkos y **SignalR HTTP**, usando `FunkoApi.Tests.E2E/environments/cli.local.json`. Dentro del contenedor, la API se alcanza mediante `http://host.docker.internal:5000`. Los informes se guardan en `FunkoApi.Tests.E2E/reports/`: `report.json`, `junit-report.xml` y `report.html`.
+
+**Las comprobaciones HTTP de SignalR no sustituyen la prueba de recepción de eventos en tiempo real**: para ver `FunkoCreado` utiliza el cliente JavaScript descrito a continuación.
+
+---
+
+## 📢 Probar SignalR con Live Server
+
+El cliente está en **[`FunkoApi.Clients/signalr-client-js/index.html`](FunkoApi.Clients/signalr-client-js/index.html)**. El hub se publica en **`http://localhost:5000/hubs/funkos`** y solo admite el rol **`ADMIN`**.
+
+1. Levanta la API con `docker compose up -d --build api` y espera a que termine de arrancar.
+2. Abre la raíz del proyecto en **Visual Studio Code**, con la extensión **Live Server** instalada.
+3. Busca `FunkoApi.Clients/signalr-client-js/index.html`, haz clic derecho y selecciona **Open with Live Server**. No abras el archivo directamente con `file://`.
+4. Utiliza el origen **`http://127.0.0.1:5500`**. Si abriste la raíz del repositorio, la URL será `http://127.0.0.1:5500/FunkoApi.Clients/signalr-client-js/index.html`.
+5. En **Iniciar sesión como administrador**, introduce las credenciales del administrador de prueba de la sección **Usuarios de prueba** y pulsa **Iniciar sesión**. El cliente llama a `/api/auth/login` y rellena automáticamente el JWT.
+6. En **Conectar a SignalR**, comprueba que la URL sea `http://localhost:5000/hubs/funkos` y pulsa **Conectar**. También puedes pegar manualmente un JWT válido de administrador, **sin el prefijo `Bearer`**.
+7. Cuando aparezca **Conectado**, mantén la página abierta y crea un Funko mediante `POST /api/funkos` desde Swagger o Bruno, autenticándote como administrador y utilizando una categoría y un proveedor existentes.
+8. Comprueba que aparece **FunkoCreado** en **Notificaciones recibidas**. Al terminar, pulsa **Desconectar**.
+
+> **CORS:** `FunkoApi.Back/appsettings.Development.json` permite exactamente `http://127.0.0.1:5500` y `http://127.0.0.1:3000`. `http://localhost:5500` y otros puertos no están incluidos. Si Live Server abre otro origen, utiliza uno de los permitidos o configura el origen exacto en `Cors:AllowedOrigins` y reinicia/reconstruye la API. En Production la lista está vacía por defecto.
+
+El cliente carga la librería JavaScript de SignalR desde un CDN, por lo que necesita acceso a Internet. Si el JWT caduca, vuelve a iniciar sesión y conecta de nuevo.
+
+Referencia de clase: [18. WebSockets y SignalR](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/18-websockets-signalr.md), apartados 18.5 (JWT y CORS), 18.7 (notificaciones desde servicios), 18.8 (cliente JavaScript) y 18.12 (limitaciones de Bruno CLI). Las rutas, campos y el evento anteriores corresponden a este proyecto.
+
 ---
 
 ## 🐳 Despliegue con Docker
@@ -582,8 +674,8 @@ Características del orquestador:
 ### Comandos
 
 ```bash
-# Construir y levantar todo
-docker compose up -d --build
+# Construir y levantar la API y sus dependencias
+docker compose up -d --build api
 
 # Estado de los contenedores
 docker compose ps

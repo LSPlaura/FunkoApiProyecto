@@ -1,0 +1,824 @@
+2026-11-11 11:11:39.922 [INF] Iniciando la aplicación...
+2026-11-11 11:11:39.968 [INF] Configurando Identity y JWT...
+2026-11-11 11:11:39.982 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:11:40.020 [INF] 💾 Configurando caché Redis en redis:6379...
+2026-11-11 11:11:40.026 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:11:40.037 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:11:40.038 [INF] MongoDB configurado correctamente.
+2026-11-11 11:11:40.038 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:11:40.038 [WRN] No se encontró 'PostgresDb:Port' en la configuración. Se utilizará el puerto por defecto: 5432
+2026-11-11 11:11:40.040 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:11:40.040 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:11:40.041 [INF] Registrando seeders...
+2026-11-11 11:11:40.041 [INF] Seeders registrados correctamente.
+2026-11-11 11:11:40.047 [INF] Registrando repositorio...
+2026-11-11 11:11:40.048 [INF] Repositorio registrados.
+2026-11-11 11:11:40.048 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:11:40.049 [INF] Registrando servicios...
+2026-11-11 11:11:40.049 [INF] Servicios registrados correctamente.
+2026-11-11 11:11:40.126 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:11:40.186 [INF] Configurando rate limiting...
+2026-11-11 11:11:40.186 [INF] Email: envío real con MailKit.
+2026-11-11 11:11:40.290 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:11:40.292 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 11:11:40.293 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 11:11:40.295 [INF] ⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.
+2026-11-11 11:11:40.313 [INF] Configurando el DbContext de PostgreSQL para el host: :5432
+2026-11-11 11:11:40.830 [ERR] An exception occurred while iterating over the results of a query for context type 'FunkoApi.Back.Data.AppDbContext'.
+System.ArgumentNullException: Value cannot be null. (Parameter 'Host')
+   at System.ArgumentNullException.Throw(String paramName)
+   at System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   at System.ArgumentException.ThrowNullOrWhiteSpaceException(String argument, String paramName)
+   at System.ArgumentException.ThrowIfNullOrWhiteSpace(String argument, String paramName)
+   at Npgsql.NpgsqlConnectionStringBuilder.PostProcessAndValidate()
+   at Npgsql.NpgsqlConnection.SetupDataSource()
+   at Npgsql.NpgsqlConnection.set_ConnectionString(String value)
+   at Npgsql.NpgsqlConnection..ctor(String connectionString)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlRelationalConnection.CreateDbConnection()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.get_DbConnection()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+System.ArgumentNullException: Value cannot be null. (Parameter 'Host')
+   at System.ArgumentNullException.Throw(String paramName)
+   at System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   at System.ArgumentException.ThrowNullOrWhiteSpaceException(String argument, String paramName)
+   at System.ArgumentException.ThrowIfNullOrWhiteSpace(String argument, String paramName)
+   at Npgsql.NpgsqlConnectionStringBuilder.PostProcessAndValidate()
+   at Npgsql.NpgsqlConnection.SetupDataSource()
+   at Npgsql.NpgsqlConnection.set_ConnectionString(String value)
+   at Npgsql.NpgsqlConnection..ctor(String connectionString)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlRelationalConnection.CreateDbConnection()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.get_DbConnection()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-11-11 11:11:40.836 [FTL] La aplicación terminó de forma inesperada
+System.ArgumentNullException: Value cannot be null. (Parameter 'Host')
+   at System.ArgumentNullException.Throw(String paramName)
+   at System.ArgumentNullException.ThrowIfNull(Object argument, String paramName)
+   at System.ArgumentException.ThrowNullOrWhiteSpaceException(String argument, String paramName)
+   at System.ArgumentException.ThrowIfNullOrWhiteSpace(String argument, String paramName)
+   at Npgsql.NpgsqlConnectionStringBuilder.PostProcessAndValidate()
+   at Npgsql.NpgsqlConnection.SetupDataSource()
+   at Npgsql.NpgsqlConnection.set_ConnectionString(String value)
+   at Npgsql.NpgsqlConnection..ctor(String connectionString)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlRelationalConnection.CreateDbConnection()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.get_DbConnection()
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Identity.RoleManager`1.RoleExistsAsync(String roleName)
+   at FunkoApi.Back.Data.Seed.Identity.IdentitySeeder.SeedAsync(IServiceProvider scope) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Data\Seed\Identity\IdentitySeeder.cs:line 23
+   at FunkoApi.Back.Infrastructure.DatabaseInitializationExtensions.InitializeDatabaseAsync(WebApplication app) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Infrastructure\DatabaseInitializationExtensions.cs:line 61
+   at Program.<Main>$(String[] args) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Program.cs:line 118
+2026-11-11 11:16:29.015 [INF] Iniciando la aplicación...
+2026-11-11 11:16:29.041 [INF] Configurando Identity y JWT...
+2026-11-11 11:16:29.052 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:16:29.062 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 11:16:29.066 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:16:29.068 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:16:29.068 [INF] MongoDB configurado correctamente.
+2026-11-11 11:16:29.069 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:16:29.070 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:16:29.070 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:16:29.071 [INF] Registrando seeders...
+2026-11-11 11:16:29.071 [INF] Seeders registrados correctamente.
+2026-11-11 11:16:29.072 [INF] Registrando repositorio...
+2026-11-11 11:16:29.073 [INF] Repositorio registrados.
+2026-11-11 11:16:29.073 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:16:29.074 [INF] Registrando servicios...
+2026-11-11 11:16:29.074 [INF] Servicios registrados correctamente.
+2026-11-11 11:16:29.080 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:16:29.098 [INF] Configurando rate limiting...
+2026-11-11 11:16:29.098 [INF] Email: envío real con MailKit.
+2026-11-11 11:16:29.183 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:16:29.185 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 11:16:29.187 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 11:16:29.188 [INF] ⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.
+2026-11-11 11:16:29.202 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:16:29.758 [ERR] An error occurred using the connection to database 'funkos' on server 'tcp://localhost:5432'.
+2026-11-11 11:16:29.769 [ERR] An exception occurred while iterating over the results of a query for context type 'FunkoApi.Back.Data.AppDbContext'.
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-11-11 11:16:29.776 [FTL] La aplicación terminó de forma inesperada
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Identity.RoleManager`1.RoleExistsAsync(String roleName)
+   at FunkoApi.Back.Data.Seed.Identity.IdentitySeeder.SeedAsync(IServiceProvider scope) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Data\Seed\Identity\IdentitySeeder.cs:line 23
+   at FunkoApi.Back.Infrastructure.DatabaseInitializationExtensions.InitializeDatabaseAsync(WebApplication app) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Infrastructure\DatabaseInitializationExtensions.cs:line 61
+   at Program.<Main>$(String[] args) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Program.cs:line 118
+2026-11-11 11:17:36.010 [INF] Iniciando la aplicación...
+2026-11-11 11:17:36.038 [INF] Configurando Identity y JWT...
+2026-11-11 11:17:36.054 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:17:36.065 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 11:17:36.070 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:17:36.072 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:17:36.073 [INF] MongoDB configurado correctamente.
+2026-11-11 11:17:36.073 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:17:36.076 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:17:36.077 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:17:36.078 [INF] Registrando seeders...
+2026-11-11 11:17:36.078 [INF] Seeders registrados correctamente.
+2026-11-11 11:17:36.080 [INF] Registrando repositorio...
+2026-11-11 11:17:36.080 [INF] Repositorio registrados.
+2026-11-11 11:17:36.081 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:17:36.082 [INF] Registrando servicios...
+2026-11-11 11:17:36.083 [INF] Servicios registrados correctamente.
+2026-11-11 11:17:36.089 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:17:36.108 [INF] Configurando rate limiting...
+2026-11-11 11:17:36.109 [INF] Email: envío real con MailKit.
+2026-11-11 11:17:36.219 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:17:36.220 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 11:17:36.222 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 11:17:36.224 [INF] ⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.
+2026-11-11 11:17:36.237 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:17:36.797 [ERR] An error occurred using the connection to database 'funkos' on server 'tcp://localhost:5432'.
+2026-11-11 11:17:36.807 [ERR] An exception occurred while iterating over the results of a query for context type 'FunkoApi.Back.Data.AppDbContext'.
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-11-11 11:17:36.815 [FTL] La aplicación terminó de forma inesperada
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Identity.RoleManager`1.RoleExistsAsync(String roleName)
+   at FunkoApi.Back.Data.Seed.Identity.IdentitySeeder.SeedAsync(IServiceProvider scope) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Data\Seed\Identity\IdentitySeeder.cs:line 23
+   at FunkoApi.Back.Infrastructure.DatabaseInitializationExtensions.InitializeDatabaseAsync(WebApplication app) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Infrastructure\DatabaseInitializationExtensions.cs:line 61
+   at Program.<Main>$(String[] args) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Program.cs:line 118
+2026-11-11 11:23:49.349 [INF] Iniciando la aplicación...
+2026-11-11 11:23:49.373 [INF] Configurando Identity y JWT...
+2026-11-11 11:23:49.384 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:23:49.393 [INF] 💾 Configurando caché Redis en redis:6379...
+2026-11-11 11:23:49.397 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:23:49.398 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:23:49.399 [INF] MongoDB configurado correctamente.
+2026-11-11 11:23:49.399 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:23:49.401 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:23:49.401 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:23:49.402 [INF] Registrando seeders...
+2026-11-11 11:23:49.402 [INF] Seeders registrados correctamente.
+2026-11-11 11:23:49.403 [INF] Registrando repositorio...
+2026-11-11 11:23:49.403 [INF] Repositorio registrados.
+2026-11-11 11:23:49.404 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:23:49.405 [INF] Registrando servicios...
+2026-11-11 11:23:49.405 [INF] Servicios registrados correctamente.
+2026-11-11 11:23:49.411 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:23:49.428 [INF] Configurando rate limiting...
+2026-11-11 11:23:49.429 [INF] Email: envío real con MailKit.
+2026-11-11 11:23:49.514 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:23:49.516 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 11:23:49.518 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 11:23:49.519 [INF] ⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.
+2026-11-11 11:23:49.532 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:23:50.068 [ERR] An error occurred using the connection to database 'funkos' on server 'tcp://localhost:5432'.
+2026-11-11 11:23:50.083 [ERR] An exception occurred while iterating over the results of a query for context type 'FunkoApi.Back.Data.AppDbContext'.
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-11-11 11:23:50.092 [FTL] La aplicación terminó de forma inesperada
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Identity.RoleManager`1.RoleExistsAsync(String roleName)
+   at FunkoApi.Back.Data.Seed.Identity.IdentitySeeder.SeedAsync(IServiceProvider scope) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Data\Seed\Identity\IdentitySeeder.cs:line 23
+   at FunkoApi.Back.Infrastructure.DatabaseInitializationExtensions.InitializeDatabaseAsync(WebApplication app) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Infrastructure\DatabaseInitializationExtensions.cs:line 61
+   at Program.<Main>$(String[] args) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Program.cs:line 118
+2026-11-11 11:31:33.077 [INF] Iniciando la aplicación...
+2026-11-11 11:31:33.101 [INF] Configurando Identity y JWT...
+2026-11-11 11:31:33.111 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:31:33.121 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 11:31:33.125 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:31:33.127 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:31:33.127 [INF] MongoDB configurado correctamente.
+2026-11-11 11:31:33.127 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:31:33.129 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:31:33.129 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:31:33.130 [INF] Registrando seeders...
+2026-11-11 11:31:33.130 [INF] Seeders registrados correctamente.
+2026-11-11 11:31:33.131 [INF] Registrando repositorio...
+2026-11-11 11:31:33.131 [INF] Repositorio registrados.
+2026-11-11 11:31:33.132 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:31:33.132 [INF] Registrando servicios...
+2026-11-11 11:31:33.133 [INF] Servicios registrados correctamente.
+2026-11-11 11:31:33.138 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:31:33.156 [INF] Configurando rate limiting...
+2026-11-11 11:31:33.156 [INF] Email: envío real con MailKit.
+2026-11-11 11:31:33.244 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:31:33.246 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 11:31:33.247 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 11:31:33.249 [INF] ⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.
+2026-11-11 11:31:33.262 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:31:33.789 [ERR] An error occurred using the connection to database 'funkoapi' on server 'tcp://localhost:5432'.
+2026-11-11 11:31:33.800 [ERR] An exception occurred while iterating over the results of a query for context type 'FunkoApi.Back.Data.AppDbContext'.
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+2026-11-11 11:31:33.807 [FTL] La aplicación terminó de forma inesperada
+Npgsql.NpgsqlException (0x80004005): No password has been provided but the backend requires one (in SASL/SCRAM-SHA-256)
+   at Npgsql.Internal.NpgsqlConnector.AuthenticateSASL(List`1 mechanisms, String username, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Authenticate(String username, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.<Open>g__OpenCore|209_0(NpgsqlConnector conn, String username, SslMode sslMode, GssEncryptionMode gssEncMode, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.Internal.NpgsqlConnector.Open(NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.OpenNewConnector(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.PoolingDataSource.<Get>g__RentAsync|33_0(NpgsqlConnection conn, NpgsqlTimeout timeout, Boolean async, CancellationToken cancellationToken)
+   at Npgsql.NpgsqlConnection.<Open>g__OpenAsync|42_0(Boolean async, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenInternalAsync(Boolean errorsExpected, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalConnection.OpenAsync(CancellationToken cancellationToken, Boolean errorsExpected)
+   at Microsoft.EntityFrameworkCore.Storage.RelationalCommand.ExecuteReaderAsync(RelationalCommandParameterObject parameterObject, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.InitializeReaderAsync(AsyncEnumerator enumerator, CancellationToken cancellationToken)
+   at Npgsql.EntityFrameworkCore.PostgreSQL.Storage.Internal.NpgsqlExecutionStrategy.ExecuteAsync[TState,TResult](TState state, Func`4 operation, Func`4 verifySucceeded, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.Internal.SingleQueryingEnumerable`1.AsyncEnumerator.MoveNextAsync()
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.EntityFrameworkCore.Query.ShapedQueryCompilingExpressionVisitor.SingleOrDefaultAsync[TSource](IAsyncEnumerable`1 asyncEnumerable, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Identity.RoleManager`1.RoleExistsAsync(String roleName)
+   at FunkoApi.Back.Data.Seed.Identity.IdentitySeeder.SeedAsync(IServiceProvider scope) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Data\Seed\Identity\IdentitySeeder.cs:line 23
+   at FunkoApi.Back.Infrastructure.DatabaseInitializationExtensions.InitializeDatabaseAsync(WebApplication app) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Infrastructure\DatabaseInitializationExtensions.cs:line 61
+   at Program.<Main>$(String[] args) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Program.cs:line 118
+2026-11-11 11:32:58.389 [INF] Iniciando la aplicación...
+2026-11-11 11:32:58.417 [INF] Configurando Identity y JWT...
+2026-11-11 11:32:58.433 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:32:58.444 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 11:32:58.448 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:32:58.450 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:32:58.451 [INF] MongoDB configurado correctamente.
+2026-11-11 11:32:58.452 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:32:58.454 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:32:58.454 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:32:58.455 [INF] Registrando seeders...
+2026-11-11 11:32:58.456 [INF] Seeders registrados correctamente.
+2026-11-11 11:32:58.457 [INF] Registrando repositorio...
+2026-11-11 11:32:58.458 [INF] Repositorio registrados.
+2026-11-11 11:32:58.459 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:32:58.460 [INF] Registrando servicios...
+2026-11-11 11:32:58.461 [INF] Servicios registrados correctamente.
+2026-11-11 11:32:58.468 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:32:58.486 [INF] Configurando rate limiting...
+2026-11-11 11:32:58.487 [INF] Email: envío real con MailKit.
+2026-11-11 11:32:58.580 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:32:58.582 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 11:32:58.584 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 11:32:58.586 [INF] ⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.
+2026-11-11 11:32:58.601 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:32:59.237 [INF] [Identity] Sembrado de datos realizado
+2026-11-11 11:32:59.239 [INF] API Funko API (PROD): Modo producción
+2026-11-11 11:32:59.595 [INF] Email worker iniciado
+2026-11-11 11:32:59.621 [ERR] Hosting failed to start
+System.IO.IOException: Failed to bind to address http://[::1]:5000: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+ ---> System.Net.Sockets.SocketException (10048): Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.DefaultAddressStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+2026-11-11 11:32:59.631 [INF] Email worker detenido
+2026-11-11 11:32:59.634 [FTL] La aplicación terminó de forma inesperada
+System.IO.IOException: Failed to bind to address http://[::1]:5000: address already in use.
+ ---> Microsoft.AspNetCore.Connections.AddressInUseException: Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+ ---> System.Net.Sockets.SocketException (10048): Solo se permite un uso de cada dirección de socket (protocolo/dirección de red/puerto)
+   at System.Net.Sockets.Socket.UpdateStatusAfterSocketErrorAndThrowException(SocketError error, Boolean disconnectOnFailure, String callerName)
+   at System.Net.Sockets.Socket.DoBind(EndPoint endPointSnapshot, SocketAddress socketAddress)
+   at System.Net.Sockets.Socket.Bind(EndPoint localEP)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportOptions.CreateDefaultBoundListenSocket(EndPoint endpoint)
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketConnectionListener.Bind()
+   at Microsoft.AspNetCore.Server.Kestrel.Transport.Sockets.SocketTransportFactory.BindAsync(EndPoint endpoint, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.Infrastructure.TransportManager.BindAsync(EndPoint endPoint, ConnectionDelegate connectionDelegate, EndpointConfig endpointConfig, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.<>c__DisplayClass28_0`1.<<StartAsync>g__OnBind|0>d.MoveNext()
+--- End of stack trace from previous location ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   --- End of inner exception stack trace ---
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.BindEndpointAsync(ListenOptions endpoint, AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.LocalhostListenOptions.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.Internal.AddressBinder.DefaultAddressStrategy.BindAsync(AddressBindContext context, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.BindAsync(CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Server.Kestrel.Core.KestrelServerImpl.StartAsync[TContext](IHttpApplication`1 application, CancellationToken cancellationToken)
+   at Microsoft.AspNetCore.Hosting.GenericWebHostService.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.Internal.Host.<StartAsync>b__14_1(IHostedService service, CancellationToken token)
+   at Microsoft.Extensions.Hosting.Internal.Host.ForeachService[T](IEnumerable`1 services, CancellationToken token, Boolean concurrent, Boolean abortOnFirstException, List`1 exceptions, Func`3 operation)
+   at Microsoft.Extensions.Hosting.Internal.Host.StartAsync(CancellationToken cancellationToken)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Microsoft.Extensions.Hosting.HostingAbstractionsHostExtensions.RunAsync(IHost host, CancellationToken token)
+   at Program.<Main>$(String[] args) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Program.cs:line 134
+2026-11-11 11:34:41.726 [INF] Iniciando la aplicación...
+2026-11-11 11:34:41.753 [INF] Configurando Identity y JWT...
+2026-11-11 11:34:41.765 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:34:41.775 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 11:34:41.779 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:34:41.781 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:34:41.782 [INF] MongoDB configurado correctamente.
+2026-11-11 11:34:41.782 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:34:41.784 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:34:41.784 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:34:41.785 [INF] Registrando seeders...
+2026-11-11 11:34:41.785 [INF] Seeders registrados correctamente.
+2026-11-11 11:34:41.786 [INF] Registrando repositorio...
+2026-11-11 11:34:41.786 [INF] Repositorio registrados.
+2026-11-11 11:34:41.787 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:34:41.788 [INF] Registrando servicios...
+2026-11-11 11:34:41.788 [INF] Servicios registrados correctamente.
+2026-11-11 11:34:41.795 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:34:41.814 [INF] Configurando rate limiting...
+2026-11-11 11:34:41.815 [INF] Email: envío real con MailKit.
+2026-11-11 11:34:41.903 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:34:41.905 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 11:34:41.907 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 11:34:41.908 [INF] ⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.
+2026-11-11 11:34:41.922 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:34:42.579 [INF] [Identity] Sembrado de datos realizado
+2026-11-11 11:34:42.582 [INF] API Funko API (PROD): Modo producción
+2026-11-11 11:34:42.911 [INF] Email worker iniciado
+2026-11-11 11:34:56.743 [INF] Email worker detenido
+2026-11-11 11:35:23.632 [INF] Iniciando la aplicación...
+2026-11-11 11:35:23.657 [INF] Configurando Identity y JWT...
+2026-11-11 11:35:23.668 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:35:23.678 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 11:35:23.682 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:35:23.684 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:35:23.684 [INF] MongoDB configurado correctamente.
+2026-11-11 11:35:23.684 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:35:23.686 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:35:23.686 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:35:23.687 [INF] Registrando seeders...
+2026-11-11 11:35:23.687 [INF] Seeders registrados correctamente.
+2026-11-11 11:35:23.689 [INF] Registrando repositorio...
+2026-11-11 11:35:23.689 [INF] Repositorio registrados.
+2026-11-11 11:35:23.689 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:35:23.690 [INF] Registrando servicios...
+2026-11-11 11:35:23.691 [INF] Servicios registrados correctamente.
+2026-11-11 11:35:23.697 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:35:23.715 [INF] Configurando rate limiting...
+2026-11-11 11:35:23.716 [INF] Email: envío real con MailKit.
+2026-11-11 11:35:23.813 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:35:23.815 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 11:35:23.817 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 11:35:23.818 [INF] Entorno Development detectado - Ejecutando seeders...
+2026-11-11 11:35:23.818 [INF] Configurando MongoDB con driver nativo...
+2026-11-11 11:35:23.819 [INF] Obteniendo la base de datos de MongoDB: funkos_dev
+2026-11-11 11:35:23.819 [INF] Instanciando MongoClient para el host: localhost:27017
+2026-11-11 11:35:23.994 [INF] [MongoDB] Base de datos eliminada y lista para resembrar.
+2026-11-11 11:35:24.061 [INF] Sembrando datos iniciales de proveedores en MongoDB...
+2026-11-11 11:35:24.094 [INF] Creando proveedor: Funko Corp
+2026-11-11 11:35:24.120 [INF] Creando proveedor: Toy Master
+2026-11-11 11:35:24.122 [INF] Creando proveedor: Geek Toys
+2026-11-11 11:35:24.123 [INF] Insertados 3 proveedores de ejemplo en MongoDB.
+2026-11-11 11:35:24.124 [INF] [MongoDB] Sembrado de datos realizado
+2026-11-11 11:35:24.124 [INF] Configurando PostgreSQL con EF Core...
+2026-11-11 11:35:24.137 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:35:24.175 [INF] [EF Core] Eliminando y recreando la base de datos...
+2026-11-11 11:35:24.710 [INF] Sembrando datos iniciales en PostgreSQL...
+2026-11-11 11:35:24.913 [INF] Insertadas 3 categorías de ejemplo.
+2026-11-11 11:35:24.986 [INF] Insertados 3 funkos de ejemplo.
+2026-11-11 11:35:24.993 [INF] Datos de PostgreSQL sembrados correctamente.
+2026-11-11 11:35:24.993 [INF] [EF Core] Base de datos recreada con sembrado de datos
+2026-11-11 11:35:25.036 [INF] Rol 'ADMIN' creado
+2026-11-11 11:35:25.041 [INF] Rol 'USER' creado
+2026-11-11 11:35:25.150 [INF] Usuario admin creado: admin@admin.com
+2026-11-11 11:35:25.200 [INF] Usuario regular creado: user@user.com
+2026-11-11 11:35:25.200 [INF] [Identity] Sembrado de datos realizado
+2026-11-11 11:35:25.202 [INF] API Funko API (DEV): Modo desarrollo - depuración activada
+2026-11-11 11:35:25.523 [INF] Email worker iniciado
+2026-11-11 11:35:28.779 [INF] HTTP GET /swagger/index.html responded 304 in 111.5809 ms
+2026-11-11 11:35:28.803 [INF] HTTP GET /swagger/index.js responded 304 in 3.3498 ms
+2026-11-11 11:35:28.808 [INF] HTTP GET /swagger/swagger-ui.css responded 304 in 10.1897 ms
+2026-11-11 11:35:28.808 [INF] HTTP GET /swagger/index.css responded 304 in 10.1884 ms
+2026-11-11 11:35:28.808 [INF] HTTP GET /swagger/swagger-ui-standalone-preset.js responded 304 in 9.2397 ms
+2026-11-11 11:35:28.828 [INF] HTTP GET /swagger/swagger-ui-bundle.js responded 304 in 30.0369 ms
+2026-11-11 11:35:29.171 [INF] HTTP GET /swagger/v1/swagger.json responded 200 in 224.5205 ms
+2026-11-11 11:35:42.374 [INF] HTTP GET / responded 404 in 0.7776 ms
+2026-11-11 11:35:50.694 [INF] HTTP GET /funkos responded 404 in 0.3345 ms
+2026-11-11 11:36:28.973 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:36:28.991 [INF] Intento de login para admin@admin.com
+2026-11-11 11:36:29.084 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 11:36:29.092 [INF] HTTP POST /api/Auth/login responded 200 in 128.1922 ms
+2026-11-11 11:36:32.068 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:36:32.071 [INF] Intento de login para user@user.com
+2026-11-11 11:36:32.144 [INF] Login exitoso para user@user.com con rol USER
+2026-11-11 11:36:32.145 [INF] HTTP POST /api/Auth/login responded 200 in 77.9779 ms
+2026-11-11 11:36:36.186 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:36:36.188 [INF] 🔗 Creando ConnectionMultiplexer de Redis...
+2026-11-11 11:36:36.251 [INF] Creando categoría: Categoria Funkos E2E 1794393389180
+2026-11-11 11:36:36.264 [INF] HTTP POST /api/categorias responded 201 in 109.5844 ms
+2026-11-11 11:36:38.107 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:36:38.110 [INF] Creando proveedor con nombre Proveedor Funkos E2E 1794393389180...
+2026-11-11 11:36:38.111 [INF] Creando proveedor: Proveedor Funkos E2E 1794393389180
+2026-11-11 11:36:38.114 [INF] Proveedor creado con Id 6af445360a0489ac68ad6265.
+2026-11-11 11:36:38.116 [INF] HTTP POST /api/proveedores responded 201 in 16.9591 ms
+2026-11-11 11:37:03.563 [INF] HTTP OPTIONS /api/auth/login responded 204 in 1.8169 ms
+2026-11-11 11:37:03.570 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:37:03.583 [INF] Intento de login para admin@admin.com
+2026-11-11 11:37:03.650 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 11:37:03.653 [INF] HTTP POST /api/auth/login responded 200 in 86.1813 ms
+2026-11-11 11:37:05.170 [INF] HTTP OPTIONS /hubs/funkos/negotiate responded 204 in 0.1825 ms
+2026-11-11 11:37:05.180 [INF] HTTP POST /hubs/funkos/negotiate responded 200 in 6.2722 ms
+2026-11-11 11:37:11.434 [INF] HTTP GET /hubs/funkos responded 101 in 6251.9901 ms
+2026-11-11 11:37:18.978 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:37:18.981 [INF] Storage service inicializado en: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:37:18.989 [INF] Iniciando creación de nuevo Funko con nombre 'Funko Sin Imagen E2E 1794393389180'
+2026-11-11 11:37:19.024 [INF] Creando Funko: Funko Sin Imagen E2E 1794393389180
+2026-11-11 11:37:19.040 [INF] Funko 'Funko Sin Imagen E2E 1794393389180' creado exitosamente sin imagen con ID 4
+2026-11-11 11:37:19.043 [INF] Email de notificación encolado para Funko 4
+2026-11-11 11:37:19.049 [INF] HTTP POST /api/funkos responded 201 in 76.4518 ms
+2026-11-11 11:37:19.078 [INF] Enviando email a funkopopapi@gmail.com con asunto: Nuevo Funko: Funko Sin Imagen E2E 1794393389180
+2026-11-11 11:37:20.662 [INF] Email enviado exitosamente a funkopopapi@gmail.com
+2026-11-11 11:37:20.664 [INF] Email procesado: funkopopapi@gmail.com
+2026-11-11 11:37:22.558 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:37:22.561 [INF] Storage service inicializado en: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:37:22.574 [INF] Iniciando creación de nuevo Funko con nombre 'Funko E2E 1794393389180'
+2026-11-11 11:37:22.582 [INF] Archivo guardado: /uploads/funkos/20261111103722_8d77745a_DefaultImage.jpg
+2026-11-11 11:37:22.584 [INF] Creando Funko: Funko E2E 1794393389180
+2026-11-11 11:37:22.590 [INF] Funko 'Funko E2E 1794393389180' creado exitosamente con imagen con ID 5
+2026-11-11 11:37:22.590 [INF] Email de notificación encolado para Funko 5
+2026-11-11 11:37:22.591 [INF] Enviando email a funkopopapi@gmail.com con asunto: Nuevo Funko: Funko E2E 1794393389180
+2026-11-11 11:37:22.591 [INF] HTTP POST /api/funkos responded 201 in 33.6407 ms
+2026-11-11 11:37:23.374 [INF] Email enviado exitosamente a funkopopapi@gmail.com
+2026-11-11 11:37:23.374 [INF] Email procesado: funkopopapi@gmail.com
+2026-11-11 11:37:47.119 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.2870 ms
+2026-11-11 11:37:47.123 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:37:47.125 [INF] Intento de login para admin@admin.com
+2026-11-11 11:37:47.187 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 11:37:47.188 [INF] HTTP POST /api/auth/login responded 200 in 65.4257 ms
+2026-11-11 11:37:48.516 [INF] HTTP OPTIONS /hubs/funkos/negotiate responded 204 in 0.0962 ms
+2026-11-11 11:37:48.520 [INF] HTTP POST /hubs/funkos/negotiate responded 200 in 0.7831 ms
+2026-11-11 11:38:01.944 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:38:01.950 [INF] Storage service inicializado en: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:38:01.952 [INF] Iniciando creación de nuevo Funko con nombre '"caca"'
+2026-11-11 11:38:01.958 [INF] Creando Funko: "caca"
+2026-11-11 11:38:01.963 [INF] Funko '"caca"' creado exitosamente sin imagen con ID 6
+2026-11-11 11:38:01.966 [INF] Email de notificación encolado para Funko 6
+2026-11-11 11:38:01.967 [INF] Enviando email a funkopopapi@gmail.com con asunto: Nuevo Funko: "caca"
+2026-11-11 11:38:01.967 [INF] HTTP POST /api/funkos responded 201 in 24.5955 ms
+2026-11-11 11:38:02.662 [INF] Email enviado exitosamente a funkopopapi@gmail.com
+2026-11-11 11:38:02.663 [INF] Email procesado: funkopopapi@gmail.com
+2026-11-11 11:39:22.559 [INF] HTTP GET /hubs/funkos responded 101 in 94036.3404 ms
+2026-11-11 11:39:32.242 [INF] HTTP GET / responded 404 in 0.2036 ms
+2026-11-11 11:39:38.730 [INF] HTTP GET /graphql responded 301 in 40.8276 ms
+2026-11-11 11:39:39.781 [INF] HTTP GET  responded 200 in 1046.6756 ms
+2026-11-11 11:39:39.929 [INF] HTTP GET /manifest.webmanifest responded 200 in 114.1333 ms
+2026-11-11 11:39:39.937 [INF] HTTP GET /assets/monaco.cbb9dd2a.1cPGLvp7.css responded 200 in 141.9782 ms
+2026-11-11 11:39:39.941 [INF] HTTP GET /assets/main.cbb9dd2a.BdMtxJz7.css responded 200 in 146.6296 ms
+2026-11-11 11:39:39.985 [INF] HTTP GET /assets/monaco.cbb9dd2a.lpARKB0G.js responded 200 in 192.0484 ms
+2026-11-11 11:39:39.988 [INF] HTTP GET /assets/main.cbb9dd2a.ChRcIDX9.js responded 200 in 194.8142 ms
+2026-11-11 11:39:40.093 [INF] HTTP GET /favicon.svg responded 404 in 0.1448 ms
+2026-11-11 11:39:40.353 [INF] HTTP GET /favicon.svg responded 200 in 259.9272 ms
+2026-11-11 11:39:40.417 [INF] HTTP GET /assets/context-providers.cbb9dd2a.cIEPV5um.js responded 200 in 308.9917 ms
+2026-11-11 11:39:40.530 [INF] HTTP GET /assets/context-providers.cbb9dd2a.3HkX5s82.css responded 200 in 422.4231 ms
+2026-11-11 11:39:40.579 [INF] HTTP GET /favicon.ico responded 200 in 222.8696 ms
+2026-11-11 11:39:40.640 [INF] HTTP GET /graphql/nitro-config.json responded 200 in 2.1520 ms
+2026-11-11 11:39:40.723 [INF] HTTP GET /service-worker.js responded 200 in 126.3414 ms
+2026-11-11 11:39:40.736 [INF] HTTP GET /service-worker.js responded 304 in 11.2885 ms
+2026-11-11 11:39:40.909 [INF] HTTP GET /assets/editor.worker.cbb9dd2a.bpPxd4HN.js responded 200 in 133.3417 ms
+2026-11-11 11:39:41.074 [INF] HTTP GET /assets/FiraCode-Medium.cbb9dd2a.-YTCSZkP.woff2 responded 200 in 152.8747 ms
+2026-11-11 11:39:41.237 [INF] HTTP GET /assets/graphql-engine-scheduler.cbb9dd2a.wOPnKfNr.js responded 200 in 159.9944 ms
+2026-11-11 11:39:41.406 [INF] HTTP GET /assets/graphql-indexer-scheduler.cbb9dd2a.CG604HRm.js responded 200 in 158.4626 ms
+2026-11-11 11:39:41.581 [INF] HTTP GET /assets/graphql.worker.cbb9dd2a.xpDyakfn.js responded 200 in 154.6366 ms
+2026-11-11 11:39:41.714 [INF] HTTP GET /assets/index.cbb9dd2a.vQhlIpdT.js responded 200 in 123.4663 ms
+2026-11-11 11:39:41.846 [INF] HTTP GET /assets/json.worker.cbb9dd2a.DzqSgOmm.js responded 200 in 125.8980 ms
+2026-11-11 11:39:42.003 [INF] HTTP GET /assets/jsonMode.cbb9dd2a.CASrsvge.js responded 200 in 150.0830 ms
+2026-11-11 11:39:42.175 [INF] HTTP GET /assets/monaco.cbb9dd2a.B1Kqe1Kf.js responded 200 in 129.5874 ms
+2026-11-11 11:39:42.356 [INF] HTTP GET /assets/monaco.cbb9dd2a.C_OHPGWO.js responded 200 in 170.6425 ms
+2026-11-11 11:39:42.489 [INF] HTTP GET /assets/monaco.cbb9dd2a.D_5Blgsx.js responded 200 in 123.4090 ms
+2026-11-11 11:39:42.625 [INF] HTTP GET /assets/monaco.cbb9dd2a.D4ai2qOB.js responded 200 in 130.8681 ms
+2026-11-11 11:39:42.762 [INF] HTTP GET /assets/monaco.cbb9dd2a.D85_ONb-.js responded 200 in 127.3579 ms
+2026-11-11 11:39:42.896 [INF] HTTP GET /assets/monaco.cbb9dd2a.gxBQgwYh.css responded 200 in 123.6469 ms
+2026-11-11 11:39:43.138 [INF] HTTP GET /assets/session-scheduler.cbb9dd2a.DNSZrB_J.js responded 200 in 181.5859 ms
+2026-11-11 11:39:43.281 [INF] HTTP GET /assets/yaml.cbb9dd2a.r5d-htbt.js responded 200 in 125.1049 ms
+2026-11-11 11:39:43.449 [INF] HTTP GET /assets/yaml.worker.cbb9dd2a.FMre_zZ7.js responded 200 in 156.7840 ms
+2026-11-11 11:39:43.578 [INF] HTTP GET /index.html responded 200 in 113.0827 ms
+2026-11-11 11:39:43.596 [INF] HTTP GET /favicon.ico responded 200 in 12.7658 ms
+2026-11-11 11:39:43.615 [INF] HTTP GET /favicon.svg responded 200 in 12.6200 ms
+2026-11-11 11:39:43.732 [INF] HTTP GET /manifest.webmanifest responded 200 in 111.8787 ms
+2026-11-11 11:39:53.815 [INF] HTTP GET /service-worker.js responded 304 in 21.5083 ms
+2026-11-11 11:40:43.051 [INF] HTTP GET /service-worker.js responded 304 in 13.0076 ms
+2026-11-11 11:40:45.721 [INF] HTTP GET /favicon.svg responded 404 in 0.2556 ms
+2026-11-11 11:40:46.046 [INF] HTTP GET /graphql/nitro-config.json responded 200 in 0.1886 ms
+2026-11-11 11:40:47.614 [INF] HTTP GET /service-worker.js responded 304 in 18.1650 ms
+2026-11-11 11:41:26.236 [INF] Email worker detenido
+2026-11-11 11:41:38.905 [INF] Iniciando la aplicación...
+2026-11-11 11:41:38.930 [INF] Configurando Identity y JWT...
+2026-11-11 11:41:38.941 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:41:38.951 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 11:41:38.954 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:41:38.956 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:41:38.957 [INF] MongoDB configurado correctamente.
+2026-11-11 11:41:38.957 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:41:38.959 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:41:38.960 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:41:38.960 [INF] Registrando seeders...
+2026-11-11 11:41:38.960 [INF] Seeders registrados correctamente.
+2026-11-11 11:41:38.962 [INF] Registrando repositorio...
+2026-11-11 11:41:38.962 [INF] Repositorio registrados.
+2026-11-11 11:41:38.963 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:41:38.963 [INF] Registrando servicios...
+2026-11-11 11:41:38.964 [INF] Servicios registrados correctamente.
+2026-11-11 11:41:38.970 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:41:38.988 [INF] Configurando rate limiting...
+2026-11-11 11:41:38.989 [INF] Email: envío real con MailKit.
+2026-11-11 11:41:39.078 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:41:43.005 [ERR] Ha ocurrido un error al preparar y sembrar el almacenamiento de imágenes.
+System.UnauthorizedAccessException: Access to the path '20261111103722_8d77745a_DefaultImage.jpg' is denied.
+   at System.IO.FileSystem.RemoveDirectoryRecursive(String fullPath, WIN32_FIND_DATA& findData, Boolean topLevel)
+   at System.IO.FileSystem.RemoveDirectory(String fullPath, Boolean recursive)
+   at System.IO.DirectoryInfo.Delete(Boolean recursive)
+   at FunkoApi.Back.Infrastructure.StorageInitializationExtensions.InitializeStorage(WebApplication app, IConfiguration configuration) in C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Infrastructure\StorageInitializationExtensions.cs:line 27
+2026-11-11 11:41:43.018 [INF] Entorno Development detectado - Ejecutando seeders...
+2026-11-11 11:41:43.020 [INF] Configurando MongoDB con driver nativo...
+2026-11-11 11:41:43.021 [INF] Obteniendo la base de datos de MongoDB: funkos_dev
+2026-11-11 11:41:43.022 [INF] Instanciando MongoClient para el host: localhost:27017
+2026-11-11 11:41:43.190 [INF] [MongoDB] Base de datos eliminada y lista para resembrar.
+2026-11-11 11:41:43.260 [INF] Sembrando datos iniciales de proveedores en MongoDB...
+2026-11-11 11:41:43.292 [INF] Creando proveedor: Funko Corp
+2026-11-11 11:41:43.319 [INF] Creando proveedor: Toy Master
+2026-11-11 11:41:43.321 [INF] Creando proveedor: Geek Toys
+2026-11-11 11:41:43.323 [INF] Insertados 3 proveedores de ejemplo en MongoDB.
+2026-11-11 11:41:43.323 [INF] [MongoDB] Sembrado de datos realizado
+2026-11-11 11:41:43.324 [INF] Configurando PostgreSQL con EF Core...
+2026-11-11 11:41:43.336 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:41:43.373 [INF] [EF Core] Eliminando y recreando la base de datos...
+2026-11-11 11:41:43.967 [INF] Sembrando datos iniciales en PostgreSQL...
+2026-11-11 11:41:44.196 [INF] Insertadas 3 categorías de ejemplo.
+2026-11-11 11:41:44.275 [INF] Insertados 3 funkos de ejemplo.
+2026-11-11 11:41:44.279 [INF] Datos de PostgreSQL sembrados correctamente.
+2026-11-11 11:41:44.280 [INF] [EF Core] Base de datos recreada con sembrado de datos
+2026-11-11 11:41:44.322 [INF] Rol 'ADMIN' creado
+2026-11-11 11:41:44.327 [INF] Rol 'USER' creado
+2026-11-11 11:41:44.440 [INF] Usuario admin creado: admin@admin.com
+2026-11-11 11:41:44.491 [INF] Usuario regular creado: user@user.com
+2026-11-11 11:41:44.491 [INF] [Identity] Sembrado de datos realizado
+2026-11-11 11:41:44.494 [INF] API Funko API (DEV): Modo desarrollo - depuración activada
+2026-11-11 11:41:44.833 [INF] Email worker iniciado
+2026-11-11 11:41:58.653 [INF] Email worker detenido
+2026-11-11 11:44:00.397 [INF] Iniciando la aplicación...
+2026-11-11 11:44:00.421 [INF] Configurando Identity y JWT...
+2026-11-11 11:44:00.432 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:44:00.441 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 11:44:00.445 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:44:00.446 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:44:00.447 [INF] MongoDB configurado correctamente.
+2026-11-11 11:44:00.447 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:44:00.449 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:44:00.449 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:44:00.450 [INF] Registrando seeders...
+2026-11-11 11:44:00.450 [INF] Seeders registrados correctamente.
+2026-11-11 11:44:00.451 [INF] Registrando repositorio...
+2026-11-11 11:44:00.451 [INF] Repositorio registrados.
+2026-11-11 11:44:00.452 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:44:00.453 [INF] Registrando servicios...
+2026-11-11 11:44:00.453 [INF] Servicios registrados correctamente.
+2026-11-11 11:44:00.459 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:44:00.475 [INF] Configurando rate limiting...
+2026-11-11 11:44:00.476 [INF] Email: envío real con MailKit.
+2026-11-11 11:44:00.567 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:44:06.977 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 11:44:06.980 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 11:44:06.983 [INF] Entorno Development detectado - Ejecutando seeders...
+2026-11-11 11:44:06.984 [INF] Configurando MongoDB con driver nativo...
+2026-11-11 11:44:06.984 [INF] Obteniendo la base de datos de MongoDB: funkos_dev
+2026-11-11 11:44:06.985 [INF] Instanciando MongoClient para el host: localhost:27017
+2026-11-11 11:44:07.152 [INF] [MongoDB] Base de datos eliminada y lista para resembrar.
+2026-11-11 11:44:07.251 [INF] Sembrando datos iniciales de proveedores en MongoDB...
+2026-11-11 11:44:07.283 [INF] Creando proveedor: Funko Corp
+2026-11-11 11:44:07.308 [INF] Creando proveedor: Toy Master
+2026-11-11 11:44:07.310 [INF] Creando proveedor: Geek Toys
+2026-11-11 11:44:07.311 [INF] Insertados 3 proveedores de ejemplo en MongoDB.
+2026-11-11 11:44:07.312 [INF] [MongoDB] Sembrado de datos realizado
+2026-11-11 11:44:07.312 [INF] Configurando PostgreSQL con EF Core...
+2026-11-11 11:44:07.325 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:44:07.364 [INF] [EF Core] Eliminando y recreando la base de datos...
+2026-11-11 11:44:07.967 [INF] Sembrando datos iniciales en PostgreSQL...
+2026-11-11 11:44:08.180 [INF] Insertadas 3 categorías de ejemplo.
+2026-11-11 11:44:08.255 [INF] Insertados 3 funkos de ejemplo.
+2026-11-11 11:44:08.260 [INF] Datos de PostgreSQL sembrados correctamente.
+2026-11-11 11:44:08.261 [INF] [EF Core] Base de datos recreada con sembrado de datos
+2026-11-11 11:44:08.305 [INF] Rol 'ADMIN' creado
+2026-11-11 11:44:08.310 [INF] Rol 'USER' creado
+2026-11-11 11:44:08.419 [INF] Usuario admin creado: admin@admin.com
+2026-11-11 11:44:08.469 [INF] Usuario regular creado: user@user.com
+2026-11-11 11:44:08.469 [INF] [Identity] Sembrado de datos realizado
+2026-11-11 11:44:08.471 [INF] API Funko API (DEV): Modo desarrollo - depuración activada
+2026-11-11 11:44:08.800 [INF] Email worker iniciado
+2026-11-11 11:44:27.708 [INF] HTTP GET /favicon.svg responded 404 in 52.8425 ms
+2026-11-11 11:44:27.973 [INF] HTTP GET /graphql/nitro-config.json responded 200 in 35.9230 ms
+2026-11-11 11:44:29.646 [INF] HTTP GET /service-worker.js responded 304 in 139.7294 ms
+2026-11-11 11:44:35.090 [INF] HTTP GET /service-worker.js responded 304 in 31.8054 ms
+2026-11-11 11:44:41.344 [INF] Email worker detenido
+2026-11-11 11:44:53.014 [INF] Iniciando la aplicación...
+2026-11-11 11:44:53.038 [INF] Configurando Identity y JWT...
+2026-11-11 11:44:53.049 [INF] Identity y JWT configurados correctamente.
+2026-11-11 11:44:53.058 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 11:44:53.062 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 11:44:53.064 [INF] Iniciando configuración de MongoDB...
+2026-11-11 11:44:53.065 [INF] MongoDB configurado correctamente.
+2026-11-11 11:44:53.065 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 11:44:53.067 [INF] PostgreSQL configurado correctamente.
+2026-11-11 11:44:53.067 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 11:44:53.068 [INF] Registrando seeders...
+2026-11-11 11:44:53.068 [INF] Seeders registrados correctamente.
+2026-11-11 11:44:53.069 [INF] Registrando repositorio...
+2026-11-11 11:44:53.069 [INF] Repositorio registrados.
+2026-11-11 11:44:53.070 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 11:44:53.070 [INF] Registrando servicios...
+2026-11-11 11:44:53.071 [INF] Servicios registrados correctamente.
+2026-11-11 11:44:53.077 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 11:44:53.096 [INF] Configurando rate limiting...
+2026-11-11 11:44:53.096 [INF] Email: envío real con MailKit.
+2026-11-11 11:44:53.183 [INF] Preparando directorio de almacenamiento: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 11:44:53.185 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 11:44:53.187 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lu\Desktop\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 11:44:53.188 [INF] ⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.
+2026-11-11 11:44:53.202 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 11:44:53.851 [INF] [Identity] Sembrado de datos realizado
+2026-11-11 11:44:53.854 [INF] API Funko API (PROD): Modo producción
+2026-11-11 11:44:54.180 [INF] Email worker iniciado
+2026-11-11 11:44:57.612 [INF] Email worker detenido

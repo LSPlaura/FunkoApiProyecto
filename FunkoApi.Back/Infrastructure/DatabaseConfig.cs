@@ -56,14 +56,14 @@ public static class DatabaseConfig {
         // ==========================================
         Log.Information("Iniciando configuración de PostgreSQL...");
 
-        var pgHost = configuration["PostgresDb:Host"] ?? "";
-        var pgPortStr = configuration["PostgresDb:Port"];
+        var pgHost = configuration["Postgres:Host"] ?? "";
+        var pgPortStr = configuration["Postgres:Port"];
         int pgPort = int.TryParse(pgPortStr, out var parsedPgPort) ? parsedPgPort : 5432;
-        var pgDatabase = configuration["PostgresDb:Database"] ?? "";
-        var pgUser = configuration["PostgresDb:User"] ?? "";
-        var pgPassword = configuration["PostgresDb:Password"] ?? "";
+        var pgDatabase = configuration["Postgres:Database"] ?? "";
+        var pgUser = configuration["Postgres:User"] ?? "";
+        var pgPassword = configuration["Postgres:Password"] ?? "";
 
-        if (string.IsNullOrEmpty(pgPortStr)) Log.Warning("No se encontró 'PostgresDb:Port' en la configuración. Se utilizará el puerto por defecto: {DefaultPort}", 5432);
+        if (string.IsNullOrEmpty(pgPortStr)) Log.Warning("No se encontró 'Postgres:Port' en la configuración. Se utilizará el puerto por defecto: {DefaultPort}", 5432);
 
         // Construir la cadena de conexión directamente (o usar un generador si lo tienes disponible)
         var pgConnectionString = $"Host={pgHost};Port={pgPort};Database={pgDatabase};Username={pgUser};Password={pgPassword}";

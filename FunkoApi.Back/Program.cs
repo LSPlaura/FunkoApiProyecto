@@ -73,6 +73,7 @@ try {
         .AddServices();
 
     builder.Services.AddGraphQlConfig(builder.Environment);
+    builder.Services.AddRateLimitingConfig();
 
     // Permite probar SMTP en desarrollo sin cambiar el entorno de toda la API.
     var useSmtp = builder.Configuration.GetValue<bool>(
@@ -99,6 +100,9 @@ try {
     
     app.UseAuthentication();
     app.UseAuthorization();
+
+    app.UseRateLimiter();
+
     app.MapGraphQlEndpoints();
 
     if (app.Environment.IsDevelopment()) {
@@ -124,6 +128,9 @@ try {
     Console.WriteLine($"  {apiConfig.Mensaje}");
     Console.WriteLine($"  http://localhost:{port}");
     Console.WriteLine($"  Swagger: http://localhost:{port}/swagger");
+    if (app.Environment.IsDevelopment()) {
+        Console.WriteLine($"  GraphQL: http://localhost:{port}/graphql");
+    }
     Console.WriteLine($"  Entorno: {app.Environment.EnvironmentName}");
     Console.WriteLine("========================================");
 
