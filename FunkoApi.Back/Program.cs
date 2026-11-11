@@ -127,8 +127,8 @@ try {
     Console.WriteLine($"  {apiConfig.Nombre}");
     Console.WriteLine($"  {apiConfig.Mensaje}");
     Console.WriteLine($"  http://localhost:{port}");
-    Console.WriteLine($"  Swagger: http://localhost:{port}/swagger");
     if (app.Environment.IsDevelopment()) {
+        Console.WriteLine($"  Swagger: http://localhost:{port}/swagger");
         Console.WriteLine($"  GraphQL: http://localhost:{port}/graphql");
     }
     Console.WriteLine($"  Entorno: {app.Environment.EnvironmentName}");
