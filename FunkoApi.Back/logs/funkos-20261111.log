@@ -1310,3 +1310,692 @@ System.UnauthorizedAccessException: Access to the path '20261111103722_8d77745a_
 2026-11-11 14:17:59.548 [INF] HTTP GET /service-worker.js responded 304 in 118.5182 ms
 2026-11-11 14:18:00.435 [INF] HTTP GET /service-worker.js responded 304 in 12.4407 ms
 2026-11-11 14:18:08.601 [INF] Email worker detenido
+2026-11-11 20:27:51.964 [INF] Iniciando la aplicación...
+2026-11-11 20:27:52.027 [INF] Configurando Identity y JWT...
+2026-11-11 20:27:52.057 [INF] Identity y JWT configurados correctamente.
+2026-11-11 20:27:52.114 [INF] 💾 Configurando caché Redis en redis:6379...
+2026-11-11 20:27:52.122 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 20:27:52.134 [INF] Iniciando configuración de MongoDB...
+2026-11-11 20:27:52.135 [INF] MongoDB configurado correctamente.
+2026-11-11 20:27:52.135 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 20:27:52.137 [INF] PostgreSQL configurado correctamente.
+2026-11-11 20:27:52.138 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 20:27:52.138 [INF] Registrando seeders...
+2026-11-11 20:27:52.138 [INF] Seeders registrados correctamente.
+2026-11-11 20:27:52.146 [INF] Registrando repositorio...
+2026-11-11 20:27:52.146 [INF] Repositorio registrados.
+2026-11-11 20:27:52.147 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 20:27:52.148 [INF] Registrando servicios...
+2026-11-11 20:27:52.148 [INF] Servicios registrados correctamente.
+2026-11-11 20:27:52.211 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 20:27:52.259 [INF] Configurando rate limiting...
+2026-11-11 20:27:52.260 [INF] Email: envío real con MailKit.
+2026-11-11 20:27:52.433 [INF] Preparando directorio de almacenamiento: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:27:52.436 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 20:27:52.438 [INF] Entorno Development detectado - Ejecutando seeders...
+2026-11-11 20:27:52.438 [INF] Configurando MongoDB con driver nativo...
+2026-11-11 20:27:52.439 [INF] Obteniendo la base de datos de MongoDB: tienda
+2026-11-11 20:27:52.440 [INF] Instanciando MongoClient para el host: mongodb:27017
+2026-11-11 20:28:22.588 [FTL] La aplicación terminó de forma inesperada
+System.TimeoutException: A timeout occurred after 30003ms selecting a server using CompositeServerSelector{ Selectors = WritableServerSelector, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 }, OperationsCountServerSelector }. Client view of cluster state is { ClusterId : "1", Type : "Unknown", State : "Disconnected", Servers : [{ ServerId: "{ ClusterId : 1, EndPoint : "Unspecified/mongodb:27017" }", EndPoint: "Unspecified/mongodb:27017", ReasonChanged: "Heartbeat", State: "Disconnected", ServerVersion: , TopologyVersion: , Type: "Unknown", HeartbeatException: "MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server.
+ ---> System.Net.Sockets.SocketException (0x00002AF9): Host desconocido.
+   at System.Net.Dns.GetHostEntryOrAddressesCore(String hostName, Boolean justAddresses, AddressFamily addressFamily, Nullable`1 activityOrDefault)
+   at System.Net.Dns.GetHostAddresses(String hostNameOrAddress, AddressFamily family)
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.ResolveEndPoints(EndPoint initial)
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(OperationContext operationContext)
+   --- End of inner exception stack trace ---
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(OperationContext operationContext)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.Open(OperationContext operationContext)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.InitializeConnection(OperationContext operationContext)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.Heartbeat(CancellationToken cancellationToken)", LastHeartbeatTimestamp: "2026-11-11T19:28:15.0421753Z", LastUpdateTimestamp: "2026-11-11T19:28:15.0421764Z" }] }.
+   at MongoDB.Driver.Core.Operations.RetryableWriteOperationExecutor.ExecuteAsync[TResult](OperationContext operationContext, IRetryableWriteOperation`1 operation, RetryableWriteContext context)
+   at MongoDB.Driver.Core.Operations.RetryableWriteOperationExecutor.ExecuteAsync[TResult](OperationContext operationContext, IRetryableWriteOperation`1 operation, IWriteBinding binding, Boolean retryRequested, Int32 maxAdaptiveRetries, Boolean enableOverloadRetargeting, IMayUseSecondaryCriteria mayUseSecondary)
+   at MongoDB.Driver.OperationExecutor.ExecuteWriteOperationAsync[TResult](OperationContext operationContext, IClientSessionHandle session, IWriteOperation`1 operation, Boolean allowChannelPinning)
+   at MongoDB.Driver.MongoClient.ExecuteWriteOperationAsync[TResult](IClientSessionHandle session, IWriteOperation`1 operation, Nullable`1 timeout, CancellationToken cancellationToken)
+   at MongoDB.Driver.MongoClient.DropDatabaseAsync(String name, CancellationToken cancellationToken)
+   at FunkoApi.Back.Infrastructure.DatabaseInitializationExtensions.InitializeDatabaseAsync(WebApplication app) in C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Infrastructure\DatabaseInitializationExtensions.cs:line 33
+   at Program.<Main>$(String[] args) in C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Program.cs:line 118
+2026-11-11 20:32:00.001 [INF] Iniciando la aplicación...
+2026-11-11 20:32:00.028 [INF] Configurando Identity y JWT...
+2026-11-11 20:32:00.041 [INF] Identity y JWT configurados correctamente.
+2026-11-11 20:32:00.051 [INF] 💾 Configurando caché Redis en redis:6379...
+2026-11-11 20:32:00.055 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 20:32:00.057 [INF] Iniciando configuración de MongoDB...
+2026-11-11 20:32:00.058 [INF] MongoDB configurado correctamente.
+2026-11-11 20:32:00.058 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 20:32:00.060 [INF] PostgreSQL configurado correctamente.
+2026-11-11 20:32:00.061 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 20:32:00.061 [INF] Registrando seeders...
+2026-11-11 20:32:00.062 [INF] Seeders registrados correctamente.
+2026-11-11 20:32:00.063 [INF] Registrando repositorio...
+2026-11-11 20:32:00.063 [INF] Repositorio registrados.
+2026-11-11 20:32:00.064 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 20:32:00.064 [INF] Registrando servicios...
+2026-11-11 20:32:00.065 [INF] Servicios registrados correctamente.
+2026-11-11 20:32:00.072 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 20:32:00.093 [INF] Configurando rate limiting...
+2026-11-11 20:32:00.094 [INF] Email: envío real con MailKit.
+2026-11-11 20:32:00.200 [INF] Preparando directorio de almacenamiento: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:32:00.202 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 20:32:00.204 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 20:32:00.205 [INF] Entorno Development detectado - Ejecutando seeders...
+2026-11-11 20:32:00.206 [INF] Configurando MongoDB con driver nativo...
+2026-11-11 20:32:00.206 [INF] Obteniendo la base de datos de MongoDB: tienda
+2026-11-11 20:32:00.207 [INF] Instanciando MongoClient para el host: mongodb:27017
+2026-11-11 20:32:30.311 [FTL] La aplicación terminó de forma inesperada
+System.TimeoutException: A timeout occurred after 30000ms selecting a server using CompositeServerSelector{ Selectors = WritableServerSelector, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 }, OperationsCountServerSelector }. Client view of cluster state is { ClusterId : "1", Type : "Unknown", State : "Disconnected", Servers : [{ ServerId: "{ ClusterId : 1, EndPoint : "Unspecified/mongodb:27017" }", EndPoint: "Unspecified/mongodb:27017", ReasonChanged: "Heartbeat", State: "Disconnected", ServerVersion: , TopologyVersion: , Type: "Unknown", HeartbeatException: "MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server.
+ ---> System.Net.Sockets.SocketException (0x00002AF9): Host desconocido.
+   at System.Net.Dns.GetHostEntryOrAddressesCore(String hostName, Boolean justAddresses, AddressFamily addressFamily, Nullable`1 activityOrDefault)
+   at System.Net.Dns.GetHostAddresses(String hostNameOrAddress, AddressFamily family)
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.ResolveEndPoints(EndPoint initial)
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(OperationContext operationContext)
+   --- End of inner exception stack trace ---
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(OperationContext operationContext)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.Open(OperationContext operationContext)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.InitializeConnection(OperationContext operationContext)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.Heartbeat(CancellationToken cancellationToken)", LastHeartbeatTimestamp: "2026-11-11T19:32:29.2492977Z", LastUpdateTimestamp: "2026-11-11T19:32:29.2493010Z" }] }.
+   at MongoDB.Driver.Core.Operations.RetryableWriteOperationExecutor.ExecuteAsync[TResult](OperationContext operationContext, IRetryableWriteOperation`1 operation, RetryableWriteContext context)
+   at MongoDB.Driver.Core.Operations.RetryableWriteOperationExecutor.ExecuteAsync[TResult](OperationContext operationContext, IRetryableWriteOperation`1 operation, IWriteBinding binding, Boolean retryRequested, Int32 maxAdaptiveRetries, Boolean enableOverloadRetargeting, IMayUseSecondaryCriteria mayUseSecondary)
+   at MongoDB.Driver.OperationExecutor.ExecuteWriteOperationAsync[TResult](OperationContext operationContext, IClientSessionHandle session, IWriteOperation`1 operation, Boolean allowChannelPinning)
+   at MongoDB.Driver.MongoClient.ExecuteWriteOperationAsync[TResult](IClientSessionHandle session, IWriteOperation`1 operation, Nullable`1 timeout, CancellationToken cancellationToken)
+   at MongoDB.Driver.MongoClient.DropDatabaseAsync(String name, CancellationToken cancellationToken)
+   at FunkoApi.Back.Infrastructure.DatabaseInitializationExtensions.InitializeDatabaseAsync(WebApplication app) in C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Infrastructure\DatabaseInitializationExtensions.cs:line 33
+   at Program.<Main>$(String[] args) in C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Program.cs:line 118
+2026-11-11 20:35:27.902 [INF] Iniciando la aplicación...
+2026-11-11 20:35:27.927 [INF] Configurando Identity y JWT...
+2026-11-11 20:35:27.939 [INF] Identity y JWT configurados correctamente.
+2026-11-11 20:35:27.950 [INF] 💾 Configurando caché Redis en redis:6379...
+2026-11-11 20:35:27.954 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 20:35:27.956 [INF] Iniciando configuración de MongoDB...
+2026-11-11 20:35:27.957 [INF] MongoDB configurado correctamente.
+2026-11-11 20:35:27.957 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 20:35:27.959 [INF] PostgreSQL configurado correctamente.
+2026-11-11 20:35:27.959 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 20:35:27.960 [INF] Registrando seeders...
+2026-11-11 20:35:27.960 [INF] Seeders registrados correctamente.
+2026-11-11 20:35:27.961 [INF] Registrando repositorio...
+2026-11-11 20:35:27.962 [INF] Repositorio registrados.
+2026-11-11 20:35:27.962 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 20:35:27.963 [INF] Registrando servicios...
+2026-11-11 20:35:27.964 [INF] Servicios registrados correctamente.
+2026-11-11 20:35:27.971 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 20:35:27.992 [INF] Configurando rate limiting...
+2026-11-11 20:35:27.993 [INF] Email: envío real con MailKit.
+2026-11-11 20:35:28.099 [INF] Preparando directorio de almacenamiento: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:35:28.101 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 20:35:28.103 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 20:35:28.104 [INF] Entorno Development detectado - Ejecutando seeders...
+2026-11-11 20:35:28.105 [INF] Configurando MongoDB con driver nativo...
+2026-11-11 20:35:28.105 [INF] Obteniendo la base de datos de MongoDB: tienda
+2026-11-11 20:35:28.106 [INF] Instanciando MongoClient para el host: mongodb:27017
+2026-11-11 20:35:58.216 [FTL] La aplicación terminó de forma inesperada
+System.TimeoutException: A timeout occurred after 30011ms selecting a server using CompositeServerSelector{ Selectors = WritableServerSelector, LatencyLimitingServerSelector{ AllowedLatencyRange = 00:00:00.0150000 }, OperationsCountServerSelector }. Client view of cluster state is { ClusterId : "1", Type : "Unknown", State : "Disconnected", Servers : [{ ServerId: "{ ClusterId : 1, EndPoint : "Unspecified/mongodb:27017" }", EndPoint: "Unspecified/mongodb:27017", ReasonChanged: "Heartbeat", State: "Disconnected", ServerVersion: , TopologyVersion: , Type: "Unknown", HeartbeatException: "MongoDB.Driver.MongoConnectionException: An exception occurred while opening a connection to the server.
+ ---> System.Net.Sockets.SocketException (0x00002AF9): Host desconocido.
+   at System.Net.Dns.GetHostEntryOrAddressesCore(String hostName, Boolean justAddresses, AddressFamily addressFamily, Nullable`1 activityOrDefault)
+   at System.Net.Dns.GetHostAddresses(String hostNameOrAddress, AddressFamily family)
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.ResolveEndPoints(EndPoint initial)
+   at MongoDB.Driver.Core.Connections.TcpStreamFactory.CreateStream(EndPoint endPoint, CancellationToken cancellationToken)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(OperationContext operationContext)
+   --- End of inner exception stack trace ---
+   at MongoDB.Driver.Core.Connections.BinaryConnection.OpenHelper(OperationContext operationContext)
+   at MongoDB.Driver.Core.Connections.BinaryConnection.Open(OperationContext operationContext)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.InitializeConnection(OperationContext operationContext)
+   at MongoDB.Driver.Core.Servers.ServerMonitor.Heartbeat(CancellationToken cancellationToken)", LastHeartbeatTimestamp: "2026-11-11T19:35:57.1652198Z", LastUpdateTimestamp: "2026-11-11T19:35:57.1652214Z" }] }.
+   at MongoDB.Driver.Core.Operations.RetryableWriteOperationExecutor.ExecuteAsync[TResult](OperationContext operationContext, IRetryableWriteOperation`1 operation, RetryableWriteContext context)
+   at MongoDB.Driver.Core.Operations.RetryableWriteOperationExecutor.ExecuteAsync[TResult](OperationContext operationContext, IRetryableWriteOperation`1 operation, IWriteBinding binding, Boolean retryRequested, Int32 maxAdaptiveRetries, Boolean enableOverloadRetargeting, IMayUseSecondaryCriteria mayUseSecondary)
+   at MongoDB.Driver.OperationExecutor.ExecuteWriteOperationAsync[TResult](OperationContext operationContext, IClientSessionHandle session, IWriteOperation`1 operation, Boolean allowChannelPinning)
+   at MongoDB.Driver.MongoClient.ExecuteWriteOperationAsync[TResult](IClientSessionHandle session, IWriteOperation`1 operation, Nullable`1 timeout, CancellationToken cancellationToken)
+   at MongoDB.Driver.MongoClient.DropDatabaseAsync(String name, CancellationToken cancellationToken)
+   at FunkoApi.Back.Infrastructure.DatabaseInitializationExtensions.InitializeDatabaseAsync(WebApplication app) in C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Infrastructure\DatabaseInitializationExtensions.cs:line 33
+   at Program.<Main>$(String[] args) in C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Program.cs:line 118
+2026-11-11 20:37:22.753 [INF] Iniciando la aplicación...
+2026-11-11 20:37:22.780 [INF] Configurando Identity y JWT...
+2026-11-11 20:37:22.792 [INF] Identity y JWT configurados correctamente.
+2026-11-11 20:37:22.803 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 20:37:22.806 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 20:37:22.808 [INF] Iniciando configuración de MongoDB...
+2026-11-11 20:37:22.809 [INF] MongoDB configurado correctamente.
+2026-11-11 20:37:22.810 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 20:37:22.811 [INF] PostgreSQL configurado correctamente.
+2026-11-11 20:37:22.812 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 20:37:22.812 [INF] Registrando seeders...
+2026-11-11 20:37:22.813 [INF] Seeders registrados correctamente.
+2026-11-11 20:37:22.814 [INF] Registrando repositorio...
+2026-11-11 20:37:22.814 [INF] Repositorio registrados.
+2026-11-11 20:37:22.815 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 20:37:22.816 [INF] Registrando servicios...
+2026-11-11 20:37:22.816 [INF] Servicios registrados correctamente.
+2026-11-11 20:37:22.823 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 20:37:22.846 [INF] Configurando rate limiting...
+2026-11-11 20:37:22.847 [INF] Email: envío real con MailKit.
+2026-11-11 20:37:22.971 [INF] Preparando directorio de almacenamiento: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:37:22.973 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 20:37:22.975 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 20:37:22.976 [INF] Entorno Development detectado - Ejecutando seeders...
+2026-11-11 20:37:22.977 [INF] Configurando MongoDB con driver nativo...
+2026-11-11 20:37:22.977 [INF] Obteniendo la base de datos de MongoDB: tienda
+2026-11-11 20:37:22.978 [INF] Instanciando MongoClient para el host: localhost:27017
+2026-11-11 20:37:23.181 [INF] [MongoDB] Base de datos eliminada y lista para resembrar.
+2026-11-11 20:37:23.232 [INF] Sembrando datos iniciales de proveedores en MongoDB...
+2026-11-11 20:37:23.269 [INF] Creando proveedor: Funko Corp
+2026-11-11 20:37:23.295 [INF] Creando proveedor: Toy Master
+2026-11-11 20:37:23.297 [INF] Creando proveedor: Geek Toys
+2026-11-11 20:37:23.298 [INF] Insertados 3 proveedores de ejemplo en MongoDB.
+2026-11-11 20:37:23.299 [INF] [MongoDB] Sembrado de datos realizado
+2026-11-11 20:37:23.303 [INF] Configurando PostgreSQL con EF Core...
+2026-11-11 20:37:23.326 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:37:23.396 [INF] [EF Core] Eliminando y recreando la base de datos...
+2026-11-11 20:37:24.038 [INF] Sembrando datos iniciales en PostgreSQL...
+2026-11-11 20:37:24.287 [INF] Insertadas 3 categorías de ejemplo.
+2026-11-11 20:37:24.373 [INF] Insertados 3 funkos de ejemplo.
+2026-11-11 20:37:24.376 [INF] Datos de PostgreSQL sembrados correctamente.
+2026-11-11 20:37:24.377 [INF] [EF Core] Base de datos recreada con sembrado de datos
+2026-11-11 20:37:24.425 [INF] Rol 'ADMIN' creado
+2026-11-11 20:37:24.429 [INF] Rol 'USER' creado
+2026-11-11 20:37:24.551 [INF] Usuario admin creado: admin@admin.com
+2026-11-11 20:37:24.601 [INF] Usuario regular creado: user@user.com
+2026-11-11 20:37:24.602 [INF] [Identity] Sembrado de datos realizado
+2026-11-11 20:37:24.604 [INF] API Funko API (DEV): Modo desarrollo - depuración activada
+2026-11-11 20:37:25.036 [INF] Email worker iniciado
+2026-11-11 20:37:42.447 [INF] HTTP OPTIONS /api/auth/login responded 204 in 10.9181 ms
+2026-11-11 20:37:42.630 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:37:42.744 [INF] Intento de login para admin@admin.com
+2026-11-11 20:37:42.911 [WRN] Login fallido: contraseña incorrecta para admin@admin.com
+2026-11-11 20:37:42.950 [INF] HTTP POST /api/auth/login responded 401 in 473.8494 ms
+2026-11-11 20:37:51.575 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.9697 ms
+2026-11-11 20:37:51.590 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:37:51.601 [INF] Intento de login para admin@admin.com
+2026-11-11 20:37:51.939 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 20:37:51.961 [INF] HTTP POST /api/auth/login responded 200 in 379.6004 ms
+2026-11-11 20:37:53.452 [INF] HTTP OPTIONS /hubs/funkos/negotiate responded 204 in 0.1794 ms
+2026-11-11 20:37:53.558 [INF] HTTP POST /hubs/funkos/negotiate responded 200 in 98.3422 ms
+2026-11-11 20:37:58.582 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:37:58.608 [INF] Intento de login para admin@admin.com
+2026-11-11 20:37:58.737 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 20:37:58.740 [INF] HTTP POST /api/Auth/login responded 200 in 166.5390 ms
+2026-11-11 20:38:00.632 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:38:00.634 [INF] Intento de login para user@user.com
+2026-11-11 20:38:00.728 [INF] Login exitoso para user@user.com con rol USER
+2026-11-11 20:38:00.730 [INF] HTTP POST /api/Auth/login responded 200 in 98.2138 ms
+2026-11-11 20:38:04.115 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:38:04.133 [INF] 🔗 Creando ConnectionMultiplexer de Redis...
+2026-11-11 20:38:04.291 [INF] Creando categoría: Categoria Funkos E2E 1794425878847
+2026-11-11 20:38:04.320 [INF] HTTP POST /api/categorias responded 201 in 223.3034 ms
+2026-11-11 20:38:06.131 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:38:06.144 [INF] Creando proveedor con nombre Proveedor Funkos E2E 1794425878847...
+2026-11-11 20:38:06.148 [INF] Creando proveedor: Proveedor Funkos E2E 1794425878847
+2026-11-11 20:38:06.154 [INF] Proveedor creado con Id 6af4c41e4475eca27864e7f9.
+2026-11-11 20:38:06.166 [INF] HTTP POST /api/proveedores responded 201 in 41.0962 ms
+2026-11-11 20:38:07.928 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:38:07.934 [INF] Storage service inicializado en: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:38:07.991 [INF] Iniciando creación de nuevo Funko con nombre 'Funko Sin Imagen E2E 1794425878847'
+2026-11-11 20:38:08.083 [INF] Creando Funko: Funko Sin Imagen E2E 1794425878847
+2026-11-11 20:38:08.106 [INF] Funko 'Funko Sin Imagen E2E 1794425878847' creado exitosamente sin imagen con ID 4
+2026-11-11 20:38:08.126 [INF] Email de notificación encolado para Funko 4
+2026-11-11 20:38:08.139 [INF] HTTP POST /api/funkos responded 201 in 220.4205 ms
+2026-11-11 20:38:08.210 [INF] Enviando email a funkopopapi@gmail.com con asunto: Nuevo Funko: Funko Sin Imagen E2E 1794425878847
+2026-11-11 20:38:11.478 [INF] Email enviado exitosamente a funkopopapi@gmail.com
+2026-11-11 20:38:11.482 [INF] Email procesado: funkopopapi@gmail.com
+2026-11-11 20:38:25.727 [INF] HTTP GET /hubs/funkos responded 101 in 32162.0499 ms
+2026-11-11 20:38:39.943 [INF] HTTP GET /graphql responded 301 in 49.8804 ms
+2026-11-11 20:38:42.221 [INF] HTTP GET  responded 200 in 2273.1820 ms
+2026-11-11 20:38:42.387 [INF] HTTP GET /manifest.webmanifest responded 200 in 153.3435 ms
+2026-11-11 20:38:42.399 [INF] HTTP GET /assets/monaco.cbb9dd2a.1cPGLvp7.css responded 200 in 175.7599 ms
+2026-11-11 20:38:42.403 [INF] HTTP GET /assets/main.cbb9dd2a.BdMtxJz7.css responded 200 in 176.9356 ms
+2026-11-11 20:38:42.559 [INF] HTTP GET /assets/main.cbb9dd2a.ChRcIDX9.js responded 200 in 334.3221 ms
+2026-11-11 20:38:42.584 [INF] HTTP GET /assets/monaco.cbb9dd2a.lpARKB0G.js responded 200 in 356.2985 ms
+2026-11-11 20:38:42.685 [INF] HTTP GET /favicon.svg responded 404 in 0.1496 ms
+2026-11-11 20:38:42.828 [INF] HTTP GET /favicon.svg responded 200 in 142.6334 ms
+2026-11-11 20:38:42.849 [INF] HTTP GET /assets/context-providers.cbb9dd2a.3HkX5s82.css responded 200 in 152.7192 ms
+2026-11-11 20:38:42.981 [INF] HTTP GET /assets/context-providers.cbb9dd2a.cIEPV5um.js responded 200 in 284.7351 ms
+2026-11-11 20:38:42.981 [INF] HTTP GET /favicon.ico responded 200 in 146.1457 ms
+2026-11-11 20:38:43.087 [INF] HTTP GET /graphql/nitro-config.json responded 200 in 1.5375 ms
+2026-11-11 20:38:43.216 [INF] HTTP GET /service-worker.js responded 200 in 147.6251 ms
+2026-11-11 20:38:43.260 [INF] HTTP GET /service-worker.js responded 304 in 40.6002 ms
+2026-11-11 20:38:43.452 [INF] HTTP GET /assets/editor.worker.cbb9dd2a.bpPxd4HN.js responded 200 in 143.0119 ms
+2026-11-11 20:38:43.626 [INF] HTTP GET /assets/FiraCode-Medium.cbb9dd2a.-YTCSZkP.woff2 responded 200 in 168.0838 ms
+2026-11-11 20:38:43.911 [INF] HTTP GET /assets/graphql-engine-scheduler.cbb9dd2a.wOPnKfNr.js responded 200 in 279.2780 ms
+2026-11-11 20:38:44.344 [INF] HTTP GET /assets/graphql-indexer-scheduler.cbb9dd2a.CG604HRm.js responded 200 in 225.7245 ms
+2026-11-11 20:38:44.571 [INF] HTTP GET /assets/graphql.worker.cbb9dd2a.xpDyakfn.js responded 200 in 214.3681 ms
+2026-11-11 20:38:44.666 [INF] HTTP GET /assets/jsonMode.cbb9dd2a.CASrsvge.js responded 200 in 147.3008 ms
+2026-11-11 20:38:44.732 [INF] HTTP GET /assets/index.cbb9dd2a.vQhlIpdT.js responded 200 in 148.6361 ms
+2026-11-11 20:38:44.800 [INF] HTTP GET /assets/monaco.cbb9dd2a.D_5Blgsx.js responded 200 in 143.2512 ms
+2026-11-11 20:38:44.826 [INF] HTTP GET /assets/json.worker.cbb9dd2a.DzqSgOmm.js responded 200 in 151.6444 ms
+2026-11-11 20:38:44.886 [INF] HTTP GET /assets/monaco.cbb9dd2a.D4ai2qOB.js responded 200 in 225.0669 ms
+2026-11-11 20:38:45.060 [INF] HTTP GET /assets/monaco.cbb9dd2a.C_OHPGWO.js responded 200 in 275.7019 ms
+2026-11-11 20:38:45.093 [INF] HTTP GET /assets/monaco.cbb9dd2a.B1Kqe1Kf.js responded 200 in 257.7788 ms
+2026-11-11 20:38:45.122 [INF] HTTP GET /graphql/schema.graphql responded 200 in 270.9591 ms
+2026-11-11 20:38:45.279 [INF] HTTP GET /assets/monaco.cbb9dd2a.D85_ONb-.js responded 200 in 154.6357 ms
+2026-11-11 20:38:45.287 [INF] HTTP GET /assets/codicon.cbb9dd2a.Hscy-R9e.ttf responded 200 in 175.0702 ms
+2026-11-11 20:38:45.429 [INF] HTTP GET /assets/monaco.cbb9dd2a.gxBQgwYh.css responded 200 in 142.2275 ms
+2026-11-11 20:38:45.465 [INF] HTTP GET /graphql/schema.graphql responded 200 in 612.5213 ms
+2026-11-11 20:38:45.732 [INF] HTTP GET /assets/session-scheduler.cbb9dd2a.DNSZrB_J.js responded 200 in 240.0709 ms
+2026-11-11 20:38:45.891 [INF] HTTP GET /assets/yaml.cbb9dd2a.r5d-htbt.js responded 200 in 143.1355 ms
+2026-11-11 20:38:46.118 [INF] HTTP GET /assets/yaml.worker.cbb9dd2a.FMre_zZ7.js responded 200 in 219.5514 ms
+2026-11-11 20:38:46.268 [INF] HTTP GET /index.html responded 200 in 132.4518 ms
+2026-11-11 20:38:46.310 [INF] HTTP GET /favicon.ico responded 200 in 35.0809 ms
+2026-11-11 20:38:46.383 [INF] HTTP GET /favicon.svg responded 200 in 67.1854 ms
+2026-11-11 20:38:46.520 [INF] HTTP GET /manifest.webmanifest responded 200 in 129.8234 ms
+2026-11-11 20:39:03.831 [INF] HTTP GET /service-worker.js responded 304 in 35.3280 ms
+2026-11-11 20:39:11.678 [INF] HTTP GET /service-worker.js responded 304 in 29.0594 ms
+2026-11-11 20:39:16.687 [INF] HTTP GET /service-worker.js responded 304 in 45.3354 ms
+2026-11-11 20:39:24.664 [INF] HTTP GET /service-worker.js responded 304 in 29.9744 ms
+2026-11-11 20:40:00.963 [INF] HTTP GET /favicon.svg responded 404 in 0.1282 ms
+2026-11-11 20:40:01.284 [INF] HTTP GET /graphql/nitro-config.json responded 200 in 0.1784 ms
+2026-11-11 20:40:02.951 [INF] HTTP GET /service-worker.js responded 304 in 55.7269 ms
+2026-11-11 20:40:04.705 [INF] HTTP GET /graphql/schema.graphql responded 200 in 2.1127 ms
+2026-11-11 20:40:04.711 [INF] HTTP GET /graphql/schema.graphql responded 200 in 8.1683 ms
+2026-11-11 20:40:10.881 [INF] HTTP GET /service-worker.js responded 304 in 39.9891 ms
+2026-11-11 20:40:11.763 [INF] HTTP GET /service-worker.js responded 304 in 31.7317 ms
+2026-11-11 20:40:32.586 [INF] HTTP GET /service-worker.js responded 304 in 29.8924 ms
+2026-11-11 20:40:36.131 [INF] HTTP GET /service-worker.js responded 304 in 27.8869 ms
+2026-11-11 20:40:40.430 [INF] HTTP GET /service-worker.js responded 304 in 26.8565 ms
+2026-11-11 20:40:41.720 [INF] HTTP GET /service-worker.js responded 304 in 28.6502 ms
+2026-11-11 20:40:47.307 [INF] HTTP GET /service-worker.js responded 304 in 30.4407 ms
+2026-11-11 20:40:49.842 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:40:49.846 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:40:49.929 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:40:50.033 [INF] HTTP POST /graphql responded 200 in 261.5052 ms
+2026-11-11 20:40:57.677 [INF] HTTP GET /service-worker.js responded 304 in 26.9417 ms
+2026-11-11 20:40:58.987 [INF] HTTP GET /service-worker.js responded 304 in 32.9632 ms
+2026-11-11 20:41:00.663 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:41:00.668 [INF] Consultando el Funko con el ID: 1
+2026-11-11 20:41:00.691 [INF] Funko con ID: 1 encontrado exitosamente.
+2026-11-11 20:41:00.694 [INF] HTTP POST /graphql responded 200 in 38.4362 ms
+2026-11-11 20:41:01.122 [INF] HTTP GET /service-worker.js responded 304 in 27.4300 ms
+2026-11-11 20:41:03.711 [INF] HTTP GET /service-worker.js responded 304 in 27.1021 ms
+2026-11-11 20:41:06.245 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:41:06.246 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:41:06.250 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:41:06.299 [INF] HTTP POST /graphql responded 200 in 58.3416 ms
+2026-11-11 20:41:21.219 [INF] HTTP GET /service-worker.js responded 304 in 27.7248 ms
+2026-11-11 20:41:24.100 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:41:24.134 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:41:24.138 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:41:24.142 [INF] HTTP POST /graphql responded 200 in 42.2579 ms
+2026-11-11 20:41:33.134 [INF] HTTP GET /service-worker.js responded 304 in 32.7591 ms
+2026-11-11 20:42:09.223 [INF] HTTP GET /service-worker.js responded 304 in 28.2584 ms
+2026-11-11 20:42:16.715 [INF] HTTP GET /service-worker.js responded 304 in 36.2726 ms
+2026-11-11 20:42:23.787 [INF] HTTP GET /service-worker.js responded 304 in 30.2360 ms
+2026-11-11 20:42:26.911 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:42:26.914 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:42:26.974 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:42:27.009 [INF] HTTP POST /graphql responded 200 in 115.0529 ms
+2026-11-11 20:42:34.150 [INF] HTTP GET /service-worker.js responded 304 in 28.6913 ms
+2026-11-11 20:42:36.751 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:42:36.754 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:42:36.758 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:42:36.766 [INF] HTTP POST /graphql responded 200 in 16.7042 ms
+2026-11-11 20:42:43.320 [INF] HTTP GET /service-worker.js responded 304 in 28.8402 ms
+2026-11-11 20:42:46.443 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:42:46.445 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:42:46.449 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:42:46.479 [INF] HTTP POST /graphql responded 200 in 42.1249 ms
+2026-11-11 20:42:50.670 [INF] HTTP GET /service-worker.js responded 304 in 28.2431 ms
+2026-11-11 20:42:53.382 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:42:53.385 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:42:53.389 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:42:53.398 [INF] HTTP POST /graphql responded 200 in 18.7975 ms
+2026-11-11 20:42:58.460 [INF] HTTP GET /service-worker.js responded 304 in 29.3932 ms
+2026-11-11 20:43:03.628 [INF] HTTP GET /service-worker.js responded 304 in 34.0062 ms
+2026-11-11 20:43:08.030 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:43:08.032 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:43:08.035 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:43:08.039 [INF] HTTP POST /graphql responded 200 in 9.3072 ms
+2026-11-11 20:43:13.626 [INF] HTTP GET /service-worker.js responded 304 in 28.9846 ms
+2026-11-11 20:43:15.900 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:43:15.904 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:43:15.909 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:43:15.912 [INF] HTTP POST /graphql responded 200 in 12.3174 ms
+2026-11-11 20:43:25.306 [INF] HTTP GET /service-worker.js responded 304 in 29.0491 ms
+2026-11-11 20:43:30.024 [INF] HTTP GET /service-worker.js responded 304 in 27.4502 ms
+2026-11-11 20:45:03.952 [ERR] HTTP GET /service-worker.js responded 502 in 12075.8750 ms
+2026-11-11 20:45:36.947 [INF] HTTP GET /service-worker.js responded 200 in 129.2731 ms
+2026-11-11 20:45:52.376 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:45:52.378 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:45:52.383 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:45:52.387 [INF] HTTP POST /graphql responded 200 in 13.5673 ms
+2026-11-11 20:45:59.548 [INF] HTTP GET /service-worker.js responded 304 in 59.3519 ms
+2026-11-11 20:46:02.661 [INF] HTTP GET /service-worker.js responded 304 in 44.2747 ms
+2026-11-11 20:46:17.734 [INF] HTTP GET /service-worker.js responded 304 in 50.8124 ms
+2026-11-11 20:46:19.389 [INF] HTTP GET /service-worker.js responded 304 in 48.2549 ms
+2026-11-11 20:46:19.884 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:46:19.890 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:46:19.894 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:46:19.896 [INF] HTTP POST /graphql responded 200 in 13.4552 ms
+2026-11-11 20:46:20.489 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:46:20.492 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:46:20.495 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:46:20.499 [INF] HTTP POST /graphql responded 200 in 11.2454 ms
+2026-11-11 20:46:26.475 [INF] HTTP GET /service-worker.js responded 304 in 31.7968 ms
+2026-11-11 20:46:26.927 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:46:26.930 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:46:26.934 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:46:26.936 [INF] HTTP POST /graphql responded 200 in 9.6298 ms
+2026-11-11 20:46:30.068 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:46:30.070 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:46:30.074 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:46:30.077 [INF] HTTP POST /graphql responded 200 in 9.9111 ms
+2026-11-11 20:47:40.594 [INF] HTTP GET /service-worker.js responded 304 in 133.6602 ms
+2026-11-11 20:48:24.009 [INF] HTTP GET /service-worker.js responded 304 in 30.7156 ms
+2026-11-11 20:48:42.608 [INF] HTTP GET /service-worker.js responded 304 in 44.2045 ms
+2026-11-11 20:48:44.544 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:48:44.546 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:48:44.558 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:48:44.561 [INF] HTTP POST /graphql responded 200 in 17.1393 ms
+2026-11-11 20:48:44.843 [INF] HTTP GET /service-worker.js responded 304 in 34.0802 ms
+2026-11-11 20:49:02.812 [INF] HTTP GET /service-worker.js responded 304 in 31.1561 ms
+2026-11-11 20:49:25.539 [INF] HTTP GET /service-worker.js responded 304 in 41.8819 ms
+2026-11-11 20:49:30.824 [INF] HTTP GET /service-worker.js responded 304 in 41.4746 ms
+2026-11-11 20:49:38.363 [INF] HTTP GET /service-worker.js responded 304 in 42.4659 ms
+2026-11-11 20:49:46.336 [INF] HTTP GET /service-worker.js responded 304 in 112.2382 ms
+2026-11-11 20:49:51.084 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:49:51.087 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:49:51.093 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:49:51.097 [INF] HTTP POST /graphql responded 200 in 15.1896 ms
+2026-11-11 20:50:01.333 [INF] HTTP GET /service-worker.js responded 304 in 45.2378 ms
+2026-11-11 20:50:09.367 [INF] Email worker detenido
+2026-11-11 20:50:43.898 [INF] Iniciando la aplicación...
+2026-11-11 20:50:43.924 [INF] Configurando Identity y JWT...
+2026-11-11 20:50:43.936 [INF] Identity y JWT configurados correctamente.
+2026-11-11 20:50:43.946 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 20:50:43.951 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 20:50:43.953 [INF] Iniciando configuración de MongoDB...
+2026-11-11 20:50:43.953 [INF] MongoDB configurado correctamente.
+2026-11-11 20:50:43.954 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 20:50:43.955 [INF] PostgreSQL configurado correctamente.
+2026-11-11 20:50:43.956 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 20:50:43.957 [INF] Registrando seeders...
+2026-11-11 20:50:43.957 [INF] Seeders registrados correctamente.
+2026-11-11 20:50:43.958 [INF] Registrando repositorio...
+2026-11-11 20:50:43.959 [INF] Repositorio registrados.
+2026-11-11 20:50:43.959 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 20:50:43.960 [INF] Registrando servicios...
+2026-11-11 20:50:43.961 [INF] Servicios registrados correctamente.
+2026-11-11 20:50:43.967 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 20:50:43.988 [INF] Configurando rate limiting...
+2026-11-11 20:50:43.989 [INF] Email: envío real con MailKit.
+2026-11-11 20:50:44.093 [INF] Preparando directorio de almacenamiento: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:50:44.095 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 20:50:44.097 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 20:50:44.098 [INF] Entorno Development detectado - Ejecutando seeders...
+2026-11-11 20:50:44.099 [INF] Configurando MongoDB con driver nativo...
+2026-11-11 20:50:44.099 [INF] Obteniendo la base de datos de MongoDB: tienda
+2026-11-11 20:50:44.100 [INF] Instanciando MongoClient para el host: localhost:27017
+2026-11-11 20:50:44.729 [INF] [MongoDB] Base de datos eliminada y lista para resembrar.
+2026-11-11 20:50:44.780 [INF] Sembrando datos iniciales de proveedores en MongoDB...
+2026-11-11 20:50:44.818 [INF] Creando proveedor: Funko Corp
+2026-11-11 20:50:44.843 [INF] Creando proveedor: Toy Master
+2026-11-11 20:50:44.845 [INF] Creando proveedor: Geek Toys
+2026-11-11 20:50:44.850 [INF] Insertados 3 proveedores de ejemplo en MongoDB.
+2026-11-11 20:50:44.851 [INF] [MongoDB] Sembrado de datos realizado
+2026-11-11 20:50:44.851 [INF] Configurando PostgreSQL con EF Core...
+2026-11-11 20:50:44.865 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:50:44.911 [INF] [EF Core] Eliminando y recreando la base de datos...
+2026-11-11 20:50:45.560 [INF] Sembrando datos iniciales en PostgreSQL...
+2026-11-11 20:50:45.825 [INF] Insertadas 3 categorías de ejemplo.
+2026-11-11 20:50:45.914 [INF] Insertados 3 funkos de ejemplo.
+2026-11-11 20:50:45.918 [INF] Datos de PostgreSQL sembrados correctamente.
+2026-11-11 20:50:45.918 [INF] [EF Core] Base de datos recreada con sembrado de datos
+2026-11-11 20:50:45.966 [INF] Rol 'ADMIN' creado
+2026-11-11 20:50:45.972 [INF] Rol 'USER' creado
+2026-11-11 20:50:46.093 [INF] Usuario admin creado: admin@admin.com
+2026-11-11 20:50:46.146 [INF] Usuario regular creado: user@user.com
+2026-11-11 20:50:46.146 [INF] [Identity] Sembrado de datos realizado
+2026-11-11 20:50:46.149 [INF] API Funko API (DEV): Modo desarrollo - depuración activada
+2026-11-11 20:50:46.525 [INF] Email worker iniciado
+2026-11-11 20:50:48.682 [INF] HTTP GET /graphql responded 301 in 120.4696 ms
+2026-11-11 20:50:48.873 [INF] HTTP GET /favicon.svg responded 404 in 7.7721 ms
+2026-11-11 20:50:49.183 [INF] HTTP GET /graphql/nitro-config.json responded 200 in 7.6154 ms
+2026-11-11 20:50:49.531 [INF] HTTP GET /graphql/schema.graphql responded 200 in 69.5152 ms
+2026-11-11 20:50:49.779 [INF] HTTP GET /graphql/schema.graphql responded 200 in 317.1330 ms
+2026-11-11 20:50:51.322 [INF] HTTP GET /service-worker.js responded 304 in 236.0087 ms
+2026-11-11 20:50:53.797 [INF] HTTP GET /service-worker.js responded 304 in 38.8018 ms
+2026-11-11 20:50:56.394 [INF] HTTP GET /service-worker.js responded 304 in 44.2416 ms
+2026-11-11 20:50:58.224 [INF] HTTP GET /service-worker.js responded 304 in 59.2550 ms
+2026-11-11 20:51:09.663 [INF] HTTP GET /service-worker.js responded 304 in 32.9990 ms
+2026-11-11 20:51:11.495 [INF] Iniciando la consulta para obtener todos los Funkos (con soporte de Paging/Filtering/Sorting).
+2026-11-11 20:51:11.629 [INF] Se han recuperado los datos de los Funkos correctamente desde el repositorio.
+2026-11-11 20:51:11.705 [INF] Cargando lote de categorías mediante DataLoader. Cantidad de IDs solicitados: 3
+2026-11-11 20:51:11.916 [INF] HTTP POST /graphql responded 200 in 469.0236 ms
+2026-11-11 20:51:11.930 [INF] HTTP GET /service-worker.js responded 304 in 36.8215 ms
+2026-11-11 20:52:07.125 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.9447 ms
+2026-11-11 20:52:07.248 [INF] Intento de login para admin@admin.com
+2026-11-11 20:52:07.424 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 20:52:07.462 [INF] HTTP POST /api/auth/login responded 200 in 328.1416 ms
+2026-11-11 20:52:08.694 [INF] HTTP OPTIONS /hubs/funkos/negotiate responded 204 in 0.2500 ms
+2026-11-11 20:52:08.789 [INF] HTTP POST /hubs/funkos/negotiate responded 200 in 86.2781 ms
+2026-11-11 20:52:11.951 [INF] Intento de login para admin@admin.com
+2026-11-11 20:52:12.080 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 20:52:12.086 [INF] HTTP POST /api/Auth/login responded 200 in 139.8043 ms
+2026-11-11 20:52:13.925 [INF] Intento de login para user@user.com
+2026-11-11 20:52:14.133 [INF] Login exitoso para user@user.com con rol USER
+2026-11-11 20:52:14.135 [INF] HTTP POST /api/Auth/login responded 200 in 241.9362 ms
+2026-11-11 20:52:16.400 [INF] 🔗 Creando ConnectionMultiplexer de Redis...
+2026-11-11 20:52:16.546 [INF] Creando categoría: Categoria Funkos E2E 1794426732159
+2026-11-11 20:52:16.573 [INF] HTTP POST /api/categorias responded 201 in 188.7997 ms
+2026-11-11 20:52:18.363 [INF] Creando proveedor con nombre Proveedor Funkos E2E 1794426732159...
+2026-11-11 20:52:18.365 [INF] Creando proveedor: Proveedor Funkos E2E 1794426732159
+2026-11-11 20:52:18.370 [INF] Proveedor creado con Id 6af4c772913434af76c30060.
+2026-11-11 20:52:18.375 [INF] HTTP POST /api/proveedores responded 201 in 25.6943 ms
+2026-11-11 20:52:20.261 [INF] Storage service inicializado en: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:52:20.304 [INF] Iniciando creación de nuevo Funko con nombre 'Funko Sin Imagen E2E 1794426732159'
+2026-11-11 20:52:20.363 [INF] Creando Funko: Funko Sin Imagen E2E 1794426732159
+2026-11-11 20:52:20.392 [INF] Funko 'Funko Sin Imagen E2E 1794426732159' creado exitosamente sin imagen con ID 4
+2026-11-11 20:52:20.415 [INF] Email de notificación encolado para Funko 4
+2026-11-11 20:52:20.436 [INF] HTTP POST /api/funkos responded 201 in 195.2220 ms
+2026-11-11 20:52:20.484 [INF] Enviando email a funkopopapi@gmail.com con asunto: Nuevo Funko: Funko Sin Imagen E2E 1794426732159
+2026-11-11 20:52:21.309 [INF] Email enviado exitosamente a funkopopapi@gmail.com
+2026-11-11 20:52:21.312 [INF] Email procesado: funkopopapi@gmail.com
+2026-11-11 20:52:22.253 [INF] Storage service inicializado en: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:52:22.260 [INF] Iniciando creación de nuevo Funko con nombre 'Funko E2E 1794426732159'
+2026-11-11 20:52:22.273 [INF] Archivo guardado: /uploads/funkos/20261111195222_97342a97_DefaultImage.jpg
+2026-11-11 20:52:22.276 [INF] Creando Funko: Funko E2E 1794426732159
+2026-11-11 20:52:22.285 [INF] Funko 'Funko E2E 1794426732159' creado exitosamente con imagen con ID 5
+2026-11-11 20:52:22.287 [INF] Email de notificación encolado para Funko 5
+2026-11-11 20:52:22.288 [INF] Enviando email a funkopopapi@gmail.com con asunto: Nuevo Funko: Funko E2E 1794426732159
+2026-11-11 20:52:22.289 [INF] HTTP POST /api/funkos responded 201 in 39.7253 ms
+2026-11-11 20:52:22.415 [INF] HTTP GET /hubs/funkos responded 101 in 13622.1239 ms
+2026-11-11 20:52:22.890 [INF] Email enviado exitosamente a funkopopapi@gmail.com
+2026-11-11 20:52:22.892 [INF] Email procesado: funkopopapi@gmail.com
+2026-11-11 20:52:43.962 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.1260 ms
+2026-11-11 20:52:44.159 [INF] Intento de login para admin@admin.com
+2026-11-11 20:52:44.237 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 20:52:44.239 [INF] HTTP POST /api/auth/login responded 200 in 79.9072 ms
+2026-11-11 20:52:45.274 [INF] HTTP OPTIONS /hubs/funkos/negotiate responded 204 in 0.0948 ms
+2026-11-11 20:52:45.279 [INF] HTTP POST /hubs/funkos/negotiate responded 200 in 0.8245 ms
+2026-11-11 20:52:54.012 [INF] Storage service inicializado en: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:52:54.098 [INF] Iniciando creación de nuevo Funko con nombre '"caca"'
+2026-11-11 20:52:54.107 [INF] Archivo guardado: /uploads/funkos/20261111195254_9a2caefe_DefaultImage.jpg
+2026-11-11 20:52:54.108 [INF] Creando Funko: "caca"
+2026-11-11 20:52:54.115 [INF] Funko '"caca"' creado exitosamente con imagen con ID 6
+2026-11-11 20:52:54.116 [INF] Email de notificación encolado para Funko 6
+2026-11-11 20:52:54.117 [INF] Enviando email a funkopopapi@gmail.com con asunto: Nuevo Funko: "caca"
+2026-11-11 20:52:54.118 [INF] HTTP POST /api/funkos responded 201 in 119.8905 ms
+2026-11-11 20:52:54.227 [INF] HTTP GET /hubs/funkos responded 101 in 8946.5498 ms
+2026-11-11 20:52:54.733 [INF] Email enviado exitosamente a funkopopapi@gmail.com
+2026-11-11 20:52:54.736 [INF] Email procesado: funkopopapi@gmail.com
+2026-11-11 20:55:52.349 [INF] HTTP OPTIONS /api/auth/login responded 204 in 0.1548 ms
+2026-11-11 20:55:52.355 [INF] Intento de login para admin@admin.com
+2026-11-11 20:55:52.496 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 20:55:52.499 [INF] HTTP POST /api/auth/login responded 200 in 144.2987 ms
+2026-11-11 20:55:53.939 [INF] HTTP OPTIONS /hubs/funkos/negotiate responded 204 in 0.0933 ms
+2026-11-11 20:55:54.172 [INF] HTTP POST /hubs/funkos/negotiate responded 200 in 0.5593 ms
+2026-11-11 20:55:57.617 [INF] Storage service inicializado en: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:55:57.618 [INF] Iniciando creación de nuevo Funko con nombre '"caca"'
+2026-11-11 20:55:57.621 [WRN] Intento de crear Funko fallido: Ya existe un Funko con el nombre '"caca"'
+2026-11-11 20:55:57.623 [INF] HTTP POST /api/funkos responded 409 in 7.9558 ms
+2026-11-11 20:57:00.059 [INF] Intento de login para admin@admin.com
+2026-11-11 20:57:00.175 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 20:57:00.177 [INF] HTTP POST /api/Auth/login responded 200 in 118.8992 ms
+2026-11-11 20:57:01.805 [INF] Intento de login para user@user.com
+2026-11-11 20:57:01.911 [INF] Login exitoso para user@user.com con rol USER
+2026-11-11 20:57:01.913 [INF] HTTP POST /api/Auth/login responded 200 in 109.2294 ms
+2026-11-11 20:57:04.642 [INF] Intento de login para user@user.com
+2026-11-11 20:57:04.716 [INF] Login exitoso para user@user.com con rol USER
+2026-11-11 20:57:04.718 [INF] HTTP POST /api/Auth/login responded 200 in 77.0030 ms
+2026-11-11 20:57:06.468 [INF] Creando proveedor con nombre Proveedor Funkos E2E 1794427020248...
+2026-11-11 20:57:06.471 [INF] Creando proveedor: Proveedor Funkos E2E 1794427020248
+2026-11-11 20:57:06.474 [INF] Proveedor creado con Id 6af4c892913434af76c30061.
+2026-11-11 20:57:06.476 [INF] HTTP POST /api/proveedores responded 201 in 12.0034 ms
+2026-11-11 20:57:07.752 [INF] Storage service inicializado en: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:57:07.755 [INF] Iniciando creación de nuevo Funko con nombre 'Funko Sin Imagen E2E 1794427020248'
+2026-11-11 20:57:07.760 [WRN] Intento de crear Funko fallido: La categoría con ID 'null' no es válida
+2026-11-11 20:57:07.761 [INF] HTTP POST /api/funkos responded 400 in 12.0553 ms
+2026-11-11 20:57:14.333 [INF] Creando categoría: Categoria Funkos E2E 1794427020248
+2026-11-11 20:57:14.337 [INF] HTTP POST /api/categorias responded 201 in 8.5795 ms
+2026-11-11 20:57:18.053 [INF] Creando proveedor con nombre Proveedor Funkos E2E 1794427020248...
+2026-11-11 20:57:18.054 [INF] Creando proveedor: Proveedor Funkos E2E 1794427020248
+2026-11-11 20:57:18.057 [INF] Proveedor creado con Id 6af4c89e913434af76c30062.
+2026-11-11 20:57:18.058 [INF] HTTP POST /api/proveedores responded 201 in 9.6376 ms
+2026-11-11 20:57:20.058 [INF] Storage service inicializado en: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:57:20.061 [INF] Iniciando creación de nuevo Funko con nombre 'Funko Sin Imagen E2E 1794427020248'
+2026-11-11 20:57:20.078 [INF] Creando Funko: Funko Sin Imagen E2E 1794427020248
+2026-11-11 20:57:20.084 [INF] Funko 'Funko Sin Imagen E2E 1794427020248' creado exitosamente sin imagen con ID 7
+2026-11-11 20:57:20.090 [INF] Email de notificación encolado para Funko 7
+2026-11-11 20:57:20.090 [INF] Enviando email a funkopopapi@gmail.com con asunto: Nuevo Funko: Funko Sin Imagen E2E 1794427020248
+2026-11-11 20:57:20.094 [INF] HTTP POST /api/funkos responded 201 in 38.6332 ms
+2026-11-11 20:57:20.896 [INF] Email enviado exitosamente a funkopopapi@gmail.com
+2026-11-11 20:57:20.899 [INF] Email procesado: funkopopapi@gmail.com
+2026-11-11 20:57:50.895 [INF] HTTP GET /hubs/funkos responded 101 in 116720.1199 ms
+2026-11-11 20:57:50.901 [INF] Email worker detenido
+2026-11-11 20:58:35.223 [INF] Iniciando la aplicación...
+2026-11-11 20:58:35.248 [INF] Configurando Identity y JWT...
+2026-11-11 20:58:35.260 [INF] Identity y JWT configurados correctamente.
+2026-11-11 20:58:35.271 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 20:58:35.275 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 20:58:35.277 [INF] Iniciando configuración de MongoDB...
+2026-11-11 20:58:35.278 [INF] MongoDB configurado correctamente.
+2026-11-11 20:58:35.278 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 20:58:35.280 [INF] PostgreSQL configurado correctamente.
+2026-11-11 20:58:35.281 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 20:58:35.281 [INF] Registrando seeders...
+2026-11-11 20:58:35.282 [INF] Seeders registrados correctamente.
+2026-11-11 20:58:35.283 [INF] Registrando repositorio...
+2026-11-11 20:58:35.283 [INF] Repositorio registrados.
+2026-11-11 20:58:35.284 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 20:58:35.284 [INF] Registrando servicios...
+2026-11-11 20:58:35.285 [INF] Servicios registrados correctamente.
+2026-11-11 20:58:35.292 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 20:58:35.313 [INF] Configurando rate limiting...
+2026-11-11 20:58:35.314 [INF] Email: envío real con MailKit.
+2026-11-11 20:58:35.416 [INF] Preparando directorio de almacenamiento: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:58:35.419 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 20:58:35.421 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 20:58:35.423 [INF] ⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.
+2026-11-11 20:58:35.439 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 20:58:36.194 [INF] [Identity] Sembrado de datos realizado
+2026-11-11 20:58:36.197 [INF] API Funko API (PROD): Modo producción
+2026-11-11 20:58:36.591 [INF] Email worker iniciado
+2026-11-11 20:59:06.269 [INF] HTTP OPTIONS /api/auth/login responded 204 in 5.3547 ms
+2026-11-11 20:59:06.384 [INF] Intento de login para admin@admin.com
+2026-11-11 20:59:06.661 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 20:59:06.681 [INF] HTTP POST /api/auth/login responded 200 in 400.0739 ms
+2026-11-11 20:59:08.010 [INF] HTTP OPTIONS /hubs/funkos/negotiate responded 204 in 0.8294 ms
+2026-11-11 20:59:08.089 [INF] HTTP POST /hubs/funkos/negotiate responded 200 in 72.7089 ms
+2026-11-11 20:59:12.485 [INF] Intento de login para admin@admin.com
+2026-11-11 20:59:12.613 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 20:59:12.619 [INF] HTTP POST /api/Auth/login responded 200 in 137.0936 ms
+2026-11-11 20:59:14.778 [INF] Intento de login para user@user.com
+2026-11-11 20:59:14.855 [INF] Login exitoso para user@user.com con rol USER
+2026-11-11 20:59:14.857 [INF] HTTP POST /api/Auth/login responded 200 in 104.4442 ms
+2026-11-11 20:59:17.231 [INF] 🔗 Creando ConnectionMultiplexer de Redis...
+2026-11-11 20:59:17.399 [INF] Creando categoría: Categoria Funkos E2E 1794427152686
+2026-11-11 20:59:17.572 [INF] HTTP POST /api/categorias responded 201 in 360.7874 ms
+2026-11-11 20:59:19.345 [INF] Obteniendo la base de datos de MongoDB: tienda
+2026-11-11 20:59:19.347 [INF] Instanciando MongoClient para el host: localhost:27017
+2026-11-11 20:59:19.788 [INF] Creando proveedor con nombre Proveedor Funkos E2E 1794427152686...
+2026-11-11 20:59:19.793 [INF] Creando proveedor: Proveedor Funkos E2E 1794427152686
+2026-11-11 20:59:19.895 [INF] Proveedor creado con Id 6af4c9176a26a6a5c5dd7b02.
+2026-11-11 20:59:19.900 [INF] HTTP POST /api/proveedores responded 201 in 566.8710 ms
+2026-11-11 20:59:21.949 [INF] Storage service inicializado en: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 20:59:21.984 [INF] Iniciando creación de nuevo Funko con nombre 'Funko Sin Imagen E2E 1794427152686'
+2026-11-11 20:59:22.190 [INF] Creando Funko: Funko Sin Imagen E2E 1794427152686
+2026-11-11 20:59:22.344 [INF] Funko 'Funko Sin Imagen E2E 1794427152686' creado exitosamente sin imagen con ID 8
+2026-11-11 20:59:22.371 [INF] Email de notificación encolado para Funko 8
+2026-11-11 20:59:22.386 [INF] HTTP POST /api/funkos responded 201 in 458.0850 ms
+2026-11-11 20:59:22.433 [INF] Enviando email a funkopopapi@gmail.com con asunto: Nuevo Funko: Funko Sin Imagen E2E 1794427152686
+2026-11-11 20:59:22.486 [ERR] Error enviando email a funkopopapi@gmail.com: Host desconocido.
+System.Net.Sockets.SocketException (11001): Host desconocido.
+   at System.Net.NameResolutionPal.ProcessResult(SocketError errorCode, GetAddrInfoExContext* context)
+   at System.Net.NameResolutionPal.GetAddressInfoExCallback(Int32 error, Int32 bytes, NativeOverlapped* overlapped)
+--- End of stack trace from previous location ---
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, CancellationToken cancellationToken)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at FunkoApi.Back.Services.Email.MailKitEmailService.SendAsync(EmailMessage message, CancellationToken cancellationToken) in C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Services\Email\MailKitEmailService.cs:line 36
+2026-11-11 20:59:22.507 [ERR] Error procesando email de la cola
+System.Net.Sockets.SocketException (11001): Host desconocido.
+   at System.Net.NameResolutionPal.ProcessResult(SocketError errorCode, GetAddrInfoExContext* context)
+   at System.Net.NameResolutionPal.GetAddressInfoExCallback(Int32 error, Int32 bytes, NativeOverlapped* overlapped)
+--- End of stack trace from previous location ---
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, CancellationToken cancellationToken)
+   at MailKit.Net.SocketUtils.ConnectAsync(String host, Int32 port, IPEndPoint localEndPoint, Int32 timeout, CancellationToken cancellationToken)
+   at MailKit.MailService.ConnectNetworkAsync(String host, Int32 port, CancellationToken cancellationToken)
+   at MailKit.Net.Smtp.SmtpClient.ConnectAsync(String host, Int32 port, SecureSocketOptions options, CancellationToken cancellationToken)
+   at FunkoApi.Back.Services.Email.MailKitEmailService.SendAsync(EmailMessage message, CancellationToken cancellationToken) in C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Services\Email\MailKitEmailService.cs:line 36
+   at FunkoApi.Back.Services.Email.EmailBackgroundWorker.ExecuteAsync(CancellationToken stoppingToken) in C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\Services\Email\EmailBackgroundWorker.cs:line 23
+2026-11-11 21:00:13.700 [INF] HTTP GET /hubs/funkos responded 101 in 65608.7593 ms
+2026-11-11 21:01:07.942 [INF] Email worker detenido
+2026-11-11 21:42:25.132 [INF] Iniciando la aplicación...
+2026-11-11 21:42:25.157 [INF] Configurando Identity y JWT...
+2026-11-11 21:42:25.169 [INF] Identity y JWT configurados correctamente.
+2026-11-11 21:42:25.181 [INF] 💾 Configurando caché Redis en localhost:6379...
+2026-11-11 21:42:25.185 [INF] Caché: Redis (Producción) — TTL: 30 min, Instancia: funkoapi:
+2026-11-11 21:42:25.187 [INF] Iniciando configuración de MongoDB...
+2026-11-11 21:42:25.188 [INF] MongoDB configurado correctamente.
+2026-11-11 21:42:25.189 [INF] Iniciando configuración de PostgreSQL...
+2026-11-11 21:42:25.190 [INF] PostgreSQL configurado correctamente.
+2026-11-11 21:42:25.191 [INF] Todas las bases de datos se han configurado con éxito.
+2026-11-11 21:42:25.191 [INF] Registrando seeders...
+2026-11-11 21:42:25.192 [INF] Seeders registrados correctamente.
+2026-11-11 21:42:25.193 [INF] Registrando repositorio...
+2026-11-11 21:42:25.194 [INF] Repositorio registrados.
+2026-11-11 21:42:25.195 [INF] Registrando servicio de almacenamiento de imagenes..
+2026-11-11 21:42:25.196 [INF] Registrando servicios...
+2026-11-11 21:42:25.196 [INF] Servicios registrados correctamente.
+2026-11-11 21:42:25.203 [INF] Configurando GraphQL con HotChocolate...
+2026-11-11 21:42:25.224 [INF] Configurando rate limiting...
+2026-11-11 21:42:25.225 [INF] Email: envío real con MailKit.
+2026-11-11 21:42:25.320 [INF] Preparando directorio de almacenamiento: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 21:42:25.321 [INF] Se ha borrado el contenido del directorio.
+2026-11-11 21:42:25.323 [INF] Carpeta creada/configurada -> Funkos: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads\funkos
+2026-11-11 21:42:25.325 [INF] ⏭️ Entorno de producción detectado - Saltando seeders (excepto identity). Los datos deben existir previamente.
+2026-11-11 21:42:25.340 [INF] Configurando el DbContext de PostgreSQL para el host: localhost:5432
+2026-11-11 21:42:26.091 [INF] [Identity] Sembrado de datos realizado
+2026-11-11 21:42:26.094 [INF] API Funko API (PROD): Modo producción
+2026-11-11 21:42:26.461 [INF] Email worker iniciado
+2026-11-11 21:42:49.500 [INF] HTTP OPTIONS /api/auth/login responded 204 in 5.0089 ms
+2026-11-11 21:42:49.642 [INF] Intento de login para admin@admin.com
+2026-11-11 21:42:50.003 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 21:42:50.053 [INF] HTTP POST /api/auth/login responded 200 in 534.2680 ms
+2026-11-11 21:42:51.839 [INF] HTTP OPTIONS /hubs/funkos/negotiate responded 204 in 1.1659 ms
+2026-11-11 21:42:51.924 [INF] HTTP POST /hubs/funkos/negotiate responded 200 in 76.4592 ms
+2026-11-11 21:42:58.852 [INF] Intento de login para admin@admin.com
+2026-11-11 21:42:58.960 [INF] Login exitoso para admin@admin.com con rol ADMIN
+2026-11-11 21:42:58.966 [INF] HTTP POST /api/Auth/login responded 200 in 115.9685 ms
+2026-11-11 21:43:05.117 [INF] Intento de login para user@user.com
+2026-11-11 21:43:05.239 [INF] Login exitoso para user@user.com con rol USER
+2026-11-11 21:43:05.243 [INF] HTTP POST /api/Auth/login responded 200 in 147.0390 ms
+2026-11-11 21:43:08.777 [INF] 🔗 Creando ConnectionMultiplexer de Redis...
+2026-11-11 21:43:08.964 [INF] Creando categoría: Categoria Funkos E2E 1794429779036
+2026-11-11 21:43:09.230 [INF] HTTP POST /api/categorias responded 201 in 467.8893 ms
+2026-11-11 21:43:11.955 [INF] Obteniendo la base de datos de MongoDB: tienda
+2026-11-11 21:43:11.957 [INF] Instanciando MongoClient para el host: localhost:27017
+2026-11-11 21:43:12.374 [INF] Creando proveedor con nombre Proveedor Funkos E2E 1794429779036...
+2026-11-11 21:43:12.380 [INF] Creando proveedor: Proveedor Funkos E2E 1794429779036
+2026-11-11 21:43:12.476 [INF] Proveedor creado con Id 6af4d360e2466d80bc48e808.
+2026-11-11 21:43:12.486 [INF] HTTP POST /api/proveedores responded 201 in 542.5578 ms
+2026-11-11 21:43:15.354 [INF] Storage service inicializado en: C:\Users\Lucia\Desktop\Programming\Git-Repository\FunkoApiProyecto\FunkoApi.Back\uploads
+2026-11-11 21:43:15.380 [INF] Iniciando creación de nuevo Funko con nombre 'Funko Sin Imagen E2E 1794429779036'
+2026-11-11 21:43:15.530 [INF] Creando Funko: Funko Sin Imagen E2E 1794429779036
+2026-11-11 21:43:15.647 [INF] Funko 'Funko Sin Imagen E2E 1794429779036' creado exitosamente sin imagen con ID 9
+2026-11-11 21:43:15.662 [INF] Email de notificación encolado para Funko 9
+2026-11-11 21:43:15.677 [INF] HTTP POST /api/funkos responded 201 in 341.1420 ms
+2026-11-11 21:43:15.729 [INF] Enviando email a funkopopapi@gmail.com con asunto: Nuevo Funko: Funko Sin Imagen E2E 1794429779036
+2026-11-11 21:43:17.174 [INF] Email enviado exitosamente a funkopopapi@gmail.com
+2026-11-11 21:43:17.177 [INF] Email procesado: funkopopapi@gmail.com
+2026-11-11 21:43:29.908 [INF] HTTP GET /hubs/funkos responded 101 in 37978.6452 ms
