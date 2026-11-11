@@ -47,9 +47,10 @@ El proyecto implementa un catálogo de productos coleccionables (Funkos) mediant
 | 10 | [📂 Estructura del proyecto](#estructura) |
 | 11 | [🧪 Estrategia de testing](#testing) |
 | 12 | [📢 Probar SignalR con Live Server](#signalr) |
-| 13 | [🐳 Despliegue con Docker](#docker) |
-| 14 | [👥 Usuarios de prueba](#usuarios-prueba) |
-| 15 | [📄 Licencia](#licencia) |
+| 13 | [🔎 Consultas GraphQL para copiar y pegar](#graphql) |
+| 14 | [🐳 Despliegue con Docker](#docker) |
+| 15 | [👥 Usuarios de prueba](#usuarios-prueba) |
+| 16 | [📄 Licencia](#licencia) |
 
 ---
 
@@ -686,6 +687,168 @@ El cliente está en **[`FunkoApi.Clients/signalr-client-js/index.html`](FunkoApi
 El cliente carga la librería JavaScript de SignalR desde un CDN, por lo que necesita acceso a Internet. Si el JWT caduca, vuelve a iniciar sesión y conecta de nuevo.
 
 Referencia de clase: [18. WebSockets y SignalR](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/18-websockets-signalr.md), apartados 18.5 (JWT y CORS), 18.7 (notificaciones desde servicios), 18.8 (cliente JavaScript) y 18.12 (limitaciones de Bruno CLI). Las rutas, campos y el evento anteriores corresponden a este proyecto.
+
+---
+
+<a id="graphql"></a>
+## 🔎 Consultas GraphQL para copiar y pegar
+
+Todas las operaciones de esta sección se envían a **`http://localhost:5000/graphql`**. Son consultas de lectura y actualmente no requieren JWT.
+
+En **Development**, abre esa dirección en el navegador, pega **un bloque `graphql` cada vez** en el editor y ejecútalo. Para arrancar utiliza el procedimiento de [Inicio rápido](#inicio-rapido); recuerda que el arranque en desarrollo recrea los datos de prueba y vacía `uploads`.
+
+En **Production**, el endpoint sigue publicado, pero la introspección está desactivada: no podrás explorar automáticamente el esquema. Puedes enviar estas consultas desde un cliente GraphQL, como Bruno, mediante `POST /graphql`.
+
+### Qué consultas tiene esta API
+
+| Campo raíz | Uso |
+|---|---|
+| `funkos` | Listar Funkos con paginación por cursor, filtros (`where`) y ordenación (`order`) |
+| `funko(id: ...)` | Buscar un Funko por su ID numérico; devuelve `null` si no existe |
+
+La implementación actual **no registra mutations ni subscriptions GraphQL**, ni consultas raíz de categorías o proveedores. Por tanto, no hay operaciones GraphQL de crear, actualizar o borrar. Para modificar datos se utilizan los [endpoints REST](#endpoints), y para las notificaciones, [SignalR](#signalr).
+
+Los ejemplos usan **`nombre`**, no `name`, y **`funko`**, no `funkoById`. El listado devuelve los resultados dentro de **`nodes`**: no utiliza `items`, `page` ni `size`.
+
+### 1. Listar los primeros diez Funkos
+
+```graphql
+query {
+  funkos(first: 10) {
+    nodes {
+      id
+      nombre
+      precio
+      stock
+      imagen
+      estaDisponible
+    }
+    pageInfo {
+      hasNextPage
+      hasPreviousPage
+      endCursor
+    }
+  }
+}
+```
+
+La página tiene **10 elementos por defecto** y admite **como máximo 50**, según la configuración de `GetFunkos`. `hasNextPage` indica si quedan más resultados; `endCursor` identifica el final de esta página para continuar la paginación.
+
+**Importante:** en esta API, `estaDisponible` significa que el Funko **no está eliminado** (`!IsDeleted`), no que tenga stock. Para buscar unidades disponibles utiliza el filtro de stock del ejemplo 5.
+
+### 2. Buscar un Funko por ID
+
+Cambia `1` por un ID existente obtenido en el listado anterior. El ID de entrada es numérico, sin comillas.
+
+```graphql
+query {
+  funko(id: 1) {
+    id
+    nombre
+    precio
+    stock
+    imagen
+    estaDisponible
+  }
+}
+```
+
+### 3. Consultar también la categoría
+
+`categoria` es un objeto: debes indicar qué campos quieres recibir dentro de él. Su resolución utiliza `CategoriaByIdDataLoader`.
+
+```graphql
+query {
+  funkos(first: 10) {
+    nodes {
+      id
+      nombre
+      categoria {
+        id
+        nombre
+      }
+    }
+  }
+}
+```
+
+### 4. Buscar por parte del nombre
+
+Cambia `Spider` por el texto que quieras buscar. Si no hay coincidencias, `nodes` estará vacío.
+
+```graphql
+query {
+  funkos(where: { nombre: { contains: "Spider" } }, first: 10) {
+    nodes {
+      id
+      nombre
+      precio
+    }
+  }
+}
+```
+
+### 5. Filtrar por precio y stock, y ordenar
+
+Obtiene Funkos con precio **mayor que 20 y menor o igual que 50**, con stock **mayor que cero**, del más caro al más barato.
+
+```graphql
+query {
+  funkos(
+    where: {
+      precio: { gt: 20, lte: 50 }
+      stock: { gt: 0 }
+    }
+    order: { precio: DESC }
+    first: 10
+  ) {
+    nodes {
+      id
+      nombre
+      precio
+      stock
+    }
+  }
+}
+```
+
+Para ordenar del más barato al más caro, sustituye `DESC` por `ASC`.
+
+### 6. Continuar a la siguiente página
+
+Ejecuta primero el ejemplo 1. Si `hasNextPage` es `true`, copia su `endCursor` y sustituye **`CURSOR_DE_LA_RESPUESTA`** en este bloque, conservando las comillas. No es un ID ni un número de página.
+
+```graphql
+query {
+  funkos(first: 10, after: "CURSOR_DE_LA_RESPUESTA") {
+    nodes {
+      id
+      nombre
+      precio
+    }
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+  }
+}
+```
+
+### Enviar una consulta como JSON
+
+Si usas una petición HTTP normal en vez del editor GraphQL, configura **`POST http://localhost:5000/graphql`**, la cabecera **`Content-Type: application/json`** y este cuerpo:
+
+```json
+{
+  "query": "query { funkos(first: 5) { nodes { id nombre precio } } }"
+}
+```
+
+La respuesta GraphQL incluye `data` y, si se producen errores, puede incluir `errors`. Revisa también este último campo, no solo el código HTTP.
+
+**Referencias:** [ejemplo de clase 17-ProductosGraphQL: consultas](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/soluciones/17-ProductosGraphQL/README.md#ejemplos-de-query) y [19.5: Queries, paginación, filtrado y ordenamiento](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/19-graphql.md#195-queries). Se ha adaptado el procedimiento a los campos y operaciones de [`FunkoQuery.cs`](FunkoApi.Back/GraphQl/Queries/FunkoQuery.cs), [`FunkoType.cs`](FunkoApi.Back/GraphQl/Types/FunkoType.cs) y [`FunkoResolver.cs`](FunkoApi.Back/GraphQl/Resolvers/FunkoResolver.cs) de este proyecto. La configuración de entornos está en [`GraphQlConfig.cs`](FunkoApi.Back/Infrastructure/GraphQlConfig.cs).
+
+> Los ejemplos se han contrastado con el código; no se han ejecutado contra una API en marcha. No incluyen el campo `proveedorId`: actualmente `FunkoType` lo declara como objeto `ProveedorType`, aunque el modelo almacena un identificador. Esa relación necesita una revisión independiente antes de documentarla como consulta funcional.
 
 ---
 
