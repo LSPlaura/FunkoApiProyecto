@@ -1,0 +1,50 @@
+info:
+  name: "[001] QUERY - Obtener todos"
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{baseUrl}}/graphql"
+  body:
+    type: json
+    data: |-
+      {
+        "query": "query { funkos { nodes { id nombre precio stock estaDisponible categoria { id nombre } } } }"
+      }
+  auth:
+    type: none
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        bru.setVar("graphqlFunkoId", null);
+        bru.setVar("graphqlFunkoNombre", null);
+
+        test("GraphQL Funkos - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+
+        test("GraphQL Funkos - No errors", function () {
+            expect(res.getBody().errors).to.be.undefined;
+        });
+
+        test("GraphQL Funkos - Has data and category", function () {
+            const jsonData = res.getBody();
+            expect(jsonData.data.funkos.nodes).to.be.an("array").that.is.not.empty;
+            jsonData.data.funkos.nodes.forEach(function (funko) {
+                expect(funko.id).to.be.a("string");
+                expect(funko.nombre).to.be.a("string");
+                expect(funko.precio).to.be.a("number");
+                expect(funko.estaDisponible).to.equal(true);
+                expect(funko.categoria.id).to.be.a("string");
+                expect(funko.categoria.nombre).to.be.a("string");
+            });
+        });
+
+        const jsonData = res.getBody();
+        if (!jsonData.errors && jsonData.data && jsonData.data.funkos.nodes.length > 0) {
+            bru.setVar("graphqlFunkoId", jsonData.data.funkos.nodes[0].id);
+            bru.setVar("graphqlFunkoNombre", jsonData.data.funkos.nodes[0].nombre);
+        }

@@ -1,0 +1,33 @@
+info:
+  name: "[002] QUERY - Obtener por ID"
+  type: http
+  seq: 2
+
+http:
+  method: POST
+  url: "{{baseUrl}}/graphql"
+  body:
+    type: json
+    data: |-
+      {
+        "query": "query { funko(id: {{graphqlFunkoId}}) { id nombre precio categoria { id nombre } } }"
+      }
+  auth:
+    type: none
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("GraphQL Funko - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("GraphQL Funko - No errors", function () {
+            expect(res.getBody().errors).to.be.undefined;
+        });
+        test("GraphQL Funko - Returns requested funko", function () {
+            const funko = res.getBody().data.funko;
+            expect(funko.id).to.equal(bru.getVar("graphqlFunkoId"));
+            expect(funko.nombre).to.equal(bru.getVar("graphqlFunkoNombre"));
+            expect(funko.categoria.nombre).to.be.a("string");
+        });
