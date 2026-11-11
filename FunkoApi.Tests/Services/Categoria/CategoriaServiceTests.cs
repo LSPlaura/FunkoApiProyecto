@@ -27,6 +27,8 @@ public class CategoriaServiceTests
     {
         _repositoryMock = new Mock<ICategoriaRepository>();
         _funkoRepositoryMock = new Mock<IFunkoRepository>();
+        _funkoRepositoryMock.Setup(r => r.GetByCategoriaId(It.IsAny<string>()))
+            .ReturnsAsync(Array.Empty<Back.Models.Funko>());
         _cacheMock = new Mock<ICacheService>();
         _service = new CategoriaService(_repositoryMock.Object, _funkoRepositoryMock.Object, _cacheMock.Object);
     }
@@ -205,6 +207,38 @@ public class CategoriaServiceTests
         _cacheMock.Verify(c => c.RemoveAsync(Key, default), Times.Once);
     }
 
+    [TestCase(0)]
+    [TestCase(2)]
+    public async Task Update_CategoriaConFunkos_InvalidaCachePorIdYNombre(int cantidad)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var categoria = new Categoria("Marvel", false, fecha, fecha, Id);
+        var funkos = Enumerable.Range(1, cantidad).Select(i => new Back.Models.Funko(
+            i, "Funko " + i, 15m, 1, "imagen.png", Id, categoria,
+            MongoDB.Bson.ObjectId.Empty, false, fecha, fecha)).ToArray();
+        _repositoryMock.Setup(r => r.GetById(Id)).ReturnsAsync(categoria);
+        _repositoryMock.Setup(r => r.Update(It.IsAny<Categoria>())).ReturnsAsync((Categoria c) => c);
+        _funkoRepositoryMock.Setup(r => r.GetByCategoriaId(Id)).ReturnsAsync(funkos);
+
+        // Act
+        var resultado = await _service.Update(new UpdateCategoriaDto { Nombre = "Anime" }, Id);
+
+        // Assert
+        resultado.IsSuccess.Should().BeTrue();
+        resultado.Value.Nombre.Should().Be("Anime");
+        _repositoryMock.Verify(r => r.Update(It.IsAny<Categoria>()), Times.Once);
+        _funkoRepositoryMock.Verify(r => r.GetByCategoriaId(Id), Times.Once);
+        _funkoRepositoryMock.Verify(r => r.GetAll(), Times.Never);
+        _cacheMock.Verify(c => c.RemoveAsync(Key, default), Times.Once);
+        foreach (var funko in funkos)
+        {
+            _cacheMock.Verify(c => c.RemoveAsync("funko:" + funko.Id, default), Times.Once);
+            _cacheMock.Verify(c => c.RemoveAsync("funko:" + funko.Nombre, default), Times.Once);
+        }
+        _cacheMock.Verify(c => c.RemoveAsync(It.IsAny<string>(), default), Times.Exactly(1 + cantidad * 2));
+    }
+
     [Test]
     public async Task Update_CategoriaInexistente_NoActualiza()
     {
@@ -221,6 +255,8 @@ public class CategoriaServiceTests
         _repositoryMock.Verify(r => r.ExistsByName(It.IsAny<string>()), Times.Never);
         _repositoryMock.Verify(r => r.Update(It.IsAny<Categoria>()), Times.Never);
         _cacheMock.Verify(c => c.RemoveAsync(Key, default), Times.Never);
+        _funkoRepositoryMock.Verify(r => r.GetByCategoriaId(It.IsAny<string>()), Times.Never);
+        _cacheMock.Verify(c => c.RemoveAsync(It.IsAny<string>(), default), Times.Never);
     }
 
     [Test]
@@ -242,6 +278,8 @@ public class CategoriaServiceTests
         _repositoryMock.Verify(r => r.ExistsByName("Anime"), Times.Once);
         _repositoryMock.Verify(r => r.Update(It.IsAny<Categoria>()), Times.Never);
         _cacheMock.Verify(c => c.RemoveAsync(Key, default), Times.Never);
+        _funkoRepositoryMock.Verify(r => r.GetByCategoriaId(It.IsAny<string>()), Times.Never);
+        _cacheMock.Verify(c => c.RemoveAsync(It.IsAny<string>(), default), Times.Never);
     }
 
     [Test]
@@ -262,6 +300,8 @@ public class CategoriaServiceTests
         _repositoryMock.Verify(r => r.GetById(Id), Times.Once);
         _repositoryMock.Verify(r => r.Update(It.IsAny<Categoria>()), Times.Once);
         _cacheMock.Verify(c => c.RemoveAsync(Key, default), Times.Never);
+        _funkoRepositoryMock.Verify(r => r.GetByCategoriaId(It.IsAny<string>()), Times.Never);
+        _cacheMock.Verify(c => c.RemoveAsync(It.IsAny<string>(), default), Times.Never);
     }
 
     [TestCase(false, true, true, true)]

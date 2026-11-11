@@ -15,6 +15,13 @@ public interface IFunkoRepository : ICrud<Models.Funko, long> {
     Task<Models.Funko?> GetByName(string name);
 
     /// <summary>
+    /// Obtiene los funkos asociados a una categoría.
+    /// </summary>
+    /// <param name="key">Identificador de la categoría.</param>
+    /// <returns>Funkos de la categoría o una colección vacía si no hay ninguno.</returns>
+    Task<IEnumerable<Models.Funko>> GetByCategoriaId(string key);
+
+    /// <summary>
     /// Comprueba si existe un Funko con el nombre indicado.
     /// </summary>
     /// <param name="name">Nombre del Funko que se desea comprobar.</param>

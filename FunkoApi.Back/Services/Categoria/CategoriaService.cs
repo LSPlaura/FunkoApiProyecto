@@ -81,6 +81,13 @@ public class CategoriaService(
         if (actualizado == null) return Result.Failure<CategoriaDto, DomainError>(CategoriaError.CategoriaNotFound(key));
 
         await cache.RemoveAsync(_categoriaKey + key);
+
+        var funkos = await funkoRepository.GetByCategoriaId(key);
+        foreach (var funko in funkos) {
+            await cache.RemoveAsync("funko:" + funko.Id);
+            await cache.RemoveAsync("funko:" + funko.Nombre);
+        }
+
         return Result.Success<CategoriaDto, DomainError>(actualizado.ToDto());
     }
 

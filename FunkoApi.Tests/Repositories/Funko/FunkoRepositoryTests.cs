@@ -109,6 +109,34 @@ public class FunkoRepositoryTests
         resultado.TotalItems.Should().Be(0);
     }
 
+    [TestCase("cat00000001", 2)]
+    [TestCase("cat00000002", 1)]
+    [TestCase("cat00000003", 0)]
+    public async Task GetByCategoriaId_FiltraCategoriaYExcluyeEliminados(string categoriaId, int cantidad)
+    {
+        // Arrange
+        var fecha = DateTime.UtcNow;
+        var marvel = new Categoria("Marvel", false, fecha, fecha, "cat00000001");
+        var anime = new Categoria("Anime", false, fecha, fecha, "cat00000002");
+        await _context.Categorias.AddRangeAsync(marvel, anime);
+        var proveedorId = ObjectId.Parse("000000000000000000000001");
+        await _context.Funkos.AddRangeAsync(
+            new Back.Models.Funko(1, "Iron Man", 15m, 1, "imagen.png", marvel.Id, marvel, proveedorId, false, fecha, fecha),
+            new Back.Models.Funko(2, "Thor", 15m, 1, "imagen.png", marvel.Id, marvel, proveedorId, false, fecha, fecha),
+            new Back.Models.Funko(3, "Hulk", 15m, 1, "imagen.png", marvel.Id, marvel, proveedorId, true, fecha, fecha),
+            new Back.Models.Funko(4, "Goku", 15m, 1, "imagen.png", anime.Id, anime, proveedorId, false, fecha, fecha));
+        await _context.SaveChangesAsync();
+        _context.ChangeTracker.Clear();
+
+        // Act
+        var resultado = (await _repository.GetByCategoriaId(categoriaId)).ToList();
+
+        // Assert
+        resultado.Should().HaveCount(cantidad);
+        resultado.Should().OnlyContain(f => f.CategoriaId == categoriaId && !f.IsDeleted);
+        _context.ChangeTracker.Entries().Should().BeEmpty();
+    }
+
     [Test]
     public async Task Create_FunkoValido_SeGuardaEnPostgreSQL()
     {

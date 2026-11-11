@@ -100,6 +100,15 @@ public class FunkoRepository(AppDbContext context, ILogger<FunkoRepository> logg
             .FirstOrDefaultAsync(f => f.Nombre == name);
     }
 
+    /// <inheritdoc cref="IFunkoRepository.GetByCategoriaId" />
+    public async Task<IEnumerable<Models.Funko>> GetByCategoriaId(string key) {
+        logger.LogDebug("Obteniendo Funkos por categoría: {Key}", key);
+        return await context.Funkos
+            .AsNoTracking()
+            .Where(f => f.CategoriaId == key)
+            .ToListAsync();
+    }
+
     /// <inheritdoc cref="IFunkoRepository.ExitsName" />
     public async Task<bool> ExitsName(string name) {
         logger.LogDebug("Verificando existencia de Funko por nombre: {Name}", name);

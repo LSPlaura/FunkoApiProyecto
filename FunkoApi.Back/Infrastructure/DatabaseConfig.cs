@@ -69,7 +69,8 @@ public static class DatabaseConfig {
         var pgConnectionString =
             ConnectionStringGenerator.BuildPostgres(pgHost, pgPort, pgDatabase, pgUser, pgPassword);
 
-        services.AddDbContext<AppDbContext>(options => {
+        // El DataLoader necesita la fábrica; también permite resolver AppDbContext por scope.
+        services.AddDbContextFactory<AppDbContext>(options => {
             Log.Information("Configurando el DbContext de PostgreSQL para el host: {Host}:{Port}", pgHost, pgPort);
             options.UseNpgsql(pgConnectionString);
         });

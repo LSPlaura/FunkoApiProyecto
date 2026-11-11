@@ -35,6 +35,8 @@ public class DatabaseConfigTests
         var database = provider.GetRequiredService<IMongoDatabase>();
         var contextoMongo = provider.GetRequiredService<DbContextMongo>();
         var contextoPostgres = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var factory = provider.GetRequiredService<IDbContextFactory<AppDbContext>>();
+        using var contextoDataLoader = factory.CreateDbContext();
 
         // Assert
         resultado.Should().BeSameAs(servicios);
@@ -43,5 +45,8 @@ public class DatabaseConfigTests
         contextoMongo.Should().NotBeNull();
         contextoPostgres.Database.GetConnectionString().Should().Contain($"Port={postgresPort}");
         contextoPostgres.Database.ProviderName.Should().Be("Npgsql.EntityFrameworkCore.PostgreSQL");
+        contextoDataLoader.Database.GetConnectionString().Should().Be(contextoPostgres.Database.GetConnectionString());
+        contextoDataLoader.Should().NotBeSameAs(contextoPostgres);
+        scope.ServiceProvider.GetRequiredService<AppDbContext>().Should().BeSameAs(contextoPostgres);
     }
 }
