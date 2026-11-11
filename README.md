@@ -778,7 +778,7 @@ Cambia `Spider` por el texto que quieras buscar. Si no hay coincidencias, `nodes
 
 ```graphql
 query {
-  funkos(where: { nombre: { contains: "Spider" } }, first: 10) {
+  funkos(where: { nombre: { contains: "" } }, first: 10) {
     nodes {
       id
       nombre
