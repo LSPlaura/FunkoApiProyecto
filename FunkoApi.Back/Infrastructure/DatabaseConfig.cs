@@ -66,7 +66,8 @@ public static class DatabaseConfig {
         if (string.IsNullOrEmpty(pgPortStr)) Log.Warning("No se encontró 'Postgres:Port' en la configuración. Se utilizará el puerto por defecto: {DefaultPort}", 5432);
 
         // Construir la cadena de conexión directamente (o usar un generador si lo tienes disponible)
-        var pgConnectionString = $"Host={pgHost};Port={pgPort};Database={pgDatabase};Username={pgUser};Password={pgPassword}";
+        var pgConnectionString =
+            ConnectionStringGenerator.BuildPostgres(pgHost, pgPort, pgDatabase, pgUser, pgPassword);
 
         services.AddDbContext<AppDbContext>(options => {
             Log.Information("Configurando el DbContext de PostgreSQL para el host: {Host}:{Port}", pgHost, pgPort);

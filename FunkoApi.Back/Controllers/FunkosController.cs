@@ -1,3 +1,4 @@
+using System.ComponentModel.DataAnnotations;
 using CSharpFunctionalExtensions;
 using FunkoApi.Back.Dto;
 using FunkoApi.Back.Dto.Funko;
@@ -57,6 +58,13 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         IFormFile? archivo)
     {
         var dto = new CreateFunkoDto { Nombre = nombre, Precio = precio, Stock =  stock, Categoria = categoriaId, Proveedor = proveedorId, Imagen = archivo };
+        
+        var contexto = new ValidationContext(dto); 
+        var errores  = new List<ValidationResult>();
+        bool valido = Validator.TryValidateObject(
+            dto, contexto, errores, validateAllProperties: true);
+        if (!valido) return BadRequest();
+        
         var result = await service.Create(dto);
         return result.Match(
             response => CreatedAtAction(nameof(GetById), new { id = response.Id }, response),
@@ -116,6 +124,13 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         int id)
     {
         var dto = new UpdateFunkoDto() { Nombre = nombre, Precio = precio, Stock =  stock, Categoria = categoriaId, Proveedor = proveedorId, Imagen = archivo };
+        
+        var contexto = new ValidationContext(dto); 
+        var errores  = new List<ValidationResult>();
+        bool valido = Validator.TryValidateObject(
+            dto, contexto, errores, validateAllProperties: true);
+        if (!valido) return BadRequest();
+        
         return await service.Update(dto, id).Match(
             response => Ok(response),
             error => error.ToHttpResult<FunkoDto>()

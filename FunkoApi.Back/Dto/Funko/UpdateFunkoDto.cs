@@ -19,7 +19,7 @@ public record UpdateFunkoDto {
     public decimal Precio { get; init; }
 
     /// <summary>Número de unidades que se almacenará tras la actualización.</summary>
-    [Range(1, int.MaxValue, ErrorMessage = "El stock debe ser mayor a 0")]
+    [Range(0, int.MaxValue, ErrorMessage = "El stock debe ser 0 o mayor")]
     public int Stock { get; init; }
     
     /// <summary>Archivo de reemplazo; aunque el tipo admite null, el servicio actual exige una imagen no vacía.</summary>
