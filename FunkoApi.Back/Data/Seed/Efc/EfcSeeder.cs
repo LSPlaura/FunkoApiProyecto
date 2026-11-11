@@ -55,7 +55,7 @@ public class EfcSeeder(
 
         var categoriasNuevas = new List<Categoria>();
         foreach (var categoria in categorias) {
-            if (!await context.Categorias.AnyAsync(c => c.Nombre == categoria.Nombre))
+            if (!await context.Categorias.IgnoreQueryFilters().AnyAsync(c => c.Nombre == categoria.Nombre))
                 categoriasNuevas.Add(categoria);
         }
 

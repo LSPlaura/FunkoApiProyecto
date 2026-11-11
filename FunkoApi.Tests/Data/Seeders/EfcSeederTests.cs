@@ -196,10 +196,11 @@ public class EfcSeederTests
         await _seeder.SeedAsync();
 
         // Assert
-        var persistida = await _context.Categorias.AsNoTracking().SingleAsync(c => c.Nombre == nombre);
+        var persistida = await _context.Categorias.IgnoreQueryFilters().AsNoTracking().SingleAsync(c => c.Nombre == nombre);
         persistida.Id.Should().Be(categoria.Id);
         persistida.IsDeleted.Should().BeTrue();
-        (await _context.Categorias.CountAsync()).Should().Be(3);
+        (await _context.Categorias.IgnoreQueryFilters().CountAsync()).Should().Be(3);
+        (await _context.Categorias.CountAsync()).Should().Be(2);
         (await _context.Funkos.CountAsync()).Should().Be(0);
         _proveedorRepositoryMock.Verify(r => r.GetAll(), Times.Never);
     }

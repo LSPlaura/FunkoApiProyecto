@@ -1,0 +1,34 @@
+info:
+  name: "[005] QUERY - Primera pagina"
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{baseUrl}}/graphql"
+  body:
+    type: json
+    data: |-
+      {
+        "query": "query { funkos(first: 1) { nodes { id nombre } pageInfo { hasNextPage hasPreviousPage endCursor } } }"
+      }
+  auth:
+    type: none
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("GraphQL Paging - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("GraphQL Paging - No errors", function () {
+            expect(res.getBody().errors).to.be.undefined;
+        });
+        test("GraphQL Paging - One node and next page", function () {
+            const funkos = res.getBody().data.funkos;
+            expect(funkos.nodes).to.have.lengthOf(1);
+            expect(funkos.pageInfo.hasNextPage).to.equal(true);
+            expect(funkos.pageInfo.hasPreviousPage).to.equal(false);
+            expect(funkos.pageInfo.endCursor).to.be.a("string").that.is.not.empty;
+        });

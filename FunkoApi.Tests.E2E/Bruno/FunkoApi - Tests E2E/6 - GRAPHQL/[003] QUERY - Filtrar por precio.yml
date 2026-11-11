@@ -1,0 +1,36 @@
+info:
+  name: "[003] QUERY - Filtrar por precio"
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{baseUrl}}/graphql"
+  body:
+    type: json
+    data: |-
+      {
+        "query": "query { funkos(where: { precio: { gt: 15 } }) { nodes { id nombre precio } } }"
+      }
+  auth:
+    type: none
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        test("GraphQL Filter - Status 200 OK", function () {
+            expect(res.getStatus()).to.equal(200);
+        });
+        test("GraphQL Filter - No errors", function () {
+            expect(res.getBody().errors).to.be.undefined;
+        });
+        test("GraphQL Filter - Only prices greater than 15", function () {
+            const funkos = res.getBody().data.funkos.nodes;
+            expect(funkos).to.be.an("array").that.is.not.empty;
+            funkos.forEach(function (funko) {
+                expect(funko.precio).to.be.greaterThan(15);
+            });
+            expect(funkos.map(function (funko) { return funko.nombre; })).to.include("Darth Vader");
+            expect(funkos.map(function (funko) { return funko.nombre; })).to.not.include("Iron Man");
+        });
