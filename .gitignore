@@ -4,6 +4,7 @@
 /FunkoApi.Tests/TestResults/
 /FunkoApi.Tests/coverage.runsettings
 /FunkoApi.Tests/coveragereport/
+coverage.runsettings
 
 # OpenCode: configuracion, agentes y archivos locales
 .opencode*
