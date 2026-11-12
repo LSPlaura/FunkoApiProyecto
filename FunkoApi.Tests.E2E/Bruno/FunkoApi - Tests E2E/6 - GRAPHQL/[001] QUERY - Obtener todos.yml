@@ -12,8 +12,6 @@ http:
       {
         "query": "query { funkos { nodes { id nombre precio stock estaDisponible categoria { id nombre } } } }"
       }
-  auth:
-    type: none
 
 runtime:
   scripts:

@@ -66,6 +66,39 @@ en lectura, conservando su estructura de rutas. No se monta el `.env` de la
 API; solo `reports` permite escritura.
 Las carpetas `Pendientes` y `Resueltas` estan fuera de la coleccion activa.
 
+## Si el login falla con socket hang up
+
+Comprobar primero la API, sin reiniciarla:
+
+```powershell
+docker compose ps
+docker compose logs --tail 80 api
+curl.exe -i http://localhost:5000/api/categorias
+```
+
+El GET sin token debe devolver `401`: confirma que la API ya atiende HTTP.
+Que el contenedor aparezca como `Up` no significa que haya terminado de arrancar.
+Si el log muestra `localhost:27017` y `Connection refused`, la API estaba
+intentando acceder a MongoDB dentro de su propio contenedor. El Compose de
+la raiz debe usar `mongodb:27017`, `postgres:5432` y `redis:6379`; no cambiar
+`baseUrl` ni las claves de login para corregir ese fallo.
+
+Para aplicar cambios de Compose hay que recrear la API; `docker compose restart`
+no actualiza sus variables. **Solo si se pueden perder los datos de pruebas**:
+
+```powershell
+docker compose up -d --no-deps --force-recreate api
+```
+
+Este arranque borra y vuelve a sembrar las bases y limpia las imagenes.
+Esperar a que el GET anterior devuelva `401` antes de repetir Bruno.
+No hace falta eliminar volumenes ni reconstruir la imagen si solo cambia Compose.
+
+Los avisos `toBrunoAuth failed: Unsupported auth type` son independientes de
+la conexion: Bruno CLI 4.3.0 no admite `auth: { type: none }` en YAML. Las
+consultas GraphQL omiten ese bloque, como las demas peticiones sin token.
+La CLI lee toda la coleccion al cargarla, incluso carpetas no seleccionadas.
+
 ## Informes
 
 Se escriben en `FunkoApi.Tests.E2E/reports`:
@@ -85,36 +118,24 @@ En CLI 4.3.0 los `test(...)` de Post Response se muestran en el apartado
 que un fallo en ese script marca la peticion como fallida y devuelve codigo 1.
 No interpretar `0/0` como que toda la suite esta cubierta o ha pasado.
 
-## Estado comprobado
+## Estado comprobado (12 de noviembre de 2026)
 
-- Suite C# completa, tras corregir la seccion de configuracion del test de
-  infraestructura y anadir la regresion del ObjectId de cache:
-  **389 correctos, 0 fallidos, 0 omitidos** (`revision-cache.trx`).
-- Imagen oficial de Bruno CLI descargada: version **4.3.0**.
-- Coleccion YAML ejecutada sin conversion: GET All sin token devuelve 401 y
-  su test Post Response pasa.
-- Prueba controlada de fallo: un GET que espera 404 se ejecuto deliberadamente
-  sin token; recibio 401 y la CLI devolvio codigo 1. No era la suite completa
-  ni un fallo confirmado de la API: verificaba que el runner no da falso verde.
-- Compose validado con `config --quiet`. Ejecucion de comprobacion con el
-  entorno JSON local y generacion de `verificacion-cli.html`,
-  `verificacion-cli.json` y `verificacion-cli.xml` en reports: correctas.
-  La ultima comprobacion ejecuto GET All sin token y PATCH imagen sin token
-  (ID de sonda): **2 peticiones y 2 tests de Post Response correctos**, ambos
-  con 401. No se actualizo ninguna imagen ni se ejecuto el PATCH autenticado.
-  JSON/XML incluyen el test de Post Response y su resultado. En ese informe
-  no aparecen claves, tokens, cabeceras ni cuerpos.
-- Lucia ejecuto el recorrido autenticado y compartio: 52 peticiones correctas,
-  1 fallida (PUT proveedor devolvia ID con ceros) y 51 omitidas por --bail.
-  Se reprodujo esa perdida de ObjectId en dos casos unitarios antes del
-  arreglo. Se configuro ObjectIdJsonConverter en lectura y escritura de
-  RedisCacheService y despues pasaron los 389 tests C#.
-  El cambio no se ha desplegado ni probado aun en el contenedor de la API;
-  sigue pendiente volver a ejecutar el recorrido E2E completo con ese cambio.
-  No se ha dado por pasada la suite E2E completa.
-- No se ha reconstruido ni reiniciado la API. Si el contenedor ejecuta una
-  compilacion anterior, hay que planificar su reconstruccion: su arranque
-  actual borra y vuelve a sembrar datos. Este runner no lo hace por su cuenta.
+- Suite C#: **679 correctos, 0 fallidos y 0 omitidos**. La auditoria NuGet no
+  detecta paquetes vulnerables tras fijar SSH.NET 2026.0.0 en los tests.
+- Ambos Compose validados con `config --quiet`.
+- Recreada la API con autorizacion para borrar y resembrar los datos de pruebas,
+  aplicando las direcciones internas de Docker. Sin reconstruir la imagen.
+  La API responde por HTTP y el contenedor no registra reinicios.
+- Bruno CLI **4.3.0** carga las **116 peticiones YAML** sin avisos de auth ni
+  archivos omitidos. Las cinco consultas GraphQL conservan auth `none` al
+  omitir el bloque no admitido.
+- Ejecutado el comando de la seccion de ejecucion completa:
+  **111 peticiones correctas, 0 fallidas y 0 omitidas** (carpetas 1 a 5).
+  JUnit registra **185 comprobaciones de Post Response y 0 fallos**.
+- Generados `reports/report.html`, `reports/report.json` y
+  `reports/junit-report.xml`, omitiendo cabeceras y cuerpos.
+- La carpeta 6 (GraphQL) solo se ha validado al cargar YAML; no forma parte
+  del comando de Compose. No se ha probado la recepcion de eventos WebSocket.
 - No se ha configurado ni ejecutado CI/CD ni publicado ningun archivo.
 
 ## Referencias y adaptacion

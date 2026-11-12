@@ -232,6 +232,12 @@ docker compose down
 
 La API queda publicada en **`http://localhost:5000`** (mapeo `5000:8080` del contenedor).
 
+Dentro de Docker, la API conecta a `postgres:5432`, `mongodb:27017` y
+`redis:6379`. El Compose sobrescribe los hosts y puertos del `.env` para
+estas conexiones: `localhost` dentro del contenedor apunta a la propia API,
+no a las bases de datos. Los valores locales del `.env` se pueden conservar
+para ejecutar la API desde Windows.
+
 **El Compose actual selecciona Development**, pero inyecta `funkoapi` como nombre de ambas bases, sobrescribiendo `funkos_dev` de los JSON. Por tanto, con los valores por defecto, **la API Docker elimina y recrea `funkoapi` en cada arranque**. Esa es también la base usada por Production local: no utilices esta opción si necesitas conservar sus datos. No hay un perfil Docker de Production configurado en este archivo.
 
 ### Comandos habituales: API y pruebas
