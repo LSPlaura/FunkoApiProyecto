@@ -4,7 +4,7 @@ Coleccion: `Bruno/FunkoApi - Tests E2E`. Se mantiene el formato YAML original;
 no se han convertido ni renombrado archivos a `.bru`.
 
 Carpetas activas: `1 - AUTHENTICATION`, `2 - CATEGORIAS`,
-`3 - PROVEEDORES` y `4 - FUNKOS`, en ese orden.
+`3 - PROVEEDORES`, `4 - FUNKOS` y `5 - SIGNALR HTTP`, en ese orden.
 Ejecucion automatica con Docker e informes: [AUTOMATIZACION.md](AUTOMATIZACION.md).
 Revision de cobertura de email y limites de Bruno:
 [EMAIL-PRUEBAS.md](EMAIL-PRUEBAS.md).
@@ -119,20 +119,18 @@ fallos de infraestructura ni carreras concurrentes simuladas desde Bruno.
 - [Nombre unico con Date.now y bru.setVar](https://github.com/joseluisgs/TiendaDawApi-NetCore/blob/main/TiendaApi.Tests.E2E/Bruno-Local/1%20-%20AUTHENTICATION/%5B006%5D%20SIGNUP%20-%20Usuario%20nuevo.bru).
 - [UD02, testing: forma de errores, apartado 28.10.1](https://github.com/joseluisgs/DesarrolloWebEntornosServidor-02-2026-2027/blob/main/28-testing.md#28101-tests-de-la-forma-de-los-errores).
 
-## Estado de comprobacion
+## Estado de comprobacion (12 de noviembre de 2026)
 
-Tras corregir la configuracion de StorageInitializationExtensionsTests,
-se ejecuto la suite C# completa. Tras anadir dos casos de regresion para el
-ObjectId en cache y corregir su serializacion, la ultima ejecucion da
-**389 correctos, 0 fallidos y 0 omitidos**.
-Incluye los 79 tests de integracion con Testcontainers.
-Bruno CLI 4.3.0 ha ejecutado YAML, un test 401 y una sonda deliberada de fallo
-con codigo de salida 1. Se han generado los tres informes de comprobacion.
-En la ejecucion autenticada compartida por Lucia pasaron 52 peticiones,
-fallo el PUT de proveedor por el ID con ceros y se omitieron 51 por --bail.
-La causa se reprodujo y corrigio en cache; queda desplegar ese cambio en
-la API de pruebas y repetir E2E. No se da por pasada la coleccion completa.
-Se mantienen avisos de compilacion/paquetes, incluido NU1903 de SSH.NET.
-Para ejecutar la coleccion deben estar configurados los secretos Admin/User.
-La ejecucion local automatica y los informes estan preparados y comprobados
-parcialmente; no se ha configurado ni ejecutado CI/CD.
+Suite C#: **679 correctos, 0 fallidos y 0 omitidos**, sin paquetes vulnerables
+detectados por NuGet tras actualizar SSH.NET en los tests.
+
+Tras corregir los hosts internos de Docker y recrear la API de pruebas con
+autorizacion, el comando de Compose con Bruno CLI 4.3.0 ha completado las
+carpetas 1 a 5: **111 peticiones correctas, 0 fallidas y 0 omitidas**.
+El informe JUnit registra **185 comprobaciones de Post Response sin fallos**.
+Los tres informes estan en `reports`.
+
+Los avisos de auth se han corregido en las cinco consultas GraphQL: se omite
+`auth: { type: none }`, no admitido por la CLI. Se ha comprobado la carga de
+las 116 peticiones YAML sin avisos; la carpeta 6 no se ejecuta desde Compose.
+No se ha verificado la recepcion de eventos WebSocket ni configurado CI/CD.

@@ -12,8 +12,6 @@ http:
       {
         "query": "query { funko(id: {{graphqlFunkoId}}) { id nombre precio categoria { id nombre } } }"
       }
-  auth:
-    type: none
 
 runtime:
   scripts:

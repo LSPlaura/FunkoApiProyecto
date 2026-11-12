@@ -12,8 +12,6 @@ http:
       {
         "query": "query { funkos(where: { precio: { gt: 15 } }) { nodes { id nombre precio } } }"
       }
-  auth:
-    type: none
 
 runtime:
   scripts:

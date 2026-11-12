@@ -25,7 +25,7 @@ public class UpdateFunkoDtoTests
         {
             "Nombre" => dto with { Nombre = new string('A', 101) },
             "Precio" => dto with { Precio = 0 },
-            "Stock" => dto with { Stock = 0 },
+            "Stock" => dto with { Stock = -1 },
             "Categoria" => dto with { Categoria = "" },
             _ => dto with { Proveedor = "" }
         };
@@ -37,6 +37,30 @@ public class UpdateFunkoDtoTests
         // Assert
         resultado.Should().BeFalse();
         errores.Should().ContainSingle().Which.MemberNames.Should().Contain(campo);
+    }
+
+    [TestCase(int.MinValue, false)]
+    [TestCase(-1, false)]
+    [TestCase(0, true)]
+    [TestCase(1, true)]
+    [TestCase(int.MaxValue, true)]
+    public void Validar_StockEnLimites_RespetaRango(int stock, bool valido)
+    {
+        // Arrange
+        var dto = new UpdateFunkoDto
+        {
+            Nombre = "Iron Man", Precio = 15m, Stock = stock,
+            Categoria = "categoria01", Proveedor = "000000000000000000000001"
+        };
+        var errores = new List<ValidationResult>();
+
+        // Act
+        var resultado = Validator.TryValidateObject(dto, new ValidationContext(dto), errores, true);
+
+        // Assert
+        resultado.Should().Be(valido);
+        if (valido) errores.Should().BeEmpty();
+        else errores.Should().ContainSingle().Which.MemberNames.Should().Contain(nameof(dto.Stock));
     }
 
     [TestCase(false)]
