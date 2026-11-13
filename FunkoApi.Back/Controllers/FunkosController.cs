@@ -11,6 +11,7 @@ using FunkoApi.Back.Storage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
+using Serilog;
 
 namespace FunkoApi.Back.Controllers;
 
@@ -219,7 +220,9 @@ public class FunkosController(IFunkoService service, IStorageService storage) : 
         if (saveResult.IsFailure) return saveResult.Error.ToHttpResult<FunkoDto>();
 
         // Actualizar solo la imagen
-        var dto = new UpdateFunkoDto { Nombre = existente.Value.Nombre, Precio = existente.Value.Precio, Stock = existente.Value.Stock, Categoria = existente.Value.Categoria.Id, Imagen = archivo };
+        var dto = new UpdateFunkoDto { Nombre = existente.Value.Nombre, Precio = existente.Value.Precio, Stock = existente.Value.Stock, Categoria = existente.Value.Categoria.Id, Proveedor= existente.Value.Proveedor, Imagen = archivo };
+        Log.Information("DTO recibido: Proveedor='{Proveedor}' Categoria='{Categoria}' Imagen={HasImagen}",
+            dto.Proveedor, dto.Categoria, dto.Imagen is not null);
         var updateResult = await service.Update(dto, id);
         return updateResult.IsSuccess ? Ok(updateResult.Value) : updateResult.Error.ToHttpResult<FunkoDto>();
     }

@@ -270,6 +270,8 @@ public class FunkoServices(
     /// <inheritdoc cref="IFunkoService.Update" />
     public async Task<Result<FunkoDto, DomainError>> Update(UpdateFunkoDto item, long key) {
         logger.LogInformation("Iniciando actualización para el Funko con ID {Key}", key);
+        logger.LogInformation("DTO recibido: Proveedor='{Proveedor}' Categoria='{Categoria}' Imagen={HasImagen}",
+            item.Proveedor, item.Categoria, item.Imagen is not null);
        
         var oldFunko = await cache.GetAsync<Models.Funko>( _funkoKey + key);
         if (oldFunko is null) {

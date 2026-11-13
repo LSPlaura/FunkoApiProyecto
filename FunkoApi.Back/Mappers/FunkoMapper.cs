@@ -22,6 +22,7 @@ public static class FunkoMapper {
             funko.Stock,
             funko.Imagen,
             funko.Categoria?.ToDto() ?? new CategoriaDto(string.Empty, "", false, DateTime.UtcNow, DateTime.UtcNow),
+            funko.ProveedorId.ToString() ?? "",
             funko.IsDeleted,
             funko.CreatedAt,
             funko.UpdatedAt
