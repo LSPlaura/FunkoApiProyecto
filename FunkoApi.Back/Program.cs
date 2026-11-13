@@ -4,6 +4,7 @@ using FunkoApi.Back.Hub;
 using FunkoApi.Back.Infrastructure;
 using FunkoApi.Back.Middleware;
 using FunkoApi.Back.Services.Email;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Serilog;
 using Serilog.Events;
@@ -115,6 +116,13 @@ try {
     app.MapHub<FunkoHub>("/hubs/funkos");
     
     app.InitializeStorage(app.Configuration);
+    app.UseStaticFiles(new StaticFileOptions
+    {
+        
+        FileProvider = new PhysicalFileProvider(
+            System.IO.Path.Combine(builder.Environment.ContentRootPath, "uploads")),
+        RequestPath = "/uploads" 
+    });
     await app.InitializeDatabaseAsync();
 
     // ── CONFIGURACIÓN TIPADA: se lee y se muestra al arrancar ────────────────

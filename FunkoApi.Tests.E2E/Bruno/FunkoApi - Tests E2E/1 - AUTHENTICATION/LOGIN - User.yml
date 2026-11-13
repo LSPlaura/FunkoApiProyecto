@@ -13,6 +13,9 @@ http:
         "email": "{{userEmail}}",
         "password": "{{userPassword}}"
       }
+  auth:
+    type: bearer
+    token: ""
 
 runtime:
   scripts:
